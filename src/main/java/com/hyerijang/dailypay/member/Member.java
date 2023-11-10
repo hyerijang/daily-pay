@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.member;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +21,7 @@ public class Member {
     private Long id;
 
     @NotBlank
+    @Column(unique = true)
     private String account;
 
     @NotBlank
