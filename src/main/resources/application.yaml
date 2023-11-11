@@ -6,4 +6,4 @@ decorator:
 ---
 spring:
   profiles:
-    active: dev, p6spy
+    active: dev, p6spy, security
