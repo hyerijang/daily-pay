@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.member.dto;
+package com.hyerijang.dailypay.auth;
 
 import com.hyerijang.dailypay.member.entity.User;
 import jakarta.validation.constraints.NotBlank;
