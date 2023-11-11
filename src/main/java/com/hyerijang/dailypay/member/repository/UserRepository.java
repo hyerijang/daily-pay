@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.member;
+package com.hyerijang.dailypay.member.repository;
 
 import com.hyerijang.dailypay.member.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
