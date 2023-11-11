@@ -5,7 +5,7 @@ import com.hyerijang.dailypay.config.JwtService;
 import com.hyerijang.dailypay.token.Token;
 import com.hyerijang.dailypay.token.TokenRepository;
 import com.hyerijang.dailypay.token.TokenType;
-import com.hyerijang.dailypay.user.entity.User;
+import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
