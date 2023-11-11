@@ -1,6 +1,6 @@
-package com.hyerijang.dailypay.member.contoller;
+package com.hyerijang.dailypay.user.contoller;
 
-import com.hyerijang.dailypay.member.service.UserService;
+import com.hyerijang.dailypay.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;

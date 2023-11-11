@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.member.entity;
+package com.hyerijang.dailypay.user.entity;
 
 import com.hyerijang.dailypay.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;

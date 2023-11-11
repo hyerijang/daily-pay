@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.config;
 
-import com.hyerijang.dailypay.member.repository.UserRepository;
+import com.hyerijang.dailypay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
