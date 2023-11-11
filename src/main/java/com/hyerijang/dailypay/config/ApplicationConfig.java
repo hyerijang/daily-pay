@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.config;
 
+import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -42,5 +43,12 @@ public class ApplicationConfig {
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    @Bean
+    public EnumMapper enumMapper() {
+        EnumMapper enumMapper = new EnumMapper();
+        enumMapper.put("Category", Category.class);
+        return enumMapper;
     }
 }
