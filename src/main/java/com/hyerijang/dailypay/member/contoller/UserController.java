@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
-public class MemberController {
+@RequestMapping("/api/v1/users")
+public class UserController {
 
-    private final UserService userServie;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Void> save(@RequestBody RegisterRequest registerRequest) {
-        userServie.register(registerRequest);
+        userService.register(registerRequest);
         return ResponseEntity.noContent().build();
     }
 
