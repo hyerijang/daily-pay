@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.auth;
 
-import com.hyerijang.dailypay.user.entity.User;
+import com.hyerijang.dailypay.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 
 

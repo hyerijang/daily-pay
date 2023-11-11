@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.token;
 
-import com.hyerijang.dailypay.user.entity.User;
+import com.hyerijang.dailypay.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

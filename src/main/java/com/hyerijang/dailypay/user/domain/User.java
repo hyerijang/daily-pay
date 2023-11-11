@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.user.entity;
+package com.hyerijang.dailypay.user.domain;
 
 import com.hyerijang.dailypay.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Collection;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Table(name = "user")
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,13 +24,15 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id", updatable = false)
     private Long id;
 
     @NotBlank
-    @Column(unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
     @NotBlank
+    @Column(name = "password")
     private String password;
 
     @Builder
