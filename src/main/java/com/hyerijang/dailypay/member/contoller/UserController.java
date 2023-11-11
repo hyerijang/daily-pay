@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.member.contoller;
 
 import com.hyerijang.dailypay.member.dto.RegisterRequest;
-import com.hyerijang.dailypay.member.service.MemberService;
+import com.hyerijang.dailypay.member.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
-public class MemberController {
+@RequestMapping("/api/v1/users")
+public class UserController {
 
-    private final MemberService memberService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<Void> save(@RequestBody RegisterRequest registerRequest) {
-        memberService.register(registerRequest);
+        userService.register(registerRequest);
         return ResponseEntity.noContent().build();
     }
 
