@@ -1,8 +1,8 @@
 package com.hyerijang.dailypay.member.service;
 
-import com.hyerijang.dailypay.member.MemberRepository;
 import com.hyerijang.dailypay.member.dto.RegisterRequest;
-import com.hyerijang.dailypay.member.entity.Member;
+import com.hyerijang.dailypay.member.entity.User;
+import com.hyerijang.dailypay.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,13 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class MemberService {
+public class UserService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     public Long register(RegisterRequest registerRequest) {
-        Member member = memberRepository.save(registerRequest.toEntity());
-        return member.getId();
+        User user = userRepository.save(registerRequest.toEntity());
+        return user.getId();
     }
 
 
