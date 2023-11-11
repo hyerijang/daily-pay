@@ -1,8 +1,8 @@
-package com.hyerijang.dailypay.member.service;
+package com.hyerijang.dailypay.user.service;
 
 import com.hyerijang.dailypay.auth.RegisterRequest;
-import com.hyerijang.dailypay.member.entity.User;
-import com.hyerijang.dailypay.member.repository.UserRepository;
+import com.hyerijang.dailypay.user.entity.User;
+import com.hyerijang.dailypay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

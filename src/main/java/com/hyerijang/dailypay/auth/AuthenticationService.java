@@ -2,11 +2,11 @@ package com.hyerijang.dailypay.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.config.JwtService;
-import com.hyerijang.dailypay.member.entity.User;
-import com.hyerijang.dailypay.member.repository.UserRepository;
 import com.hyerijang.dailypay.token.Token;
 import com.hyerijang.dailypay.token.TokenRepository;
 import com.hyerijang.dailypay.token.TokenType;
+import com.hyerijang.dailypay.user.entity.User;
+import com.hyerijang.dailypay.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
