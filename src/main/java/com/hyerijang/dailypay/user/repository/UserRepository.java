@@ -1,6 +1,6 @@
-package com.hyerijang.dailypay.member.repository;
+package com.hyerijang.dailypay.user.repository;
 
-import com.hyerijang.dailypay.member.entity.User;
+import com.hyerijang.dailypay.user.entity.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

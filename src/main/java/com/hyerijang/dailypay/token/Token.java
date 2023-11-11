@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.token;
 
-import com.hyerijang.dailypay.member.entity.User;
+import com.hyerijang.dailypay.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,7 +26,7 @@ public class Token {
 
     @Column(unique = true)
     public String token;
-    
+
     public TokenType tokenType = TokenType.BEARER;
 
     public boolean revoked = true;
