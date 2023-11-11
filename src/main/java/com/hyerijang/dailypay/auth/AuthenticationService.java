@@ -2,7 +2,6 @@ package com.hyerijang.dailypay.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.config.JwtService;
-import com.hyerijang.dailypay.member.dto.RegisterRequest;
 import com.hyerijang.dailypay.member.entity.User;
 import com.hyerijang.dailypay.member.repository.UserRepository;
 import com.hyerijang.dailypay.token.Token;
