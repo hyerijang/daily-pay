@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseTimeEntity {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Member extends BaseTimeEntity {
     private String password;
 
     @Builder
-    public Member(String account, String password) {
+    public User(String account, String password) {
         this.account = account;
         this.password = password;
     }
