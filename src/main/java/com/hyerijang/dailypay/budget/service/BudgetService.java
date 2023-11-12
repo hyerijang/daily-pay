@@ -10,7 +10,10 @@ import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -40,7 +43,32 @@ public class BudgetService {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(
             () -> new ApiException(ExceptionEnum.NOT_EXIST_USER)
         );
-        List<Budget> budgets = budgetRepository.saveAll(request.toEntityList(user));
+        //조회 및 업데이트
+        List<Budget> budgets = request.getData().stream()
+            .map(d ->
+                {
+                    Budget savedBudget = findExistUser(user, request.getYearMonth(), d.getCategory())
+                        .orElse(createNewBudget(request, user));
+                    //업데이트
+                    savedBudget.updateBudgetAmount(d.getAmount());
+                    return savedBudget;
+                }
+            )
+            .collect(Collectors.toList());
+
+        budgetRepository.saveAll(budgets);
         return BudgetDetail.getBudgetDetailList(budgets);
+    }
+
+    private Optional<Budget> findExistUser(User user, YearMonth yearMonth, Category category) {
+        return budgetRepository.findByUserIdAndYearMonthAndCategory(user.getId(), yearMonth,
+            category);
+    }
+
+    private static Budget createNewBudget(CreateBudgetListRequest request, User user) {
+        return Budget.builder()
+            .yearMonth(request.getYearMonth())
+            .user(user)
+            .build();
     }
 }

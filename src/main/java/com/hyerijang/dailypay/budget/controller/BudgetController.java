@@ -47,7 +47,10 @@ public class BudgetController {
         private T data; // 리스트의 값
     }
 
-    //예산 설정
+    /**
+     * 예산 설정 및 업데이트 (금액만 변경 가능)
+     */
+
     @ExeTimer
     @PostMapping
     ResponseEntity<Result> saveBudgetList(@RequestBody CreateBudgetListRequest request,
