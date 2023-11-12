@@ -1,8 +1,10 @@
 package com.hyerijang.dailypay.budget.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.user.domain.User;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +14,8 @@ import lombok.Getter;
 public class CreateBudgetListRequest {
 
     private List<CreateBudgetDetail> data;
-    private String yyyyMM;
+    @JsonFormat(pattern = "yyyy-MM") //형식 : yyyy-MM
+    private YearMonth yearMonth;
 
     @Getter
     private static class CreateBudgetDetail {
@@ -28,7 +31,7 @@ public class CreateBudgetListRequest {
             .map(d -> Budget.builder()
                 .category(d.category)
                 .budgetAmount(d.amount)
-                .yyyyMM(this.yyyyMM)
+                .yearMonth(this.yearMonth)
                 .user(user)
                 .build())
             .collect(Collectors.toList());
