@@ -1,6 +1,8 @@
 package com.hyerijang.dailypay.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyerijang.dailypay.common.exception.ApiException;
+import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.config.JwtService;
 import com.hyerijang.dailypay.token.Token;
 import com.hyerijang.dailypay.token.TokenRepository;
@@ -61,7 +63,7 @@ public class AuthenticationService {
             )
         );
         var user = userRepository.findByEmail(request.email())
-            .orElseThrow();
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
@@ -93,7 +95,7 @@ public class AuthenticationService {
         userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
             User user = this.userRepository.findByEmail(userEmail)
-                .orElseThrow();
+                .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
             if (jwtService.isTokenValid(refreshToken, user)) {
                 String accessToken = jwtService.generateAccessToken(user);
                 revokeAllUserTokens(user);
