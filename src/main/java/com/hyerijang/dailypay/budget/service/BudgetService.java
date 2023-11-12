@@ -48,7 +48,7 @@ public class BudgetService {
             .map(d ->
                 {
                     Budget savedBudget = findExistUser(user, request.getYearMonth(), d.getCategory())
-                        .orElse(createNewBudget(request, user));
+                        .orElse(createNewBudget(user, request.getYearMonth(), d.getCategory()));
                     //업데이트
                     savedBudget.updateBudgetAmount(d.getAmount());
                     return savedBudget;
@@ -65,9 +65,10 @@ public class BudgetService {
             category);
     }
 
-    private static Budget createNewBudget(CreateBudgetListRequest request, User user) {
+    private static Budget createNewBudget(User user, YearMonth yearMonth, Category category) {
         return Budget.builder()
-            .yearMonth(request.getYearMonth())
+            .category(category)
+            .yearMonth(yearMonth)
             .user(user)
             .build();
     }
