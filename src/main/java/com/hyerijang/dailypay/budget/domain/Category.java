@@ -1,6 +1,8 @@
 package com.hyerijang.dailypay.budget.domain;
 
 import com.hyerijang.dailypay.config.EnumMapperType;
+import java.util.List;
+import java.util.stream.Stream;
 import lombok.Getter;
 
 public enum Category implements EnumMapperType {
@@ -18,6 +20,10 @@ public enum Category implements EnumMapperType {
 
     Category(String title) {
         this.title = title;
+    }
+
+    public static List<Category> toList() {
+        return Stream.of(Category.values()).toList();
     }
 
     @Override
