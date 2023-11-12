@@ -6,8 +6,10 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
+@RestControllerAdvice
 public class ApiExceptionAdvice {
 
     // API Exception 처리
