@@ -64,5 +64,12 @@ public class Budget extends BaseTimeEntity {
     public void setUser(User user) {
         this.user = user;
     }
+
+    // == 비즈니스 메서드 == //
+    public void updateBudgetAmount(Long budgetAmount) {
+        // 예산 금액만 변경 가능
+        this.category = category;
+        this.budgetAmount = budgetAmount;
+    }
 }
 
