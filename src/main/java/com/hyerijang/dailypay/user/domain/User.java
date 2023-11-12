@@ -35,6 +35,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
+
     @Builder
     public User(String email, String password) {
         this.email = email;
