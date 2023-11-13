@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -56,7 +57,7 @@ public class BudgetService {
                     return savedBudget;
                 }
             )
-            .toList();
+            .collect(Collectors.toList());
 
         budgetRepository.saveAll(budgets);
         return BudgetDetail.getBudgetDetailList(budgets);
