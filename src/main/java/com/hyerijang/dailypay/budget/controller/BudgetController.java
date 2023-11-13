@@ -3,6 +3,7 @@ package com.hyerijang.dailypay.budget.controller;
 import com.hyerijang.dailypay.budget.dto.BudgetDetail;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
+import com.hyerijang.dailypay.budget.dto.PlanBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.budget.service.BudgetService;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
@@ -56,6 +57,18 @@ public class BudgetController {
     ResponseEntity<Result> saveBudgetList(@RequestBody CreateBudgetListRequest request,
         Authentication authentication) {
         List<BudgetDetail> data = budgetService.createAll(request, authentication);
+        Result result = Result.builder().count(data.size()).data(data).build();
+        return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * 예산 설계(추천) API
+     */
+    @ExeTimer
+    @GetMapping
+    ResponseEntity<Result> planBudget(@RequestBody PlanBudgetRequest request,
+        Authentication authentication) {
+        List<BudgetDetail> data = budgetService.recommendBudget(request);
         Result result = Result.builder().count(data.size()).data(data).build();
         return ResponseEntity.ok().body(result);
     }
