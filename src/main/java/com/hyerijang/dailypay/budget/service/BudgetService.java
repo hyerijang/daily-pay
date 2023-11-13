@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.budget.service;
 
+import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
-
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
@@ -12,17 +12,25 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.time.YearMonth;
-import java.util.HashMap;
-
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BudgetService {
+
+    private final BudgetRepository budgetRepository;
+    private final UserRepository userRepository;
 
     public List<CategoryDto> getCategories() {
         return Category.toList()
@@ -100,7 +108,7 @@ public class BudgetService {
     private static Map<Category, Integer> getAverageRatioByCategory(List<Object[]> result,
         long sumBudgetAmount) {
         int miscellaneousRatio = 100; //기타 비율
-        Map<Category, Integer> ratioByCategory = new HashMap<>();
+        Map<Category, Integer> ratioByCategory = new LinkedHashMap<>();
         for (Object[] r : result) {
             int ratio = (int) (((Long) r[1] * 100.0) / sumBudgetAmount);
             Category category = (Category) r[0];
