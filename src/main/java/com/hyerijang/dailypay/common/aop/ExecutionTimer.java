@@ -21,17 +21,17 @@ public class ExecutionTimer {
 
     // 메서드 실행 전,후로 시간을 공유해야 하기 때문
     @Around("timer()")
-    public void AssumeExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object AssumeExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 
         StopWatch stopWatch = new StopWatch();
+
         stopWatch.start();
-        try {
-            joinPoint.proceed(); // 조인포인트의 메서드 실행
-        } finally {
-            stopWatch.stop();
-            long totalTimeMillis = stopWatch.getTotalTimeMillis();
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-            log.info("실행 메서드: {}, 실행시간: {}ms", signature.toShortString(), totalTimeMillis);
-        }
+        Object proceed = joinPoint.proceed();
+        stopWatch.stop();
+
+        long totalTimeMillis = stopWatch.getTotalTimeMillis();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        log.info("실행 메서드: {}, 실행시간: {}ms", signature.toShortString(), totalTimeMillis);
+        return proceed;
     }
 }
