@@ -2,6 +2,7 @@ package com.hyerijang.dailypay.user.domain;
 
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.common.entity.BaseTimeEntity;
+import com.hyerijang.dailypay.expense.domain.Expense;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,13 +41,20 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String password;
 
     @OneToMany(mappedBy = "user")
-    private List<Budget> budgetList = new ArrayList<Budget>();
+    private List<Budget> budgetList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Expense> expenseList = new ArrayList<>();
     //=== 연관관계 메서드 ===//
 
     private void addBudget(Budget budget) {
         budgetList.add(budget);
         budget.setUser(this);
+    }
+
+    private void addExpense(Expense expense) {
+        expenseList.add(expense);
+        expense.setUser(this);
     }
 
     // === UserDetails 오버라이딩 ===
