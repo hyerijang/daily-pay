@@ -5,7 +5,7 @@ import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
-import com.hyerijang.dailypay.budget.dto.PlanBudgetRequest;
+import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
@@ -86,7 +86,7 @@ public class BudgetService {
     /***
      * 예산 추천 기능
      */
-    public List<BudgetDto> recommend(PlanBudgetRequest request) {
+    public List<BudgetDto> recommend(RecommendBudgetRequest request) {
 
         //1. 카테고리 별  평균 예산 비율 계산
         List<Object[]> result = budgetRepository.getUserBudgetTotalAmountByCategoryOrderBySumDesc();
