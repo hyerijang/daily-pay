@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.budget.controller;
 
-import com.hyerijang.dailypay.budget.dto.BudgetDetail;
+import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.PlanBudgetRequest;
@@ -54,9 +54,9 @@ public class BudgetController {
 
     @ExeTimer
     @PostMapping
-    ResponseEntity<Result> saveBudgetList(@RequestBody CreateBudgetListRequest request,
+    ResponseEntity<Result> updateBudgets(@RequestBody CreateBudgetListRequest request,
         Authentication authentication) {
-        List<BudgetDetail> data = budgetService.createAll(request, authentication);
+        List<BudgetDto> data = budgetService.update(request, authentication);
         Result result = Result.builder().count(data.size()).data(data).build();
         return ResponseEntity.ok().body(result);
     }
@@ -66,9 +66,9 @@ public class BudgetController {
      */
     @ExeTimer
     @GetMapping
-    ResponseEntity<Result> planBudget(@RequestBody PlanBudgetRequest request,
+    ResponseEntity<Result> recommendBudgets(@RequestBody PlanBudgetRequest request,
         Authentication authentication) {
-        List<BudgetDetail> data = budgetService.recommendBudget(request);
+        List<BudgetDto> data = budgetService.recommend(request);
         Result result = Result.builder().count(data.size()).data(data).build();
         return ResponseEntity.ok().body(result);
     }
