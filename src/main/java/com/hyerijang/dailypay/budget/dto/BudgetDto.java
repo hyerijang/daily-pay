@@ -1,6 +1,8 @@
 package com.hyerijang.dailypay.budget.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.YearMonthDeserializer;
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
 import java.time.YearMonth;
@@ -12,6 +14,7 @@ import lombok.Builder;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BudgetDto(Long id,
+                        @JsonDeserialize(using = YearMonthDeserializer.class)
                         YearMonth yearMonth,
                         Category category,
                         Long amount) {
