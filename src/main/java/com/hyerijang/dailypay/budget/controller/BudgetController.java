@@ -1,8 +1,10 @@
 package com.hyerijang.dailypay.budget.controller;
 
-import com.hyerijang.dailypay.budget.domain.Budget;
-import com.hyerijang.dailypay.budget.domain.Category;
+
+import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
+import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
+import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.budget.service.BudgetService;
 import java.util.List;
@@ -47,6 +49,31 @@ public class BudgetController {
 
         private int count;
         private T data; // 리스트의 값
+    }
+
+    /**
+     * 예산 설정 및 업데이트 (금액만 변경 가능)
+     */
+
+    @ExeTimer
+    @PostMapping
+    ResponseEntity<Result> updateBudgets(@RequestBody CreateBudgetListRequest request,
+        Authentication authentication) {
+        List<BudgetDto> data = budgetService.update(request, authentication);
+        Result result = Result.builder().count(data.size()).data(data).build();
+        return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * 예산 설계(추천) API
+     */
+    @ExeTimer
+    @GetMapping
+    ResponseEntity<Result> recommendBudgets(@RequestBody RecommendBudgetRequest request,
+        Authentication authentication) {
+        List<BudgetDto> data = budgetService.recommend(request);
+        Result result = Result.builder().count(data.size()).data(data).build();
+        return ResponseEntity.ok().body(result);
     }
 
 }
