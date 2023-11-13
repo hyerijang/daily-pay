@@ -1,22 +1,20 @@
 package com.hyerijang.dailypay.budget.controller;
 
+
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.budget.service.BudgetService;
-import com.hyerijang.dailypay.common.aop.ExeTimer;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,11 +27,16 @@ public class BudgetController {
     private final BudgetService budgetService;
     private final BudgetRepository budgetRepository;
 
-    @ExeTimer
-    @GetMapping("/categories")
-    ResponseEntity<Result> saveBudgetList() {
-        List<CategoryDto> categoryDtoList = budgetService.getCategories();
+    @PostMapping
+    void test() {
+        budgetRepository.save(
+            Budget.builder().budgetAmount(10000L).category(Category.SAVING).build());
+    }
 
+    @GetMapping("/categories")
+    ResponseEntity<Result> getBudgetCategories() {
+        List<CategoryDto> categoryDtoList = budgetService.getCategories();
+        
         return ResponseEntity.ok()
             .body(Result.builder()
                 .count(categoryDtoList.size())
@@ -72,4 +75,5 @@ public class BudgetController {
         Result result = Result.builder().count(data.size()).data(data).build();
         return ResponseEntity.ok().body(result);
     }
+
 }

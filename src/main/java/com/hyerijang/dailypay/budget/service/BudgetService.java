@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.budget.service;
 
-import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
+
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
@@ -13,24 +13,16 @@ import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.time.YearMonth;
 import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
+@Transactional
 public class BudgetService {
-
-    private final BudgetRepository budgetRepository;
-    private final UserRepository userRepository;
 
     public List<CategoryDto> getCategories() {
         return Category.toList()
@@ -38,7 +30,6 @@ public class BudgetService {
             .map((c) -> new CategoryDto(c.getCode(), c.getTitle()))
             .toList();
     }
-
 
     @Transactional
     public List<BudgetDto> update(CreateBudgetListRequest request,
