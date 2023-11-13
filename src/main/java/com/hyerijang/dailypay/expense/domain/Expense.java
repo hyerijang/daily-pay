@@ -50,6 +50,8 @@ public class Expense extends BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime expenseDate;
 
+    boolean deleted = false;
+
     // === 연관관계 메서드 ===//
     public void setUser(User user) {
         this.user = user;
