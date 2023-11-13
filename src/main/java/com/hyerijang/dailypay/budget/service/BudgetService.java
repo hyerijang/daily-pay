@@ -2,7 +2,7 @@ package com.hyerijang.dailypay.budget.service;
 
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDetail;
+import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.PlanBudgetRequest;
@@ -41,30 +41,29 @@ public class BudgetService {
 
 
     @Transactional
-    public List<BudgetDetail> createAll(CreateBudgetListRequest request,
+    public List<BudgetDto> update(CreateBudgetListRequest request,
         Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow(
             () -> new ApiException(ExceptionEnum.NOT_EXIST_USER)
         );
 
         List<Budget> budgets = budgetRepository.saveAll(getBudgets(request, user));
-        return BudgetDetail.getBudgetDetailList(budgets);
+        return BudgetDto.getBudgetDetailList(budgets);
     }
 
     /***
-     * DB 에서 예산 리스트를 가져온다, Budget 조회 과정에서 기존 예산 있다면 조회, 없다면 새 예산 생성
+     * DB 에서 {유저id, 년월, 카테고리}가 일치하는 예산들을 조회한다. Budget 조회 과정에서 기존 예산이 없다면 새 예산 생성해서 리스트에 포함한다.
      */
-
     private List<Budget> getBudgets(CreateBudgetListRequest request, User user) {
         List<Budget> budgets = request.getData().stream()
             .map(d ->
                 {
                     //기존 예산 있다면 조회, 없다면 새 예산 생성
-                    Budget savedBudget = findExistUser(user, request.getYearMonth(), d.getCategory())
+                    Budget budget = findExistUser(user, request.getYearMonth(), d.getCategory())
                         .orElse(createNewBudget(user, request.getYearMonth(), d.getCategory()));
                     //업데이트
-                    savedBudget.updateBudgetAmount(d.getAmount());
-                    return savedBudget;
+                    budget.updateBudgetAmount(d.getAmount());
+                    return budget;
                 }
             )
             .collect(Collectors.toList());
@@ -87,7 +86,7 @@ public class BudgetService {
     /***
      * 예산 추천 기능
      */
-    public List<BudgetDetail> recommendBudget(PlanBudgetRequest request) {
+    public List<BudgetDto> recommend(PlanBudgetRequest request) {
 
         //1. 카테고리 별  평균 예산 비율 계산
         List<Object[]> result = budgetRepository.getUserBudgetTotalAmountByCategoryOrderBySumDesc();
@@ -95,11 +94,12 @@ public class BudgetService {
         Map<Category, Integer> averageRatioByCategory = getAverageRatioByCategory(result,
             sumBudgetAmount);
 
+        //로그
         averageRatioByCategory.forEach(
-            (category, rate) -> log.debug("{} : {} ", category, rate)); //로그
+            (category, rate) -> log.debug("{} : {} ", category, rate));
 
         //2. 카테고리 별  평균 예산 비율 계산을 바탕으로 결과 생성
-        return BudgetDetail.generateBudgetDetails(request.userBudgetTotalAmount(),
+        return BudgetDto.generateBudgetDetails(request.userBudgetTotalAmount(),
             averageRatioByCategory);
     }
 

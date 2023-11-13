@@ -11,14 +11,14 @@ import lombok.Builder;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record BudgetDetail(Long id,
-                           YearMonth yearMonth,
-                           Category category,
-                           Long amount) {
+public record BudgetDto(Long id,
+                        YearMonth yearMonth,
+                        Category category,
+                        Long amount) {
 
-    public static List<BudgetDetail> getBudgetDetailList(List<Budget> budgets) {
+    public static List<BudgetDto> getBudgetDetailList(List<Budget> budgets) {
         return budgets.stream().map(
-                x -> new BudgetDetail(x.getId(), x.getYearMonth(), x.getCategory(),
+                x -> new BudgetDto(x.getId(), x.getYearMonth(), x.getCategory(),
                     x.getBudgetAmount()))
             .toList();
     }
@@ -27,21 +27,21 @@ public record BudgetDetail(Long id,
      * 유저의 남은 예산과 averageCategoryRate로 유저에게 적합한 예산액을 설정해줍니다.
      * @return 카테고리별 추천 예산
      */
-    public static List<BudgetDetail> generateBudgetDetails(Long leftAmountOfUser,
+    public static List<BudgetDto> generateBudgetDetails(Long leftAmountOfUser,
         Map<Category, Integer> averageCategoryRate) {
-        List<BudgetDetail> budgetDetailList = new ArrayList<>();
+        List<BudgetDto> budgetDtoList = new ArrayList<>();
         averageCategoryRate.forEach(
             (category, ratio) -> {
-                BudgetDetail budgetDetail = createBudgetDetail(leftAmountOfUser, category, ratio);
-                budgetDetailList.add(budgetDetail);
+                BudgetDto budgetDto = createBudgetDetail(leftAmountOfUser, category, ratio);
+                budgetDtoList.add(budgetDto);
             }
         );
-        return budgetDetailList;
+        return budgetDtoList;
     }
 
-    private static BudgetDetail createBudgetDetail(Long leftAmountOfUser, Category category,
+    private static BudgetDto createBudgetDetail(Long leftAmountOfUser, Category category,
         Integer ratio) {
-        return BudgetDetail
+        return BudgetDto
             .builder()
             .amount(leftAmountOfUser * ratio / 100)
             .category(category)
