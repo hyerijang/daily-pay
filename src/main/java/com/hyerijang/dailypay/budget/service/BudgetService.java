@@ -84,20 +84,28 @@ public class BudgetService {
             .build();
     }
 
+    /***
+     * 예산 추천 기능
+     */
     public List<BudgetDetail> recommendBudget(PlanBudgetRequest request) {
 
+        //1. 카테고리 별  평균 예산 비율 계산
         List<Object[]> result = budgetRepository.getUserBudgetTotalAmountByCategoryOrderBySumDesc();
         long sumBudgetAmount = result.stream().mapToLong(r -> (long) r[1]).sum();
         Map<Category, Integer> averageRatioByCategory = getAverageRatioByCategory(result,
             sumBudgetAmount);
 
         averageRatioByCategory.forEach(
-            (category, rate) -> log.info("{} : {} ", category, rate)); //로그
+            (category, rate) -> log.debug("{} : {} ", category, rate)); //로그
 
+        //2. 카테고리 별  평균 예산 비율 계산을 바탕으로 결과 생성
         return BudgetDetail.generateBudgetDetails(request.userBudgetTotalAmount(),
             averageRatioByCategory);
     }
 
+    /***
+     * 카테고리 별  평균 예산 비율 계산
+     */
     private static Map<Category, Integer> getAverageRatioByCategory(List<Object[]> result,
         long sumBudgetAmount) {
         int miscellaneousRatio = 100; //기타 비율
