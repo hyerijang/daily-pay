@@ -1,12 +1,16 @@
 package com.hyerijang.dailypay.expense.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +52,28 @@ public class ExpenseController {
     @GetMapping
     public ResponseEntity<Result> getAllExpenses(
         @RequestBody GetAllExpenseRequest getAllExpenseRequest, Authentication authentication) {
+
+        //1. 기간 별 지출 내역 조회
         List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseRequest,
             authentication);
+
+        //2. 지출 내역 토대로 지출 합계 , 카테고리 별 지출 합계 계산
+        //지출 합계 (excludeFromTotal이 true인 경우 제외)
+        Long totalExpense = userAllExpenses.stream()
+            .filter(exDto -> !exDto.excludeFromTotal())
+            .mapToLong(exDto -> exDto.amount()).sum();
+        //카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
+        Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
+            .filter(exDto -> !exDto.excludeFromTotal())
+            .collect(Collectors.groupingBy(ExpenseDto::category,
+                Collectors.reducing(BigDecimal.ZERO,
+                    exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
+            ));
+
         return ResponseEntity.ok()
-            .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size()).build());
+            .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size())
+                .totalExpense(totalExpense)
+                .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
     /***
@@ -86,7 +108,9 @@ public class ExpenseController {
     static class Result<T> {
 
         private Integer count;
+        private Long totalExpense;
         private T data; // 리스트의 값
+        private Map<Category, BigDecimal> CategoryWiseExpenseSum;
     }
 
 
