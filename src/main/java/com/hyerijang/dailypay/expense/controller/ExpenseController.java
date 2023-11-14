@@ -53,7 +53,6 @@ public class ExpenseController {
     public ResponseEntity<Result> getAllExpenses(GetAllExpenseParam getAllExpenseParam,
         Authentication authentication) {
 
-        log.info("---------------------------{}", getAllExpenseParam.end());
         //1. 기간 별 지출 내역 조회
         List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseParam,
             authentication);
@@ -63,7 +62,8 @@ public class ExpenseController {
         Long totalExpense = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())
             .mapToLong(exDto -> exDto.amount()).sum();
-        //카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
+
+        //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
         Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())
             .collect(Collectors.groupingBy(ExpenseDto::category,
