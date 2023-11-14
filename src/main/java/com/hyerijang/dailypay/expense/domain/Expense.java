@@ -70,4 +70,14 @@ public class Expense extends BaseTimeEntity {
         this.excludeFromTotal = excludeFromTotal;
         this.expenseDate = expenseDate;
     }
+
+    // === 비즈니스 메서드 ===//
+    public void update(Category category, Long amount, String memo, boolean excludeFromTotal,
+        LocalDateTime expenseDate) {
+        this.category = category;
+        this.amount = amount;
+        this.memo = memo;
+        this.excludeFromTotal = excludeFromTotal;
+        this.expenseDate = expenseDate;
+    }
 }

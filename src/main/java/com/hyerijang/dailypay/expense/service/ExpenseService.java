@@ -15,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ExpenseService {
     // TODO : 지출 서비스 구현
 
@@ -28,6 +30,7 @@ public class ExpenseService {
     /**
      * 새 지출 내역 (단건) 생성
      */
+    @Transactional
     public ExpenseDto createExpense(CreateExpenseRequest createExpenseRequest,
         Authentication authentication) {
 
@@ -79,7 +82,6 @@ public class ExpenseService {
         }
 
         return ExpenseDto.of(found);
-
     }
 
 
@@ -90,8 +92,21 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역(단건) 수정
      */
-    public ExpenseDto updateExpense(Long id, UpdateExpenseRequest updateExpenseRequest) {
-        return null;
+    @Transactional
+    public ExpenseDto updateExpense(Long id, UpdateExpenseRequest request,
+        Authentication authentication) {
 
+        User user = findUserByEmail(authentication);
+        Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
+
+        //작성자인지 체크
+        if (isNotExpenseWriter(user, found.getUser())) {
+            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
+        }
+
+        //updateExpenseRequest의 내용으로 Expense found를 업데이트
+        request.updateFoundWithRequest(found);
+        return ExpenseDto.of(found);
     }
 }
