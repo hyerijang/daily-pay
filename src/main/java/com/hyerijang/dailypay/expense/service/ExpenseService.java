@@ -81,6 +81,11 @@ public class ExpenseService {
             throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
         }
 
+        //삭제 유무 체크
+        if (found.isDeleted()) {
+            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
+        }
+
         return ExpenseDto.of(found);
     }
 
@@ -135,6 +140,30 @@ public class ExpenseService {
         }
 
         found.delete();
+
+        return ExpenseDto.of(found);
+
+    }
+
+    /**
+     * 유저의 지출 내역(단건)을 합계에서 제외
+     */
+    @Transactional
+    public ExpenseDto excludeFromTotal(Long id, Authentication authentication) {
+        User user = findUserByEmail(authentication);
+        Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
+        //작성자인지 체크
+        if (isNotExpenseWriter(user, found.getUser())) {
+            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
+        }
+
+        //삭제 유무 체크
+        if (found.isDeleted()) {
+            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
+        }
+
+        found.excludeFromTotal();
 
         return ExpenseDto.of(found);
 
