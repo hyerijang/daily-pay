@@ -46,12 +46,12 @@ public class Expense extends BaseTimeEntity {
     private String memo;
 
     @Column(nullable = false)
-    private boolean excludeFromTotal;
+    private Boolean excludeFromTotal;
 
     @Column(nullable = false)
     private LocalDateTime expenseDate;
 
-    boolean deleted = false;
+    Boolean deleted = false;
 
 
     // === Setter === //
@@ -61,7 +61,7 @@ public class Expense extends BaseTimeEntity {
 
     // === 빌더 === //
     @Builder
-    public Expense(User user, Category category, Long amount, String memo, boolean excludeFromTotal,
+    public Expense(User user, Category category, Long amount, String memo, Boolean excludeFromTotal,
         LocalDateTime expenseDate) {
         this.user = user;
         this.category = category;
@@ -72,13 +72,23 @@ public class Expense extends BaseTimeEntity {
     }
 
     // === 비즈니스 메서드 ===//
-    public void update(Category category, Long amount, String memo, boolean excludeFromTotal,
+    public void update(Category category, Long amount, String memo, Boolean excludeFromTotal,
         LocalDateTime expenseDate) {
-        this.category = category;
-        this.amount = amount;
-        this.memo = memo;
-        this.excludeFromTotal = excludeFromTotal;
-        this.expenseDate = expenseDate;
+        if (category != null) {
+            this.category = category;
+        }
+        if (amount != null) {
+            this.amount = amount;
+        }
+        if (memo != null) {
+            this.memo = memo;
+        }
+        if (excludeFromTotal != null) {
+            this.excludeFromTotal = excludeFromTotal;
+        }
+        if (expenseDate != null) {
+            this.expenseDate = expenseDate;
+        }
     }
 
     public void delete() {

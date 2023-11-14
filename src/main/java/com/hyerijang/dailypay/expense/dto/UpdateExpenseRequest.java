@@ -10,7 +10,7 @@ public record UpdateExpenseRequest
         Category category,
         Long amount,
         String memo,
-        boolean excludeFromTotal,
+        Boolean excludeFromTotal,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime expenseDate
     ) {
 
