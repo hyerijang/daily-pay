@@ -40,8 +40,13 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역 (목록) 조회
      */
-    public List<ExpenseDto> getUserAllExpenses() {
-        return null;
+    public List<ExpenseDto> getUserAllExpenses(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ApiException(
+                ExceptionEnum.NOT_EXIST_USER));
+
+        List<Expense> allByUser = expenseRepository.findAllByUser(user);
+        return ExpenseDto.getExpenseDtoList(allByUser);
     }
 
     /**
