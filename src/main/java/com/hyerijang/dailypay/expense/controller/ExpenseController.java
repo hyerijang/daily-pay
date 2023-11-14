@@ -3,6 +3,7 @@ package com.hyerijang.dailypay.expense.controller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.GetAllExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.util.List;
@@ -45,8 +46,10 @@ public class ExpenseController {
      * 유저의 지출 내역 (목록) 조회 API br> 본인의 지출 내역만 조회 가능
      */
     @GetMapping
-    public ResponseEntity<Result> getAllExpenses(Authentication authentication) {
-        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(authentication);
+    public ResponseEntity<Result> getAllExpenses(
+        @RequestBody GetAllExpenseRequest getAllExpenseRequest, Authentication authentication) {
+        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseRequest,
+            authentication);
         return ResponseEntity.ok()
             .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size()).build());
     }
