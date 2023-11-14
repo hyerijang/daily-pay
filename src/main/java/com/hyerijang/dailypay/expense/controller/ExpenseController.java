@@ -81,8 +81,9 @@ public class ExpenseController {
      * 유저의 지출 내역(단건) 조회 API
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Result> getExpenseById(@PathVariable Long id) {
-        ExpenseDto expenseDto = expenseService.getExpenseById(id);
+    public ResponseEntity<Result> getExpenseById(@PathVariable Long id,
+        Authentication authentication) {
+        ExpenseDto expenseDto = expenseService.getExpenseById(id, authentication);
         if (expenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(expenseDto).build());
         } else {

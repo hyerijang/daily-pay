@@ -66,11 +66,25 @@ public class ExpenseService {
     }
 
     /**
-     * 유저의 지출 내역 (단건) 조회
+     * 유저의 지출 내역 (단건) 조회 , 삭제된 Expense는 제외
      */
-    public ExpenseDto getExpenseById(Long id) {
-        return null;
+    public ExpenseDto getExpenseById(Long id, Authentication authentication) {
+        User user = findUserByEmail(authentication);
+        Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
+        //작성자인지 체크
+        if (isNotExpenseWriter(user, found.getUser())) {
+            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
+        }
+
+        return ExpenseDto.of(found);
+
+    }
+
+
+    boolean isNotExpenseWriter(User user, User writerOfExpense) {
+        return user != writerOfExpense;
     }
 
     /**
