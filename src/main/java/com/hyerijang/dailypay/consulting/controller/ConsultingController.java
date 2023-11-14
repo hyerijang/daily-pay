@@ -82,7 +82,7 @@ public class ConsultingController {
         private String comments; // 응원 멘트
     }
 
-    public static int getRemainingDaysInMonth() {
+    private static int getRemainingDaysInMonth() {
         // 현재 날짜를 가져옵니다.
         LocalDate currentDate = LocalDate.now();
 
