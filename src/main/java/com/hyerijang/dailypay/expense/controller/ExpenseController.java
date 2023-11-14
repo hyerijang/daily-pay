@@ -2,6 +2,7 @@ package com.hyerijang.dailypay.expense.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.budget.domain.Category;
+import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -104,6 +106,21 @@ public class ExpenseController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    /**
+     * 유저의 지출 내역(단건) 삭제 API
+     */
+    @ExeTimer
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Result> deleteExpense(@PathVariable Long id,
+        Authentication authentication) {
+        ExpenseDto updatedExpenseDto = expenseService.deleteExpense(id, authentication);
+        if (updatedExpenseDto != null) {
+            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 
     @Getter
     @Builder

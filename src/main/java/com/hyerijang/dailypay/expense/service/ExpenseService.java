@@ -97,7 +97,7 @@ public class ExpenseService {
         Authentication authentication) {
 
         User user = findUserByEmail(authentication);
-        Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
+        Expense found = expenseRepository.findById(id)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
         //작성자인지 체크
@@ -105,8 +105,38 @@ public class ExpenseService {
             throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
         }
 
+        //삭제 유무 체크
+        if (found.isDeleted()) {
+            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
+        }
+
         //updateExpenseRequest의 내용으로 Expense found를 업데이트
         request.updateFoundWithRequest(found);
         return ExpenseDto.of(found);
+    }
+
+    /**
+     * 유저의 지출 내역(단건) 삭제
+     */
+    @Transactional
+    public ExpenseDto deleteExpense(Long id, Authentication authentication) {
+
+        User user = findUserByEmail(authentication);
+        Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
+        //작성자인지 체크
+        if (isNotExpenseWriter(user, found.getUser())) {
+            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
+        }
+
+        //삭제 유무 체크
+        if (found.isDeleted()) {
+            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
+        }
+
+        found.delete();
+
+        return ExpenseDto.of(found);
+
     }
 }
