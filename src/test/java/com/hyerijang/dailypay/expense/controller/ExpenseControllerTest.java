@@ -178,13 +178,7 @@ class ExpenseControllerTest {
 
         mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is4xxClientError())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.data.amount").value(50000))
-            .andExpect(jsonPath("$.data.memo").value("Lunch"))
-            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
-            .andExpect(
-                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+            .andExpect(status().is4xxClientError());
         verify(expenseService, times(0)).updateExpense(any(), any(), any());
     }
 
