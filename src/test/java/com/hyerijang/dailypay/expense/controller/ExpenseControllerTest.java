@@ -4,6 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -113,5 +116,143 @@ class ExpenseControllerTest {
             .andDo(print());
         // then
         verify(expenseService, times(1)).createExpense(any(), any());
+    }
+
+    @Test
+    @DisplayName("성공 : 지출 내역 조회 API 테스트 ")
+    void getAllExpenses() throws Exception {
+        // given
+        List<ExpenseDto> sampleExpenseDtoList = createSampleExpenseDtoList();
+
+        when(expenseService.getUserAllExpenses(any(), any()))
+            .thenReturn(sampleExpenseDtoList);
+
+        // when
+        mockMvc.perform(get("/api/v1/expenses")
+                .param("start", "2023-11-01")
+                .param("end", "2023-11-30")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.count").value(2))
+            .andExpect(jsonPath("$.data[0].amount").value(50000))
+            .andExpect(jsonPath("$.data[0].memo").value("Lunch"))
+            .andExpect(jsonPath("$.data[0].excludeFromTotal").value(false))
+            .andDo(print());
+        // then
+        verify(expenseService, times(1)).getUserAllExpenses(any(), any());
+
+    }
+
+    @Test
+    @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API 테스트 ")
+    void getExpenseById() throws Exception {
+
+        when(expenseService.getExpenseById(any(), any()))
+            .thenReturn(createSampleExpenseDto());
+
+        //when
+        mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
+            .andDo(print());
+        //then
+
+        verify(expenseService, times(1)).getExpenseById(any(), any());
+
+    }
+
+
+    @Test
+    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 시 requestBody 누락")
+    void updateExpenseNoRequestBody() throws Exception {
+
+        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(0)).updateExpense(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API ")
+    void updateExpense() throws Exception {
+
+        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        String json = """
+                {
+                  "category": "FOOD",
+                  "amount": 50000,
+                  "memo": "test_8ef6b77ce9cb",
+                  "excludeFromTotal": false,
+                  "expenseDate": "2023-11-14 12:30:00"
+                }
+            """;
+
+        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+                .content(json)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).updateExpense(any(), any(), any());
+    }
+
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
+    void deleteExpense() throws Exception {
+
+        when(expenseService.deleteExpense(any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).deleteExpense(any(), any());
+    }
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
+    void excludeFromTotal() throws Exception {
+        when(expenseService.excludeFromTotal(any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        mockMvc.perform(patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).excludeFromTotal(any(), any());
     }
 }
