@@ -76,15 +76,7 @@ public class ExpenseService {
         Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
-        //작성자인지 체크
-        if (isNotExpenseWriter(user, found.getUser())) {
-            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
-        }
-
-        //삭제 유무 체크
-        if (found.getDeleted()) {
-            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
-        }
+        validateFound(user, found);
 
         return ExpenseDto.of(found);
     }
@@ -105,15 +97,7 @@ public class ExpenseService {
         Expense found = expenseRepository.findById(id)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
-        //작성자인지 체크
-        if (isNotExpenseWriter(user, found.getUser())) {
-            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
-        }
-
-        //삭제 유무 체크
-        if (found.getDeleted()) {
-            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
-        }
+        validateFound(user, found);
 
         //updateExpenseRequest의 내용으로 Expense found를 업데이트
         request.updateFoundWithRequest(found);
@@ -129,15 +113,8 @@ public class ExpenseService {
         User user = findUserByEmail(authentication);
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
-        //작성자인지 체크
-        if (isNotExpenseWriter(user, found.getUser())) {
-            throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
-        }
 
-        //삭제 유무 체크
-        if (found.getDeleted()) {
-            throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
-        }
+        validateFound(user, found);
 
         found.delete();
 
@@ -153,6 +130,18 @@ public class ExpenseService {
         User user = findUserByEmail(authentication);
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
+        validateFound(user, found);
+
+        found.excludeFromTotal();
+
+        return ExpenseDto.of(found);
+
+    }
+
+    /**
+     * user가 crud 가능한 found인지 검증
+     */
+    private void validateFound(User user, Expense found) {
         //작성자인지 체크
         if (isNotExpenseWriter(user, found.getUser())) {
             throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
@@ -162,10 +151,5 @@ public class ExpenseService {
         if (found.getDeleted()) {
             throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
         }
-
-        found.excludeFromTotal();
-
-        return ExpenseDto.of(found);
-
     }
 }
