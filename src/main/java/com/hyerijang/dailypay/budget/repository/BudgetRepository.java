@@ -22,4 +22,5 @@ public interface BudgetRepository extends JpaRepository<Budget, Long> {
     @Query("SELECT b.category, SUM(b.budgetAmount) FROM Budget b GROUP BY b.category ORDER BY SUM(b.budgetAmount) DESC")
     List<Object[]> getUserBudgetTotalAmountByCategoryOrderBySumDesc();
 
+    List<Budget> findByYearMonthAndUserId(YearMonth yearMonth, Long userId);
 }

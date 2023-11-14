@@ -17,10 +17,14 @@ public enum ExceptionEnum {
     NOT_EXIST_USER(HttpStatus.NOT_FOUND, "U001", "존재하지 않는 사용자입니다."),
     ALREADY_EXIST_USER(HttpStatus.NOT_FOUND, "U002", "중복 회원입니다."),
 
+    //budget
+    NO_BUDGET_IN_THE_MONTH(HttpStatus.NOT_FOUND, "B001", "해당년월에는 예산이 존재하지 않습니다"),
+
     //expense
     NOT_EXIST_EXPENSE(HttpStatus.NOT_FOUND, "EXP001", "존재하지 않는 지출입니다."),
     NOT_WRITER_OF_EXPENSE(HttpStatus.FORBIDDEN, "EX002", "조회하는 유저가 지출의 작성자가 아닙니다."),
-    ALREADY_DELETED_EXPENSE(HttpStatus.FORBIDDEN, "EX003", "이미 삭제된 지출입니다.");
+    ALREADY_DELETED_EXPENSE(HttpStatus.FORBIDDEN, "EX003", "이미 삭제된 지출입니다."),
+    ;
 
 
     private final HttpStatus status;
