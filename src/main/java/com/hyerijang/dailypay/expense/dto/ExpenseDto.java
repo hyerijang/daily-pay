@@ -13,7 +13,7 @@ public record ExpenseDto(
     Category category,
     Long amount,
     String memo,
-    boolean excludeFromTotal,
+    Boolean excludeFromTotal,
     LocalDateTime expenseDate
 ) {
 
@@ -24,7 +24,7 @@ public record ExpenseDto(
             .category(savedExpense.getCategory())
             .amount(savedExpense.getAmount())
             .memo(savedExpense.getMemo())
-            .excludeFromTotal(savedExpense.isExcludeFromTotal())
+            .excludeFromTotal(savedExpense.getExcludeFromTotal())
             .expenseDate(savedExpense.getExpenseDate())
             .build();
     }

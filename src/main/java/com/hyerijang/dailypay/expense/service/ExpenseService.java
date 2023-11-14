@@ -82,7 +82,7 @@ public class ExpenseService {
         }
 
         //삭제 유무 체크
-        if (found.isDeleted()) {
+        if (found.getDeleted()) {
             throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
         }
 
@@ -90,7 +90,7 @@ public class ExpenseService {
     }
 
 
-    boolean isNotExpenseWriter(User user, User writerOfExpense) {
+    Boolean isNotExpenseWriter(User user, User writerOfExpense) {
         return user != writerOfExpense;
     }
 
@@ -111,7 +111,7 @@ public class ExpenseService {
         }
 
         //삭제 유무 체크
-        if (found.isDeleted()) {
+        if (found.getDeleted()) {
             throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
         }
 
@@ -135,7 +135,7 @@ public class ExpenseService {
         }
 
         //삭제 유무 체크
-        if (found.isDeleted()) {
+        if (found.getDeleted()) {
             throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
         }
 
@@ -159,7 +159,7 @@ public class ExpenseService {
         }
 
         //삭제 유무 체크
-        if (found.isDeleted()) {
+        if (found.getDeleted()) {
             throw new ApiException(ExceptionEnum.ALREADY_DELETED_EXPENSE);
         }
 
