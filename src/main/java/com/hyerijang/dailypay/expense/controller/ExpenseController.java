@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.expense.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
@@ -29,7 +30,7 @@ public class ExpenseController {
     private final ExpenseService expenseService;
 
     /**
-     * 새 지출 내역 (단건) 생성 API
+     * 새 지출 내역 (단건) 생성 API <br> 본인의 지출 내역만 생성 가능
      */
     @PostMapping
     public ResponseEntity<Result> createExpense(
@@ -41,12 +42,13 @@ public class ExpenseController {
     }
 
     /**
-     * 유저의 지출 내역 (목록) 조회 API
+     * 유저의 지출 내역 (목록) 조회 API br> 본인의 지출 내역만 조회 가능
      */
     @GetMapping
-    public ResponseEntity<Result> getAllExpenses() {
-        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses();
-        return ResponseEntity.ok().body(Result.builder().data(userAllExpenses).build());
+    public ResponseEntity<Result> getAllExpenses(Authentication authentication) {
+        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(authentication);
+        return ResponseEntity.ok()
+            .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size()).build());
     }
 
     /***
@@ -57,7 +59,6 @@ public class ExpenseController {
         ExpenseDto expenseDto = expenseService.getExpenseById(id);
         if (expenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(expenseDto).build());
-
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -78,9 +79,10 @@ public class ExpenseController {
 
     @Getter
     @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Result<T> {
 
-        private int count;
+        private Integer count;
         private T data; // 리스트의 값
     }
 

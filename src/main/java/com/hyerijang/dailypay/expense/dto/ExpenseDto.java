@@ -3,6 +3,7 @@ package com.hyerijang.dailypay.expense.dto;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 
 @Builder
@@ -26,5 +27,9 @@ public record ExpenseDto(
             .excludeFromTotal(savedExpense.isExcludeFromTotal())
             .expenseDate(savedExpense.getExpenseDate())
             .build();
+    }
+
+    public static List<ExpenseDto> getExpenseDtoList(List<Expense> expenses) {
+        return expenses.stream().map((expense) -> ExpenseDto.of(expense)).toList();
     }
 }
