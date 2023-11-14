@@ -31,29 +31,38 @@ public class ExpenseService {
     public ExpenseDto createExpense(CreateExpenseRequest createExpenseRequest,
         Authentication authentication) {
 
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(
-                ExceptionEnum.NOT_EXIST_USER));
-
+        User user = findUserByEmail(authentication);
         Expense savedExpense = expenseRepository.save(createExpenseRequest.toEntity(user));
 
         return ExpenseDto.of(savedExpense);
     }
+
+    private User findUserByEmail(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ApiException(
+                ExceptionEnum.NOT_EXIST_USER));
+        return user;
+    }
+
 
     /**
      * 유저의 지출 내역 (목록) 조회
      */
     public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request,
         Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(
-                ExceptionEnum.NOT_EXIST_USER));
-
-        List<Expense> result = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
-            request.start().atStartOfDay(), request.end().atTime(23, 59, 59),
-            user); //시작일 0시 0분 0초 ~ 종료일의 23시 59분 59초
+        User user = findUserByEmail(authentication);
+        List<Expense> result = findExpenseWithCondition(request, user);
         log.info("result = {}", result.size());
         return ExpenseDto.getExpenseDtoList(result);
+    }
+
+    private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, User user) {
+        //조건 = {유저의 Expense ,기간 (start ~ end) , 삭제되지 않은 Expense}
+        //기간은 시작일의 0시 0분 0초 ~ 종료일의 23시 59분 59초
+        return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
+            request.start().atStartOfDay(), request.end().atTime(23, 59, 59),
+
+            user);
     }
 
     /**
