@@ -122,6 +122,21 @@ public class ExpenseController {
     }
 
 
+    /**
+     * 유저의 지출 내역(단건)을 합계에서 제외하는 API
+     */
+    @ExeTimer
+    @PatchMapping("/{id}/exclude-total-sum")
+    public ResponseEntity<Result> excludeFromTotal(@PathVariable Long id,
+        Authentication authentication) {
+        ExpenseDto updatedExpenseDto = expenseService.excludeFromTotal(id, authentication);
+        if (updatedExpenseDto != null) {
+            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
     @Getter
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
