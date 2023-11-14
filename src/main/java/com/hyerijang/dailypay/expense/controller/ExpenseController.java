@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,12 +28,30 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
+    /**
+     * 새 지출 내역 (단건) 생성 API
+     */
+    @PostMapping
+    public ResponseEntity<Result> createExpense(
+        @RequestBody CreateExpenseRequest createExpenseRequest, Authentication authentication) {
+        ExpenseDto createdExpenseDto = expenseService.createExpense(createExpenseRequest,
+            authentication);
+        return ResponseEntity.ok().body(Result.builder().data(createdExpenseDto).build());
+
+    }
+
+    /**
+     * 유저의 지출 내역 (목록) 조회 API
+     */
     @GetMapping
     public ResponseEntity<Result> getAllExpenses() {
         List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses();
         return ResponseEntity.ok().body(Result.builder().data(userAllExpenses).build());
     }
 
+    /***
+     * 유저의 지출 내역(단건) 조회 API
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Result> getExpenseById(@PathVariable Long id) {
         ExpenseDto expenseDto = expenseService.getExpenseById(id);
@@ -44,14 +63,9 @@ public class ExpenseController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Result> createExpense(
-        @RequestBody CreateExpenseRequest createExpenseRequest) {
-        ExpenseDto createdExpenseDto = expenseService.createExpense(createExpenseRequest);
-        return ResponseEntity.ok().body(Result.builder().data(createdExpenseDto).build());
-
-    }
-
+    /**
+     * 유저의 지출 내역(단건) 수정 API
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
         @RequestBody UpdateExpenseRequest updateExpenseRequest) {

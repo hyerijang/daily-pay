@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -52,8 +53,21 @@ public class Expense extends BaseTimeEntity {
 
     boolean deleted = false;
 
-    // === 연관관계 메서드 ===//
+
+    // === Setter === //
     public void setUser(User user) {
         this.user = user;
+    }
+
+    // === 빌더 === //
+    @Builder
+    public Expense(User user, Category category, Long amount, String memo, boolean excludeFromTotal,
+        LocalDateTime expenseDate) {
+        this.user = user;
+        this.category = category;
+        this.amount = amount;
+        this.memo = memo;
+        this.excludeFromTotal = excludeFromTotal;
+        this.expenseDate = expenseDate;
     }
 }
