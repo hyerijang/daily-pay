@@ -82,6 +82,7 @@ public class ExpenseController {
     /***
      * 유저의 지출 내역(단건) 조회 API
      */
+    @ExeTimer
     @GetMapping("/{id}")
     public ResponseEntity<Result> getExpenseById(@PathVariable Long id,
         Authentication authentication) {
@@ -96,6 +97,7 @@ public class ExpenseController {
     /**
      * 유저의 지출 내역(단건) 수정 API
      */
+    @ExeTimer
     @PatchMapping("/{id}")
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
         @RequestBody UpdateExpenseRequest updateExpenseRequest, Authentication authentication) {
