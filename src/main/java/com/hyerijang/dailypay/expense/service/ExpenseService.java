@@ -5,7 +5,7 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
-import com.hyerijang.dailypay.expense.dto.GetAllExpenseRequest;
+import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
@@ -43,7 +43,7 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역 (목록) 조회
      */
-    public List<ExpenseDto> getUserAllExpenses(GetAllExpenseRequest request,
+    public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request,
         Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
             .orElseThrow(() -> new ApiException(
