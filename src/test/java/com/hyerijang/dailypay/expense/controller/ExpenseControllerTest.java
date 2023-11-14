@@ -238,5 +238,21 @@ class ExpenseControllerTest {
         verify(expenseService, times(1)).deleteExpense(any(), any());
     }
 
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
+    void excludeFromTotal() throws Exception {
+        when(expenseService.excludeFromTotal(any(), any())).thenReturn(
+            createSampleExpenseDto());
 
+        mockMvc.perform(patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).excludeFromTotal(any(), any());
+    }
 }
