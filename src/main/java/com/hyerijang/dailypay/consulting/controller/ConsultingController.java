@@ -34,7 +34,7 @@ public class ConsultingController {
     public ResponseEntity<Result> getProposalInfo(Authentication authentication) {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
-            authentication.getName());
+            authentication);
         log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
 
         // 2. 오늘 쓸 수 있는 금액 = (이번달 남은 예산) / (이번 달 남은 일 수)
