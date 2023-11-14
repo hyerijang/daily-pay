@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
-import com.hyerijang.dailypay.expense.dto.GetAllExpenseRequest;
+import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.math.BigDecimal;
@@ -50,11 +50,12 @@ public class ExpenseController {
      * 유저의 지출 내역 (목록) 조회 API br> 본인의 지출 내역만 조회 가능
      */
     @GetMapping
-    public ResponseEntity<Result> getAllExpenses(
-        @RequestBody GetAllExpenseRequest getAllExpenseRequest, Authentication authentication) {
+    public ResponseEntity<Result> getAllExpenses(GetAllExpenseParam getAllExpenseParam,
+        Authentication authentication) {
 
+        log.info("---------------------------{}", getAllExpenseParam.end());
         //1. 기간 별 지출 내역 조회
-        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseRequest,
+        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseParam,
             authentication);
 
         //2. 지출 내역 토대로 지출 합계 , 카테고리 별 지출 합계 계산
