@@ -57,11 +57,8 @@ public class ConsultingService {
     /**
      * 카테고리 별 제안액
      */
-    public List<BudgetDto> getProposalInfo(String email, Long finalTodayExpenseProposal) {
-        log.info("START== getProposalInfo ==");
+    public List<BudgetDto> getProposalInfo(Long finalTodayExpenseProposal) {
         List<BudgetDto> recommend = budgetService.recommend(finalTodayExpenseProposal);
-
-        log.info("END == getProposalInfo ==");
         return recommend;
     }
 

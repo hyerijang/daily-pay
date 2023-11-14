@@ -51,9 +51,7 @@ public class ConsultingController {
         log.info("오늘 쓸 수 있는 금액 (최종) = {}", todayExpenseProposal);
 
         // 3.카테고리 별 제안액
-        List<BudgetDto> proposalResponse = consultingService.getProposalInfo(
-            authentication.getName(),
-            todayExpenseProposal);
+        List<BudgetDto> proposalResponse = consultingService.getProposalInfo(todayExpenseProposal);
         log.info("카테고리 별 제안액 = {}", proposalResponse);
         return ResponseEntity.ok().body(Result.builder()
             .budgetRemainingForThisMonth(budgetRemainingForThisMonth)
