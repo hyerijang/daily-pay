@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -150,7 +151,7 @@ class ExpenseControllerTest {
             .thenReturn(createSampleExpenseDto());
 
         //when
-        mockMvc.perform(get("/api/v1/expenses/1000")
+        mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -164,5 +165,66 @@ class ExpenseControllerTest {
 
         verify(expenseService, times(1)).getExpenseById(any(), any());
 
+    }
+
+
+    @Test
+    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 시 requestBody 누락")
+    void updateExpenseNoRequestBody() throws Exception {
+
+        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().is4xxClientError())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(0)).updateExpense(any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API ")
+    void updateExpense() throws Exception {
+
+        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        String json = """
+                {
+                  "category": "FOOD",
+                  "amount": 50000,
+                  "memo": "test_8ef6b77ce9cb",
+                  "excludeFromTotal": false,
+                  "expenseDate": "2023-11-14 12:30:00"
+                }
+            """;
+
+        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+                .content(json)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).updateExpense(any(), any(), any());
+    }
+
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
+    void deleteExpense() {
+    }
+
+    @Test
+    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
+    void excludeFromTotal() {
     }
 }
