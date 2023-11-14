@@ -12,6 +12,7 @@ import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,9 @@ public class ConsultingService {
     /**
      * 이번 달 남은 예산 계산
      */
-    public Long getBudgetRemainingForThisMonth(String userEmail) {
+    public Long getBudgetRemainingForThisMonth(Authentication authentication) {
         // (이번달) 남은 예산 = 예산 - 사용금액
-        User user = userRepository.findByEmail(userEmail)
+        User user = userRepository.findByEmail(authentication.getName())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
 
         return getBudgetThisMonth(user.getId()) - getAmountSpentThisMonth(user.getId());
