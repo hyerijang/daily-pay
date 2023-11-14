@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -220,11 +221,22 @@ class ExpenseControllerTest {
 
     @Test
     @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
-    void deleteExpense() {
+    void deleteExpense() throws Exception {
+
+        when(expenseService.deleteExpense(any(), any())).thenReturn(
+            createSampleExpenseDto());
+
+        mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.data.amount").value(50000))
+            .andExpect(jsonPath("$.data.memo").value("Lunch"))
+            .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
+            .andExpect(
+                jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
+        verify(expenseService, times(1)).deleteExpense(any(), any());
     }
 
-    @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
-    void excludeFromTotal() {
-    }
+
 }
