@@ -80,4 +80,8 @@ public class Expense extends BaseTimeEntity {
         this.excludeFromTotal = excludeFromTotal;
         this.expenseDate = expenseDate;
     }
+
+    public void delete() {
+        this.deleted = true;
+    }
 }
