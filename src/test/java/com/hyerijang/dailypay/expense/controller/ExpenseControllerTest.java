@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.time.LocalDateTime;
@@ -82,7 +82,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("지출 내역 생성 API 테스트 ")
+    @DisplayName("성공 : 지출 내역 생성 API 테스트 ")
     void createExpense() throws Exception {
         // given
         ExpenseDto createdExpenseDto = createSampleExpenseDto();
@@ -113,9 +113,33 @@ class ExpenseControllerTest {
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
             .andDo(print());
         // then
-        verify(expenseService, times(1)).createExpense(any(CreateExpenseRequest.class),
-            any());
+        verify(expenseService, times(1)).createExpense(any(), any());
 
     }
-    
+
+    @Test
+    @DisplayName("성공 : 지출 내역 조회 API 테스트 ")
+    void getAllExpenses() throws Exception {
+        // given
+        List<ExpenseDto> sampleExpenseDtoList = createSampleExpenseDtoList();
+
+        when(expenseService.getUserAllExpenses(any(), any()))
+            .thenReturn(sampleExpenseDtoList);
+
+        // when
+        mockMvc.perform(get("/api/v1/expenses")
+                .param("start", "2023-11-01")
+                .param("end", "2023-11-30")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.count").value(2))
+            .andExpect(jsonPath("$.data[0].amount").value(50000))
+            .andExpect(jsonPath("$.data[0].memo").value("Lunch"))
+            .andExpect(jsonPath("$.data[0].excludeFromTotal").value(false))
+            .andDo(print());
+        // then
+        verify(expenseService, times(1)).getUserAllExpenses(any(), any());
+
+    }
 }
