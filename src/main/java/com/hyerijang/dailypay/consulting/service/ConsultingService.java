@@ -70,7 +70,8 @@ public class ConsultingService {
      * 이번달 예산
      */
     private Long getBudgetThisMonth(Long userId) {
-        return budgetService.getTotalAmountOfBudgetIn(YearMonth.now(), userId);
+        return budgetService.getTotalAmountOfBudgetIn(YearMonth.now(),
+            userId);
     }
 
     /**

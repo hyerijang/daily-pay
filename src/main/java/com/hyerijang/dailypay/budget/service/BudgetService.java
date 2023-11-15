@@ -141,7 +141,8 @@ public class BudgetService {
     /**
      * 유저의 해당 년월 예산 전부 반환
      */
-    private List<Budget> getBudgetListOfAllCategoryListIn(YearMonth this_month, Long userId) {
+    private List<Budget> getBudgetListOfAllCategoryListIn(YearMonth this_month, Long userId)
+        throws ApiException {
         List<Budget> budgetList = budgetRepository.findByYearMonthAndUserId(this_month, userId);
 
         if (budgetList.size() == 0) {
