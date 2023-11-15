@@ -130,20 +130,26 @@ test
     
 - Spring Security + JWT
 - 간단히 구현하라는 요구사항에 맞춰 아래 기능은 생략하였습니다. 
-    - 생략한 부분 : 아이디, 비밀번호 조건 검증 (e.g. 아이디는 영문과 숫자만, 비밀번호는 10자 이상)
+    - 아이디, 비밀번호 조건 검증 (e.g. 아이디는 영문과 숫자만, 비밀번호는 10자 이상)
+    - 인가
 - 추후 소셜 로그인 등으로 전환 될 가능성을 고려하여 [아이디,비밀번호]가 아닌 [이메일,비밀번호]로 테이블을 구성하였습니다. 
-- Spring Securiy 기능 중 csrf는 적용하지 않았습니다
-   - 이유 : Stateless한 rest api이기 때문 
+- Spring Securiy 기능 중 **csrf 보호는 적용하지 않았습니다.**
+   - 이유 : non-browser clients이기 때문
+      - [Spring Securiy 공식 문서 - When to use CSRF protection](https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-when)에 따르면 본 서비스는 csrf disable해도 되는  non-browser clients(rest api)로서 csrf 보호를 필요로 하지 않습니다. 
       - 본 서비스는 클라이언트의 권한이 필요할 때, 매번 인증정보(JWT 토큰)를 요구합니다.
-      - 따라서 이 api는 Stateless 이며, 때문에 csrf 공격으로부터 안전합니다. 그런 상황에서 매번 api 요청으로부터 csrf 토큰을 받는 것 역시 자원 낭비이기 때문에 csrf를 disable하였습니다. 
+      - 따라서 이 api는 Stateless 이며, 때문에 csrf 공격으로부터 안전합니다. 그런 상황에서 매번 api 요청으로부터 csrf 토큰을 받는 것은 **자원 낭비**이기 때문에 csrf를 disable하였습니다. 
 
 <h4>회원가입</h4>
+
 - 로그인시에는  Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
 - 비밀번호는 암호화 되어 저장됩니다.
 
 
 <h4>로그인</h4>
+
 - 로그인시에는  Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
+- <img src="https://github.com/hyerijang/daily-pay/assets/46921979/54a64d44-256a-4c40-96f8-690640a6d1b4" width="70%" />
+
 </details>
 
 ## 5. 프로젝트 일정 관리
