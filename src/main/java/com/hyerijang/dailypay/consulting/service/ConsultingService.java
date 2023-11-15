@@ -103,10 +103,7 @@ public class ConsultingService {
 
     public Map<Category, BigDecimal> getExpenseStatisticsByCategory(Authentication authentication) {
         List<ExpenseDto> todayExpenseInfo = getTodayExpenseInfo(authentication);
-
-        // excludeFromTotal true이면 합계에서 제외
-        todayExpenseInfo.stream().filter(expenseDto -> !expenseDto.excludeFromTotal()).toList();
-
+        
         return todayExpenseInfo.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
             .collect(
