@@ -38,11 +38,9 @@ public class ConsultingController {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
             authentication);
-        log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
 
         // 2. 오늘 쓸 수 있는 금액 = (이번달 남은 예산) / (이번 달 남은 일 수)
         Long todayExpenseProposal = budgetRemainingForThisMonth / getRemainingDaysInMonth();
-        log.info("오늘 쓸 수 있는 금액 = {} , 일일 최소 소비금액 = {}", todayExpenseProposal, MIN_EXPENSE_OF_A_DAY);
 
         // 3. 지출 상황에 따라 응원멘트 변경
         String comments = setComment(todayExpenseProposal);
@@ -51,10 +49,12 @@ public class ConsultingController {
         todayExpenseProposal =
             todayExpenseProposal < MIN_EXPENSE_OF_A_DAY ? MIN_EXPENSE_OF_A_DAY
                 : todayExpenseProposal;
-        log.info("오늘 쓸 수 있는 금액 (최종) = {}", todayExpenseProposal);
-
         // 3.카테고리 별 제안액
         List<BudgetDto> proposalResponse = consultingService.getProposalInfo(todayExpenseProposal);
+
+        // 로그
+        log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
+        log.info("오늘 쓸 수 있는 금액 = {}", todayExpenseProposal);
         log.info("카테고리 별 제안액 = {}", proposalResponse);
         return ResponseEntity.ok().body(Result.builder()
             .budgetRemainingForThisMonth(budgetRemainingForThisMonth)
@@ -76,7 +76,7 @@ public class ConsultingController {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Result<T> {
-        
+
         //[D-1]
         private Long budgetRemainingForThisMonth; // 이번 달 남은 예산
         private Long todayExpenseProposal; // 오늘 쓸 수 있는 금액
@@ -123,6 +123,7 @@ public class ConsultingController {
         Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
             authentication);
 
+        // 로그
         log.info("이번 달 예산 = {}", budgetForThisMonth);
         log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
         log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);

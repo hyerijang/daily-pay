@@ -131,10 +131,6 @@ public class BudgetService {
 
     /**
      * 해당 년월의 예산 총액 가져옴
-     *
-     * @param yearMonth
-     * @param userId
-     * @return
      */
     public Long getTotalAmountOfBudgetIn(YearMonth yearMonth, Long userId) {
         return getBudgetListOfAllCategoryListIn(yearMonth, userId).stream()
@@ -142,7 +138,10 @@ public class BudgetService {
             .sum();
     }
 
-    public List<Budget> getBudgetListOfAllCategoryListIn(YearMonth this_month, Long userId) {
+    /**
+     * 유저의 해당 년월 예산 전부 반환
+     */
+    private List<Budget> getBudgetListOfAllCategoryListIn(YearMonth this_month, Long userId) {
         List<Budget> budgetList = budgetRepository.findByYearMonthAndUserId(this_month, userId);
 
         if (budgetList.size() == 0) {
