@@ -31,7 +31,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 - [1.개발 기간](#1-개발-기간)
 - [2.프로젝트 요구사항](#2-프로젝트-요구사항)
 - [3.디렉토리 구조](#3-디렉토리-구조)
-- [4.ERD](#4-erd)
+- [4.설계 및 의도](#4-설계-및-의도)
 - [5.프로젝트 일정 관리](#5-프로젝트-일정-관리)
 - [6.동작예시](#6-동작예시)
 - [7.API 문서](#7-api-document)
@@ -64,7 +64,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 ## 3. 디렉토리 구조
 
 <details>
-    <summary>자세히</summary>
+    <summary><h4>디렉토리 구조 (자세히)</h4></summary>
 
 #### main
 ```
@@ -116,14 +116,34 @@ test
 
 </details>
 
-## 4. ERD
+## 4. 설계 및 의도
+
+본문이 너무 길어져 상세 사항은 접어두었습니다. 
 
 <details>
-    <summary>자세히</summary>
-  
+    <summary><h4>ERD (자세히)</h4></summary>
 <img src="https://github.com/hyerijang/daily-pay/assets/46921979/597a3ed5-cda6-4624-a363-6f1fcfab2fc7" width="70%" />
+</details>
+<details>
+    <summary> <h4> 유저 기능 (자세히) </h4></summary>
+<h4> 설계의도</h4>
+    
+- Spring Security + JWT
+- 간단히 구현하라는 요구사항에 맞춰 아래 기능은 생략하였습니다. 
+    - 생략한 부분 : 아이디, 비밀번호 조건 검증 (e.g. 아이디는 영문과 숫자만, 비밀번호는 10자 이상)
+- 추후 소셜 로그인 등으로 전환 될 가능성을 고려하여 [아이디,비밀번호]가 아닌 [이메일,비밀번호]로 테이블을 구성하였습니다. 
+- Spring Securiy 기능 중 csrf는 적용하지 않았습니다
+   - 이유 : Stateless한 rest api이기 때문 
+      - 본 서비스는 클라이언트의 권한이 필요할 때, 매번 인증정보(JWT 토큰)를 요구합니다.
+      - 따라서 이 api는 Stateless 이며, 때문에 csrf 공격으로부터 안전합니다. 그런 상황에서 매번 api 요청으로부터 csrf 토큰을 받는 것 역시 자원 낭비이기 때문에 csrf를 disable하였습니다. 
+
+<h4>회원가입</h4>
+- 로그인시에는  Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
+- 비밀번호는 암호화 되어 저장됩니다.
 
 
+<h4>로그인</h4>
+- 로그인시에는  Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
 </details>
 
 ## 5. 프로젝트 일정 관리
