@@ -1,5 +1,7 @@
 package com.hyerijang.dailypay.consulting.controller;
 
+import static java.lang.Math.max;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
@@ -8,8 +10,10 @@ import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -132,10 +136,62 @@ public class ConsultingController {
         log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
         log.info("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
 
+        // 5. 3와 4를 결합하여 유저에게 지출 분석 데이터 제공
+        Map<Category, CombinedDataDto> analysisData = analysis(
+            expenseStatisticsByCategory, budgetsByCategoryInThisMonth);
+
         return ResponseEntity.ok().body(Result.builder()
             .budgetForThisMonth(budgetForThisMonth)
             .getAmountSpentThisMonth(getAmountSpentThisMonth)
-            .data(expenseStatisticsByCategory)
+            .data(analysisData)
             .build());
     }
+
+    /**
+     * 유저에게 지출 분석 데이터 제공. 제공되는 분석 데이터는 '예산에 등록되어 있는 카테고리 한정'입니다.
+     */
+    private Map<Category, CombinedDataDto> analysis(
+        Map<Category, BigDecimal> expenseStatisticsByCategory,
+        List<BudgetDto> budgetsByCategoryInThisMonth) {
+        Map<Category, CombinedDataDto> combinedDataByCategory = new LinkedHashMap<>();
+
+        for (BudgetDto budgetDto : budgetsByCategoryInThisMonth) {
+            //카테고리 (예산에 등록되어 있는 카테고리 한정)
+            Category expectedCategory = budgetDto.category();
+            //해당 카테고리의 지출액
+            Long expenseAmount = expenseStatisticsByCategory.getOrDefault(budgetDto.category(),
+                BigDecimal.ZERO).longValue(); //지출액이 없는경우 0으로 설정
+            //해당 카테고리의 예산액
+            Long budgetAmount = budgetDto.amount();
+
+            //위험도 (퍼센티지) 계산
+            double riskRate = 0.0;
+            if (budgetAmount != 0L) {
+                riskRate = ((double) expenseAmount / budgetAmount) * 100; // 퍼센티지 (riskRate %)
+            }
+
+            CombinedDataDto combinedDataDto = new CombinedDataDto(
+                (int) riskRate, budgetAmount - expenseAmount, expenseAmount, budgetAmount);
+            combinedDataByCategory.put(expectedCategory, combinedDataDto);
+        }
+        return combinedDataByCategory;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    private static class CombinedDataDto //카테고리의 예산
+    {
+
+        private Integer riskRate;
+        private Long remainingBudgetByCategory; //카테고리의 남은 예산
+        private Long expenseByCategory; // 카테고리의 지출
+        private Long categoryBudge;
+
+        public void add(Long amount) {
+            this.remainingBudgetByCategory = max(0,
+                remainingBudgetByCategory - amount); //남은 예산액은 0 ~ 양수만 표시
+            this.expenseByCategory += amount;
+        }
+    }
+
 }
