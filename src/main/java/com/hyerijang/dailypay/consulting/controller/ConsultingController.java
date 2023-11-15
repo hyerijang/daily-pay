@@ -128,12 +128,6 @@ public class ConsultingController {
         log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
         log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
 
-        Result.builder()
-            .budgetForThisMonth(budgetForThisMonth)
-            .getAmountSpentThisMonth(getAmountSpentThisMonth)
-            .data(expenseStatisticsByCategory)
-            .build();
-
         return ResponseEntity.ok().body(Result.builder()
             .budgetForThisMonth(budgetForThisMonth)
             .getAmountSpentThisMonth(getAmountSpentThisMonth)
