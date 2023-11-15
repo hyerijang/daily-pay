@@ -1,12 +1,15 @@
 package com.hyerijang.dailypay.consulting.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -73,11 +76,19 @@ public class ConsultingController {
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Result<T> {
-
+        
+        //[D-1]
         private Long budgetRemainingForThisMonth; // 이번 달 남은 예산
         private Long todayExpenseProposal; // 오늘 쓸 수 있는 금액
-        private T data; // 카테고리 별 제안액
         private String comments; // 응원 멘트
+
+        //[D-2]
+        private Long budgetForThisMonth; //이번 달 예산
+        private Long getAmountSpentThisMonth; //이번 달 남은 예산
+
+        // 공통
+        private T data; // 카테고리 별 제안액
+
     }
 
     private static int getRemainingDaysInMonth() {
@@ -97,9 +108,35 @@ public class ConsultingController {
         return remainingDays;
     }
 
+    /**
+     * 오늘 지출 안내 API
+     */
     @GetMapping("/today-expenses")
-    public List<Result> getTodayExpenses(Authentication authentication) {
-//        consultingService.getTodayExpenses(user);
-        return null;
+    public ResponseEntity<Result> getTodayExpenses(Authentication authentication) {
+
+        // 1.이번 달 예산
+        Long budgetForThisMonth = consultingService.getBudgetThisMonth(authentication);
+        // 2.이번 달 남은 예산 계산
+        Long getAmountSpentThisMonth = consultingService.getAmountSpentThisMonth(
+            authentication);
+        // 3. 카테고리 별 지출 통계
+        Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
+            authentication);
+
+        log.info("이번 달 예산 = {}", budgetForThisMonth);
+        log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
+        log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
+
+        Result.builder()
+            .budgetForThisMonth(budgetForThisMonth)
+            .getAmountSpentThisMonth(getAmountSpentThisMonth)
+            .data(expenseStatisticsByCategory)
+            .build();
+
+        return ResponseEntity.ok().body(Result.builder()
+            .budgetForThisMonth(budgetForThisMonth)
+            .getAmountSpentThisMonth(getAmountSpentThisMonth)
+            .data(expenseStatisticsByCategory)
+            .build());
     }
 }
