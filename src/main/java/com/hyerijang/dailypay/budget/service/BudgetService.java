@@ -129,4 +129,36 @@ public class BudgetService {
     }
 
 
+    /**
+     * 해당 년월의 예산 총액 가져옴
+     */
+    public Long getTotalAmountOfBudgetIn(YearMonth yearMonth, Long userId) {
+        return getBudgetListOfAllCategoryListIn(yearMonth, userId).stream()
+            .mapToLong(x -> x.getBudgetAmount())
+            .sum();
+    }
+
+    /**
+     * 유저의 해당 년월 예산 전부 반환
+     */
+    private List<Budget> getBudgetListOfAllCategoryListIn(YearMonth this_month, Long userId)
+        throws ApiException {
+        List<Budget> budgetList = budgetRepository.findByYearMonthAndUserId(this_month, userId);
+
+        if (budgetList.size() == 0) {
+            throw new ApiException(ExceptionEnum.NO_BUDGET_IN_THE_MONTH);
+        }
+        return budgetList;
+    }
+
+    /**
+     * 유저의 해당 년월 예산 을 DTO로 변환한 뒤 전부 반환
+     */
+    public List<BudgetDto> getBudgetDtoListOfAllCategoryListIn(YearMonth this_month, Long userId) {
+        return BudgetDto.getBudgetDetailList(getBudgetListOfAllCategoryListIn(this_month, userId));
+    }
+
+    public List<BudgetDto> recommend(Long finalTodayExpenseProposal) {
+        return recommend(new RecommendBudgetRequest(finalTodayExpenseProposal));
+    }
 }
