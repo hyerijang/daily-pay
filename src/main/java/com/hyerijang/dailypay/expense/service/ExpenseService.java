@@ -10,6 +10,7 @@ import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -156,10 +157,6 @@ public class ExpenseService {
 
     /**
      * 유저의 특정 년월 전체 지출
-     *
-     * @param yearMonth
-     * @param userId
-     * @return
      */
     public List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
         User user = userRepository.findById(userId)
@@ -167,5 +164,18 @@ public class ExpenseService {
         return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
             yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59), user);
 
+    }
+
+    /**
+     * 유저의 오늘 전체 지출
+     */
+    public List<ExpenseDto> getAllUserExpensesIn(LocalDate localDate, Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
+            localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), user);
+
+        //Dto로 변환
+        return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
     }
 }
