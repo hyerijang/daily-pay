@@ -136,8 +136,8 @@ test
 - Spring Securiy 기능 중 **csrf 보호는 적용하지 않았습니다.**
    - 이유 : rest api로서 non-browser clients와 통신하기 때문
       - [Spring Securiy 공식 문서 - When to use CSRF protection](https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-when)에 따르면 본 서비스는 csrf 보호를 disable해도 되는 서비스입니다.
-      - csrf 공격은 일반적으로 사용자의 브라우저를 통해 요청을 위조합니다.
-      -  때문에  매번 api 요청으로부터 csrf 토큰을 받는 것은 **자원 낭비**이기 때문에 csrf를 disable하였습니다. 
+      - csrf 공격은 일반적으로 사용자의 브라우저를 통해 요청을 위조합니다. 하지만 저희 서비스의 client 들은 웹 브라우저가 아닌 안드로이드/IOS 어플리케이션을 통해 서비스를 이용하게 될 것입니다.   
+      -  때문에  매번 api 요청으로부터 csrf 토큰을 받는 것은 **자원 낭비**라고 여겨 csrf를 disable하였습니다. 
 
 <h4>회원가입</h4>
 
