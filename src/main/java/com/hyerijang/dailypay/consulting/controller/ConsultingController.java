@@ -119,14 +119,18 @@ public class ConsultingController {
         // 2.이번 달 남은 예산 계산
         Long getAmountSpentThisMonth = consultingService.getAmountSpentThisMonth(
             authentication);
-        // 3. 카테고리 별 지출 통계
+        // 3. 이번달 카테고리 별 지출 통계
         Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
+            authentication);
+        // 4. 이번 달 카테고리 별 예산
+        List<BudgetDto> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
             authentication);
 
         // 로그
         log.info("이번 달 예산 = {}", budgetForThisMonth);
         log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
         log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
+        log.info("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
 
         return ResponseEntity.ok().body(Result.builder()
             .budgetForThisMonth(budgetForThisMonth)

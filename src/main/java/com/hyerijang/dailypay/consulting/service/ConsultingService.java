@@ -115,4 +115,15 @@ public class ConsultingService {
                 ));
 
     }
+
+    /**
+     * 이번 달 카테고리 별 예산 dto 반환
+     */
+    public List<BudgetDto> getBudgetsByCategoryInThisMonth(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+
+        return budgetService.getBudgetDtoListOfAllCategoryListIn(YearMonth.now(), user.getId());
+
+    }
 }

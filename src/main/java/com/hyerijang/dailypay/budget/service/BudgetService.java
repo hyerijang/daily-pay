@@ -150,6 +150,13 @@ public class BudgetService {
         return budgetList;
     }
 
+    /**
+     * 유저의 해당 년월 예산 을 DTO로 변환한 뒤 전부 반환
+     */
+    public List<BudgetDto> getBudgetDtoListOfAllCategoryListIn(YearMonth this_month, Long userId) {
+        return BudgetDto.getBudgetDetailList(getBudgetListOfAllCategoryListIn(this_month, userId));
+    }
+
     public List<BudgetDto> recommend(Long finalTodayExpenseProposal) {
         return recommend(new RecommendBudgetRequest(finalTodayExpenseProposal));
     }
