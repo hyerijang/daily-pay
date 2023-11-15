@@ -40,6 +40,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
     - [[D] 지출 컨설팅](#d-지출-컨설팅-자세히)
 - [5.프로젝트 일정 관리](#5-프로젝트-일정-관리)
 - [6.API 문서](#6-api-document)
+- [7.프로젝트 회고](#7-프로젝트-회고)
 
 ## 1. 개발 기간
 
@@ -271,3 +272,7 @@ test
 ## 6. API Document
 
 [API Document](https://documenter.getpostman.com/view/15143510/2s9YXo1KBA)는 Postman으로 작성하였습니다.
+
+## 7. 프로젝트 회고
+
+[개발 블로그 - 프로젝트 회고 (1)](https://dev-jhl.tistory.com/m/entry/%EC%9B%90%ED%8B%B0%EB%93%9C-%ED%94%84%EB%A6%AC%EC%98%A8%EB%B3%B4%EB%94%A9-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%9D%B8%ED%84%B4%EC%8B%AD10%EC%9B%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-3-%ED%9A%8C%EA%B3%A0)
