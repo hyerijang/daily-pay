@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,7 +73,7 @@ class ConsultingControllerTest {
     }
 
     @Test
-    @DisplayName("성공 : 오늘 지출 추천 API 테스트 ")
+    @DisplayName("성공 : [D-1] 오늘 지출 추천 API 테스트 ")
     void getTodayExpenses() throws Exception {
 
         // given
@@ -90,6 +91,30 @@ class ConsultingControllerTest {
         // then
         verify(consultingService, times(1)).getBudgetRemainingForThisMonth(any());
         verify(consultingService, times(1)).getProposalInfo(any());
+
+    }
+
+
+    @Test
+    @DisplayName("성공 : [D-2] 오늘 지출 안내 API")
+    void testGetTodayExpenses() throws Exception {
+
+        when(consultingService.getBudgetThisMonth(any())).thenReturn(300000L);
+        when(consultingService.getAmountSpentThisMonth(any())).thenReturn(170000L);
+        when(consultingService.getExpenseStatisticsByCategory(any())).thenReturn(
+            new LinkedHashMap<>());
+
+        when(consultingService.getBudgetsByCategoryInThisMonth(any())).thenReturn(
+            new ArrayList<>());
+
+        mockMvc.perform(get("/api/v1/consulting/today-expenses")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andDo(print());
+
+        verify(consultingService, times(1)).getBudgetThisMonth(any());
+
 
     }
 }
