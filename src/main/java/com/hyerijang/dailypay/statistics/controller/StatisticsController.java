@@ -15,7 +15,7 @@ public class StatisticsController {
     private final StatisticsDummyDataGenerator dummyDataGenerator;
 
     // FIXME : 해당 API 호출 시 더미데이터 생성됨, 운영 환경에서는 제거하거나 인가로 특정 권한 있는 사람만 실행할 수 있도록 수정
-    @PostMapping()
+    @PostMapping("/dummy-data")
     void generateDummy(Authentication authentication) {
         dummyDataGenerator.generateDummy(authentication);
     }
