@@ -158,14 +158,17 @@ public class StatisticsService {
     public Double getLastWeekSameWeekDayComparison(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-
-        //오늘 소비 총액
-        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), user.getId())
-            .stream().mapToLong(x -> x.amount()).sum();
-
         // 지난주 같은 요일의 소비 총액
         Long last = expenseService.getAllUserExpenseDtoListIn(LocalDate.now().minusDays(7),
                 user.getId())
+            .stream().mapToLong(x -> x.amount()).sum();
+
+        if (last == 0) {
+            throw new ApiException(ExceptionEnum.NOT_EXIST_LAST_WEEK_EXPENSE);
+        }
+
+        //오늘 소비 총액
+        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), user.getId())
             .stream().mapToLong(x -> x.amount()).sum();
 
         return ((double) today / last) * 100;
