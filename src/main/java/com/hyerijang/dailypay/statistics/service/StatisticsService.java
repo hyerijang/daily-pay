@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,7 +46,8 @@ public class StatisticsService {
         //1. 지난 달 대비 총액 소비율
         Long totalExpenseComparison = getTotalExpenseComparisonTotalLastMonth(user);
         //2. 지난 달 대비 카테고리 별 소비율
-        Map<Category, Long> categoryExpenseComparison = getCategoryExpenseComparisonLastMonth(user);
+        Map<Category, Double> categoryExpenseComparison = getCategoryExpenseComparisonLastMonth(
+            user);
 
         return new StatisticsDto(totalExpenseComparison, categoryExpenseComparison);
     }
@@ -98,7 +101,7 @@ public class StatisticsService {
     /**
      * 지난 달 대비 카테고리 별 소비율
      */
-    private Map<Category, Long> getCategoryExpenseComparisonLastMonth(User user) {
+    private Map<Category, Double> getCategoryExpenseComparisonLastMonth(User user) {
         //1. 지난 달 카테고리 별 소비액
         Map<Category, BigDecimal> categoryExpenseInLastMonth = getCategoryExpense(
             expenseService.getAllUserExpenseDtoListIn(YearMonth.now().minusMonths(1),
@@ -114,7 +117,7 @@ public class StatisticsService {
 
         //3. 지난달, 이번 달 비교
 
-        Map<Category, Long> comparison = new LinkedHashMap<>();
+        Map<Category, Double> comparison = new LinkedHashMap<>();
 
         for (Category category : categoryExpenseInThisMonth.keySet()) { // 이번달 지출 카테고리
             if (!categoryExpenseInLastMonth.containsKey(category)) {
@@ -127,9 +130,8 @@ public class StatisticsService {
             long thisMonthExpenseInThisCategory = categoryExpenseInThisMonth.get(category)
                 .longValue(); //해당 카테고리 이번달 소비액
 
-            comparison.put(category, Long.valueOf(
-                (long) (((double) thisMonthExpenseInThisCategory
-                    / lastMonthExpenseInThisCategory) * 100)));
+            comparison.put(category, ((double) thisMonthExpenseInThisCategory
+                / lastMonthExpenseInThisCategory) * 100);
         }
 
         return comparison;
@@ -153,7 +155,7 @@ public class StatisticsService {
     /**
      * (2) 지난주 같은 요일 대비 소비율
      */
-    public Long getLastWeekSameWeekDayComparison(Authentication authentication) {
+    public Double getLastWeekSameWeekDayComparison(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
 
@@ -166,6 +168,27 @@ public class StatisticsService {
                 user.getId())
             .stream().mapToLong(x -> x.amount()).sum();
 
-        return (long) ((double) today / last) * 100;
+        return ((double) today / last) * 100;
+    }
+
+    /**
+     * (3) 다른 유저 대비 소비율
+     */
+    public Double getExpenseComparisonWithOtherUser(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+
+        //오늘 user의 소비 총액
+        Long userExpenseAmount = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
+                user.getId())
+            .stream().mapToLong(x -> x.amount()).sum();
+
+        //오늘 전체 유저들의 소비 평균액
+        Long averageExpenseAmount = expenseService.getAverageExpenseAmountOfToday();
+        log.info("오늘 {}의 소비 총액 = {}", authentication.getName(), userExpenseAmount);
+        log.info("오늘 전체 유저들의 소비 평균액 = {}", averageExpenseAmount);
+        log.info("비율 = {}", ((double) userExpenseAmount / averageExpenseAmount) * 100);
+
+        return ((double) userExpenseAmount / averageExpenseAmount) * 100;
     }
 }
