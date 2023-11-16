@@ -146,6 +146,7 @@ public class StatisticsDummyDataGenerator {
         int b = LocalDateTime.now().getDayOfMonth(); // day
 
         //지난달의 마지막 일
+        // FIXME :  로직수정
         int lastMonthLastDay = LocalDate.now().minusMonths(1)
             .with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
 

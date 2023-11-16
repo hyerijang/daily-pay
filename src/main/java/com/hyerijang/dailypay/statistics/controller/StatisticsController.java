@@ -11,11 +11,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -31,33 +32,30 @@ public class StatisticsController {
     // === 통계  API === //
 
     /**
-     * 지난 달 대비 총액 및 카테고리 별 소비율을 반환
+     * 지난 달 대비 총액 및 카테고리 별 소비율(퍼센티지) 을 반환
      */
-    public ResponseEntity<Result> getExpenseComparison(@RequestParam String condition,
+    @GetMapping
+    public ResponseEntity<Result> getExpenseComparison(@Param("condition") String condition,
         Authentication authentication) {
 
-        Result result;
-
         switch (condition) {
-            case "lastMonth":
-                // 지난 달 대비 총액 및 카테고리 별 소비율
-                result = Result.builder()
+            case "last-month":
+                // (1)  지난 달 대비 총액 및 카테고리 별 소비율
+                Result result = Result.builder()
                     .data(statisticsService.getExpenseComparisonLastMonth(authentication))
                     .build();
-                break;
-            case "lastWeek":
-                // 지난주 같은 요일 대비 소비율
-//                result = Result.builder().data(statisticsService.getLastWeekSameDayComparison(authentication)).build();
-                break;
-            case "otherUser":
-                // 다른 유저 대비 소비율
-//                result = Result.builder().data(statisticsService.getExpenseComparisonWithOtherUser(authentication)).build();
-                break;
-            default:
-                // 다른 경우에 대한 처리 (예: 유효하지 않은 조건)
-                throw new ApiException(ExceptionEnum.WRONG_EXPENSE_COMPARISON_CONDITION);
+                return ResponseEntity.ok().body(result);
+            case "last-week":
+                // (2) 지난주 같은 요일 대비 소비율
+//                Result result = Result.builder()
+//                    .data(statisticsService.getLastWeekSameDayComparison(authentication)).build();
+//                return ResponseEntity.ok().body(result);
+            case "other-user":
+                // (3) 다른 유저 대비 소비율
+//                Result result = Result.builder().data(statisticsService.getExpenseComparisonWithOtherUser(authentication)).build();
+
         }
-        return ResponseEntity.ok().body(result);
+        throw new ApiException(ExceptionEnum.WRONG_EXPENSE_COMPARISON_CONDITION);
     }
 
 

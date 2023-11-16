@@ -11,6 +11,7 @@ import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -158,7 +159,7 @@ public class ExpenseService {
     /**
      * 유저의 특정 년월 전체 지출
      */
-    public List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
+    private List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
@@ -166,14 +167,31 @@ public class ExpenseService {
 
     }
 
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
+        List<Expense> expenses = getAllUserExpensesIn(yearMonth, userId);
+        return ExpenseDto.getExpenseDtoList(expenses);
+    }
+
     /**
      * 유저의 오늘 전체 지출
      */
-    public List<ExpenseDto> getAllUserExpensesIn(LocalDate localDate, Long userId) {
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
             localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), user);
+
+        //Dto로 변환
+        return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
+    }
+
+
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
+        Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
+            start, end, user);
 
         //Dto로 변환
         return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
