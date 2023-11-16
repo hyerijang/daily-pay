@@ -11,6 +11,7 @@ import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -158,7 +159,7 @@ public class ExpenseService {
     /**
      * 유저의 특정 년월 전체 지출
      */
-    public List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
+    private List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
@@ -166,10 +167,15 @@ public class ExpenseService {
 
     }
 
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
+        List<Expense> expenses = getAllUserExpensesIn(yearMonth, userId);
+        return ExpenseDto.getExpenseDtoList(expenses);
+    }
+
     /**
      * 유저의 오늘 전체 지출
      */
-    public List<ExpenseDto> getAllUserExpensesIn(LocalDate localDate, Long userId) {
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
@@ -177,5 +183,32 @@ public class ExpenseService {
 
         //Dto로 변환
         return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
+    }
+
+
+    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
+        Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
+            start, end, user);
+
+        //Dto로 변환
+        return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
+    }
+
+    public Long getAverageExpenseAmountOfToday() {
+
+        // FIXME : 오늘 일어났던 모든 소비를 DB에서 가져와서 stream으로 읽기 때문에 매우 비효율 적임. QueryDsl 적용 이후 수정요망.
+
+        //오늘 전체 유저들의 소비액 총합
+        List<Expense> allExpenseOfToday = expenseRepository.findByExpenseDateBetweenAndDeletedIsFalse(
+            LocalDateTime.now().withHour(0).withMinute(0).withSecond(0), // 오늘 0시 0분 0초부터
+            LocalDateTime.now());//현재 시각 까지
+        long sum = allExpenseOfToday.stream().mapToLong(x -> x.getAmount()).sum(); //오늘 전체 유저의 지출 총액
+        long numOfUserInToday = allExpenseOfToday.stream().map(Expense::getUser).distinct().toList()
+            .size(); //오늘 지출한 유저의 수
+
+        return sum / numOfUserInToday;
     }
 }
