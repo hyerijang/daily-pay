@@ -49,17 +49,17 @@ public class StatisticsDummyDataGenerator {
 
     private void generateDummy(User user) {
         final LocalDate TODAY = LocalDate.now();
-        final int SIZE = 100;
+        final int SIZE = 10;
 
         log.info("=== 더미 데이터 생성 시작 ===");
-        //1. 유저의 지난달 소비 데이터 100개 생성
+        //1. 유저의 지난달 소비 데이터 10개 생성
         createAndSaveExpenses(user, DateType.LAST_MONTH, SIZE); //유저, 지난달
 
         //2. 유저의 7일전 (지난주, 같은요일) 소비 데이터 생성
         createAndSaveExpenses(user, DateType.LAST_WEEK,
             SIZE); //유저, 지난주
 
-        //3.다른 유저들의 오늘 소비 데이터 생성
+        //3.다른 유저 1명의 오늘 소비 데이터 생성
         User otherUser = userRepository.findAll().stream()
             .filter(x -> x.getId() != user.getId())
             .findAny()
