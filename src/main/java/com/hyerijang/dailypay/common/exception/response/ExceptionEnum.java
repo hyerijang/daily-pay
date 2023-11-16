@@ -28,7 +28,9 @@ public enum ExceptionEnum {
     //statistics
     NOT_EXIST_OTHER_USER(HttpStatus.NOT_FOUND, "S001", "통계 생성을 위한 다른 유저 데이터가 존재하지 않습니다."),
     NOT_DEV_ENVIRONMENT(HttpStatus.FORBIDDEN, "S002 ", "운영 환경에서 실행할 수 없는 API입니다."),
-    WRONG_EXPENSE_COMPARISON_CONDITION(HttpStatus.BAD_REQUEST, "S003", "지출 통계 쿼리 파라미터가 잘못 되었습니다.");
+    WRONG_EXPENSE_COMPARISON_CONDITION(HttpStatus.BAD_REQUEST, "S003",
+        "지출 통계 쿼리 파라미터가 잘못 되었습니다."),
+    NOT_EXIST_LAST_WEEK_EXPENSE(HttpStatus.FORBIDDEN, "S004", "유저의 지난 주 같은 요일에 소비 내역이 없습니다. ");
 
 
     private final HttpStatus status;
