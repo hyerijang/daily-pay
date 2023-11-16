@@ -56,8 +56,11 @@ public class StatisticsController {
                 return ResponseEntity.ok().body(result);
             case "other-user":
                 // (3) 다른 유저 대비 소비율
-//                Result result = Result.builder().data(statisticsService.getExpenseComparisonWithOtherUser(authentication)).build();
-
+                result = Result.builder()
+                    .expenseComparisonWithOtherUser(
+                        statisticsService.getExpenseComparisonWithOtherUser(authentication))
+                    .build();
+                return ResponseEntity.ok().body(result);
         }
         throw new ApiException(ExceptionEnum.WRONG_EXPENSE_COMPARISON_CONDITION);
     }
@@ -69,7 +72,8 @@ public class StatisticsController {
     static class Result<T> {
 
         private T expenseComparisonLastMonth; // (1) 지난 달 대비 총액 및 카테고리 별 소비율
-        private Long lastWeekSameWeekDayComparison; // (2) 지난주 같은 요일 대비 소비율
+        private Double lastWeekSameWeekDayComparison; // (2) 지난주 같은 요일 대비 소비율
+        private Double expenseComparisonWithOtherUser; // (3) 다른 유저 대비 소비율
     }
 
     // == 더미데이터 생성 == //
