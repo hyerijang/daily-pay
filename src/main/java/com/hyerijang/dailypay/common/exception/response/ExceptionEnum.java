@@ -24,7 +24,10 @@ public enum ExceptionEnum {
     NOT_EXIST_EXPENSE(HttpStatus.NOT_FOUND, "EXP001", "존재하지 않는 지출입니다."),
     NOT_WRITER_OF_EXPENSE(HttpStatus.FORBIDDEN, "EX002", "조회하는 유저가 지출의 작성자가 아닙니다."),
     ALREADY_DELETED_EXPENSE(HttpStatus.FORBIDDEN, "EX003", "이미 삭제된 지출입니다."),
-    NOT_EXIST_OTHER_USER(HttpStatus.BAD_REQUEST, "U003", "다른 유저가 존재하지 않습니다.");
+
+    //statistics
+    NOT_EXIST_OTHER_USER(HttpStatus.NOT_FOUND, "S001", "통계 생성을 위한 다른 유저 데이터가 존재하지 않습니다."),
+    NOT_DEV_ENVIRONMENT(HttpStatus.FORBIDDEN, "S002 ", "운영 환경에서 실행할 수 없는 API입니다.");
 
 
     private final HttpStatus status;
