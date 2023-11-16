@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.statistics.controller;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
@@ -38,18 +39,21 @@ public class StatisticsController {
     public ResponseEntity<Result> getExpenseComparison(@Param("condition") String condition,
         Authentication authentication) {
 
+        Result result;
         switch (condition) {
             case "last-month":
                 // (1)  지난 달 대비 총액 및 카테고리 별 소비율
-                Result result = Result.builder()
-                    .data(statisticsService.getExpenseComparisonLastMonth(authentication))
+                result = Result.builder()
+                    .expenseComparisonLastMonth(
+                        statisticsService.getExpenseComparisonLastMonth(authentication))
                     .build();
                 return ResponseEntity.ok().body(result);
             case "last-week":
                 // (2) 지난주 같은 요일 대비 소비율
-//                Result result = Result.builder()
-//                    .data(statisticsService.getLastWeekSameDayComparison(authentication)).build();
-//                return ResponseEntity.ok().body(result);
+                result = Result.builder()
+                    .lastWeekSameWeekDayComparison(
+                        statisticsService.getLastWeekSameWeekDayComparison(authentication)).build();
+                return ResponseEntity.ok().body(result);
             case "other-user":
                 // (3) 다른 유저 대비 소비율
 //                Result result = Result.builder().data(statisticsService.getExpenseComparisonWithOtherUser(authentication)).build();
@@ -61,10 +65,11 @@ public class StatisticsController {
 
     @Getter
     @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Result<T> {
 
-        private int count;
-        private T data; // 리스트의 값
+        private T expenseComparisonLastMonth; // (1) 지난 달 대비 총액 및 카테고리 별 소비율
+        private Long lastWeekSameWeekDayComparison; // (2) 지난주 같은 요일 대비 소비율
     }
 
     // == 더미데이터 생성 == //
