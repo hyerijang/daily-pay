@@ -5,7 +5,6 @@ import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.service.BudgetService;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
-import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.user.domain.User;
@@ -48,12 +47,12 @@ public class ConsultingService {
      */
     private Long getAmountSpentThisMonth(Long userId) {
         //이번달 전체 지출
-        List<Expense> allUserExpensesInThinMonth = expenseService.getAllUserExpensesIn(
+        List<ExpenseDto> allUserExpensesInThinMonth = expenseService.getAllUserExpenseDtoListIn(
             YearMonth.now(),
             userId);
 
-        return allUserExpensesInThinMonth.stream().filter(expense -> !expense.getExcludeFromTotal())
-            .mapToLong(e -> e.getAmount()).sum();
+        return allUserExpensesInThinMonth.stream().filter(expense -> !expense.excludeFromTotal())
+            .mapToLong(e -> e.amount()).sum();
     }
 
     /**
@@ -97,13 +96,13 @@ public class ConsultingService {
     public List<ExpenseDto> getTodayExpenseInfo(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        return expenseService.getAllUserExpensesIn(LocalDate.now(),
+        return expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
             user.getId());
     }
 
     public Map<Category, BigDecimal> getExpenseStatisticsByCategory(Authentication authentication) {
         List<ExpenseDto> todayExpenseInfo = getTodayExpenseInfo(authentication);
-        
+
         return todayExpenseInfo.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
             .collect(
