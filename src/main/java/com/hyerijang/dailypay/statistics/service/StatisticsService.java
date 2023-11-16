@@ -11,6 +11,7 @@ import com.hyerijang.dailypay.statistics.dto.StatisticsDto;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
@@ -66,7 +67,7 @@ public class StatisticsService {
             .mapToLong(x -> x.amount()).sum();
 
         double v = (double) totalOfThisMonth / totalOfLastMonth;
-        return Long.valueOf((long) v * 100);
+        return (long) v * 100;
     }
 
     // yy년 m월 1일~  m월 d일의 소비 내역 리턴
@@ -148,4 +149,23 @@ public class StatisticsService {
         return collect;
     }
 
+
+    /**
+     * (2) 지난주 같은 요일 대비 소비율
+     */
+    public Long getLastWeekSameWeekDayComparison(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+
+        //오늘 소비 총액
+        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), user.getId())
+            .stream().mapToLong(x -> x.amount()).sum();
+
+        // 지난주 같은 요일의 소비 총액
+        Long last = expenseService.getAllUserExpenseDtoListIn(LocalDate.now().minusDays(7),
+                user.getId())
+            .stream().mapToLong(x -> x.amount()).sum();
+
+        return (long) ((double) today / last) * 100;
+    }
 }
