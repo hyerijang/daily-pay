@@ -12,9 +12,9 @@ import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
@@ -139,22 +139,19 @@ public class StatisticsDummyDataGenerator {
 
 
     /**
-     * 오늘이 a월 b일 일때, 지난 달 1일 ~ 지난 달 b 일까지의 LocalDateTime 을 랜덤하게 생성
+     * 오늘이 mm월 dd일 일때, 지난 달 1일 ~ 지난 달 b 일까지의 LocalDateTime 을 랜덤하게 생성
      */
     private static LocalDateTime generateRandomDateTimeOfLastMonth() {
-        int year = LocalDateTime.now().getYear(); //year
-        int a = LocalDateTime.now().getMonth().getValue(); //month
-        int b = LocalDateTime.now().getDayOfMonth(); // day
+        int yyyy = LocalDateTime.now().getYear(); //year
+        int mm = LocalDateTime.now().getMonth().getValue(); //month
+        int dd = LocalDateTime.now().getDayOfMonth(); // day
 
-        //지난달의 마지막 일
-        // FIXME :  로직수정
-        int lastMonthLastDay = LocalDate.now().minusMonths(1)
-            .with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+        int daysInLastMonth = YearMonth.of(yyyy, mm).lengthOfMonth(); //지난달의 일수(eg. 2월이라면 28일)
 
         //시작일 : 지난달 1일 , 종료일 : 지난달 b일
-        LocalDateTime startDateTime = LocalDateTime.of(year, Month.of(a - 1), 1, 0, 0);
-        LocalDateTime endDateTime = LocalDateTime.of(year, Month.of(a - 1),
-            min(b, lastMonthLastDay), 23, 59); // 일 : min(오늘 날짜,지난 달의 마지막 일)
+        LocalDateTime startDateTime = LocalDateTime.of(yyyy, Month.of(mm - 1), 1, 0, 0);
+        LocalDateTime endDateTime = LocalDateTime.of(yyyy, Month.of(mm - 1),
+            min(dd, daysInLastMonth), 23, 59); // 일 : min(오늘 날짜,지난 달의 마지막 일)
 
         return generateRandomDateTimeBetween(startDateTime, endDateTime);
     }
