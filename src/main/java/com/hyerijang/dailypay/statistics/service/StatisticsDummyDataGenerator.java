@@ -27,12 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class StatisticsDummyDataGenerator {
 
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public void generateDummy(Authentication authentication) {
         //유저 확인
         log.info("유저 확인");
@@ -46,7 +47,7 @@ public class StatisticsDummyDataGenerator {
     }
 
 
-    public void generateDummy(User user) {
+    private void generateDummy(User user) {
         final LocalDate TODAY = LocalDate.now();
         final int SIZE = 100;
 
@@ -116,7 +117,7 @@ public class StatisticsDummyDataGenerator {
 
 
     // === 랜덤한 LocalDateTime 생성 로직 ===//
-    public enum DateType {
+    private enum DateType {
         LAST_MONTH,
         LAST_WEEK,
         TODAY
