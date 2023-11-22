@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,15 +28,16 @@ public class AuthenticationController {
     @Operation(summary = "회원가입", description = "회원가입")
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-        @RequestBody RegisterRequest request
+        @RequestBody @Validated RegisterRequest request
     ) {
+
         return ResponseEntity.ok(service.register(request));
     }
 
     @Operation(summary = "로그인", description = "로그인")
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(
-        @RequestBody AuthenticationRequest request
+        @RequestBody @Validated AuthenticationRequest request
     ) {
         return ResponseEntity.ok(service.authenticate(request));
     }
