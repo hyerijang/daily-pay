@@ -6,22 +6,31 @@ import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 
 @Schema(description = "지출 생성 요청 DTO")
 public record CreateExpenseRequest
     (
+        @NotNull
         @Schema(description = "카테고리")
         Category category,
+
+        @Positive
         @Schema(description = "지출액")
         Long amount,
+
+        @NotNull
         @Schema(description = "메모")
-
         String memo,
-        @Schema(description = "전체 지출 제외 유무")
 
+        @NotNull
+        @Schema(description = "전체 지출 제외 유무")
         Boolean excludeFromTotal,
+
+        @PastOrPresent
         @Schema(description = "지출일시")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime expenseDate
