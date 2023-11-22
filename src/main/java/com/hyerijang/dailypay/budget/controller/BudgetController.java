@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +57,7 @@ public class BudgetController {
     @ExeTimer
     @Operation(summary = "예산 설정 및 업데이트", description = "예산 설정 및 업데이트 (금액만 변경 가능)")
     @PostMapping
-    ResponseEntity<Result> updateBudgets(@RequestBody CreateBudgetListRequest request,
+    ResponseEntity<Result> updateBudgets(@RequestBody @Validated CreateBudgetListRequest request,
         Authentication authentication) {
         List<BudgetDto> data = budgetService.update(request, authentication);
         Result result = Result.builder().count(data.size()).data(data).build();
@@ -66,7 +67,7 @@ public class BudgetController {
     @ExeTimer
     @Operation(summary = "예산 추천", description = "예산 추천")
     @GetMapping
-    ResponseEntity<Result> recommendBudgets(@RequestBody RecommendBudgetRequest request,
+    ResponseEntity<Result> recommendBudgets(@RequestBody @Validated RecommendBudgetRequest request,
         Authentication authentication) {
         List<BudgetDto> data = budgetService.recommend(request);
         Result result = Result.builder().count(data.size()).data(data).build();
