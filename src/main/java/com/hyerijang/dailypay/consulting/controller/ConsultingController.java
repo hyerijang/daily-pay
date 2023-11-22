@@ -7,6 +7,8 @@ import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "consulting", description = "지출 컨설팅 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/consulting")
@@ -33,11 +36,10 @@ public class ConsultingController {
     private static final Long MIN_EXPENSE_OF_A_DAY = 10000L; // 하루 최소 소비 금액
     private final ConsultingService consultingService;
 
-    /**
-     * [D-1] 오늘 지출 추천 API
-     */
+
     @ExeTimer
     @GetMapping("/proposal-info")
+    @Operation(summary = "오늘 지출 추천", description = "오늘 지출 추천")
     public ResponseEntity<Result> getProposalInfo(Authentication authentication) {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
@@ -112,9 +114,9 @@ public class ConsultingController {
         return remainingDays;
     }
 
-    /**
-     * 오늘 지출 안내 API
-     */
+
+    @ExeTimer
+    @Operation(summary = "오늘 지출 안내 ", description = "오늘 지출 안내 ")
     @GetMapping("/today-expenses")
     public ResponseEntity<Result> getTodayExpenses(Authentication authentication) {
 

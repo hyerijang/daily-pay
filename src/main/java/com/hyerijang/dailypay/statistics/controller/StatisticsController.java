@@ -6,6 +6,8 @@ import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.statistics.service.StatisticsDummyDataGenerator;
 import com.hyerijang.dailypay.statistics.service.StatisticsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "statistics", description = "통계  API")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -32,9 +35,8 @@ public class StatisticsController {
 
     // === 통계  API === //
 
-    /**
-     * 지난 달 대비 총액 및 카테고리 별 소비율(퍼센티지) 을 반환
-     */
+    @ExeTimer
+    @Operation(summary = "지난 달 대비 이번 달 통계", description = " 지난 달 대비 총액 및 카테고리 별 소비율(퍼센티지) 을 반환")
     @GetMapping
     public ResponseEntity<Result> getExpenseComparison(@Param("condition") String condition,
         Authentication authentication) {
@@ -78,10 +80,8 @@ public class StatisticsController {
 
     // == 더미데이터 생성 == //
 
-    /**
-     * 개발 환경에서만 실행가능한 API, (application-dev.yml)
-     */
     @ExeTimer
+    @Operation(summary = "더미데이터 생성", description = "개발 환경에서만 실행가능한 API, (application-dev.yml)")
     @PostMapping("/dummy-data")
     void generateDummy(Authentication authentication) {
 
