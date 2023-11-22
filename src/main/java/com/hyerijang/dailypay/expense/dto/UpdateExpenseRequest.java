@@ -6,7 +6,7 @@ import com.hyerijang.dailypay.expense.domain.Expense;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Schema(description = "지출 업데이트 요청")
@@ -16,7 +16,7 @@ public record UpdateExpenseRequest
         @Schema(description = "카테고리")
         Category category,
 
-        @Positive
+        @PositiveOrZero
         @Schema(description = "지출 금액")
         Long amount,
 

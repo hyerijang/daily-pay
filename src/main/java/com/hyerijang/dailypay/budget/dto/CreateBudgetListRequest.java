@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hyerijang.dailypay.budget.domain.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class CreateBudgetListRequest {
         private Category category;
 
         @NotNull
-        @Positive
+        @PositiveOrZero
         @Schema(description = "카테고리 별 남은 예산액")
         private Long amount;
     }
