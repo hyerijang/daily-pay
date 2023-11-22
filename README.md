@@ -328,7 +328,11 @@ test
 
 ## 6. API Document
 
-[API Document](https://documenter.getpostman.com/view/15143510/2s9YXo1KBA)는 Postman으로 작성하였습니다.
+### Swagger
+
+URL : `http://server:port/swagger-ui/index.html`
+
+<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/386b1359-5688-46e0-b0ed-7137c41c4c0f" width="80%"/>
 
 ## 7. 프로젝트 회고
 
