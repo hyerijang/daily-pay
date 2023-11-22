@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.YearMonthDeserializer;
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,11 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BudgetDto(Long id,
                         @JsonDeserialize(using = YearMonthDeserializer.class)
+                        @Schema(description = "예산 년월")
                         YearMonth yearMonth,
+                        @Schema(description = "카테고리")
                         Category category,
+                        @Schema(description = "카테고리 별 남은 예산액")
                         Long amount) {
 
     public static List<BudgetDto> getBudgetDetailList(List<Budget> budgets) {
@@ -42,7 +46,10 @@ public record BudgetDto(Long id,
         return budgetDtoList;
     }
 
-    private static BudgetDto createBudgetDetail(Long leftAmountOfUser, Category category,
+
+    private static BudgetDto createBudgetDetail(
+        Long leftAmountOfUser,
+        Category category,
         Integer ratio) {
         return BudgetDto
             .builder()
