@@ -3,6 +3,8 @@ package com.hyerijang.dailypay.common.exception.advice;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ApiExceptionResponse;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -27,7 +29,7 @@ public class ApiExceptionAdvice {
                 .build());
     }
 
-    // @Validated 시 발생하는 Exception Handling
+    // 컨트롤러에서 @Validated 시 발생하는 Exception Handling
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiExceptionResponse> processValidationError(
         MethodArgumentNotValidException exception) {
@@ -42,12 +44,35 @@ public class ApiExceptionAdvice {
             builder.append(" 입력된 값: [");
             builder.append(fieldError.getRejectedValue());
             builder.append("]");
+
         }
 
         return ResponseEntity
             .status(ExceptionEnum.BAD_REQUEST.getStatus()) //400
             .body(ApiExceptionResponse.builder()
-                .errorCode(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
+                .errorCode(ExceptionEnum.BAD_REQUEST.getCode())
+                .errorMessage(builder.toString())
+                .build());
+    }
+
+    // Entity @Valid 시 발생하는 Exception Handling
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiExceptionResponse> entityValidationError(
+        ConstraintViolationException exception) {
+
+        StringBuilder builder = new StringBuilder();
+
+        for (ConstraintViolation c : exception.getConstraintViolations()) {
+            builder.append("[");
+            builder.append(c.getPropertyPath());
+            builder.append("](은)는 ");
+            builder.append(c.getMessage());
+        }
+
+        return ResponseEntity
+            .status(ExceptionEnum.ENTITY_VALID_FAILED.getStatus()) //500
+            .body(ApiExceptionResponse.builder()
+                .errorCode(ExceptionEnum.ENTITY_VALID_FAILED.getCode())
                 .errorMessage(builder.toString())
                 .build());
     }
@@ -55,7 +80,7 @@ public class ApiExceptionAdvice {
     //400 : 기타 RuntimeException
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiExceptionResponse> exceptionHandler(final RuntimeException e) {
-        log.error("[RuntimeException] {}", e.getMessage());
+        log.error("[RuntimeException] {} {}", e.getClass(), e.getMessage());
         return ResponseEntity
             .status(ExceptionEnum.RUNTIME_EXCEPTION.getStatus())
             .body(ApiExceptionResponse.builder()
