@@ -5,6 +5,9 @@ import com.hyerijang.dailypay.common.exception.response.ApiExceptionResponse;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,6 +25,25 @@ public class ApiExceptionAdvice {
                 .errorCode(e.getError().getCode())
                 .errorMessage(e.getError().getMessage())
                 .build());
+    }
+
+    // @Validated 시 발생하는 Exception Handling
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public String processValidationError(MethodArgumentNotValidException exception) {
+        BindingResult bindingResult = exception.getBindingResult();
+
+        StringBuilder builder = new StringBuilder();
+        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            builder.append("[");
+            builder.append(fieldError.getField());
+            builder.append("](은)는 ");
+            builder.append(fieldError.getDefaultMessage());
+            builder.append(" 입력된 값: [");
+            builder.append(fieldError.getRejectedValue());
+            builder.append("]");
+        }
+
+        return builder.toString();
     }
 
     //400 : 기타 RuntimeException
@@ -47,5 +69,6 @@ public class ApiExceptionAdvice {
                 .errorMessage(e.getMessage())
                 .build());
     }
+
 
 }
