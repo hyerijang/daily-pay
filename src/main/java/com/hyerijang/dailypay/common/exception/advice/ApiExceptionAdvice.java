@@ -29,7 +29,8 @@ public class ApiExceptionAdvice {
 
     // @Validated 시 발생하는 Exception Handling
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public String processValidationError(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ApiExceptionResponse> processValidationError(
+        MethodArgumentNotValidException exception) {
         BindingResult bindingResult = exception.getBindingResult();
 
         StringBuilder builder = new StringBuilder();
@@ -43,7 +44,12 @@ public class ApiExceptionAdvice {
             builder.append("]");
         }
 
-        return builder.toString();
+        return ResponseEntity
+            .status(ExceptionEnum.BAD_REQUEST.getStatus()) //400
+            .body(ApiExceptionResponse.builder()
+                .errorCode(ExceptionEnum.RUNTIME_EXCEPTION.getCode())
+                .errorMessage(builder.toString())
+                .build());
     }
 
     //400 : 기타 RuntimeException
