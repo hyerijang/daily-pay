@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,7 +45,8 @@ public class ExpenseController {
     @Operation(summary = "새 지출 내역 (단건) 생성", description = "본인의 지출 내역만 생성 가능")
     @PostMapping
     public ResponseEntity<Result> createExpense(
-        @RequestBody CreateExpenseRequest createExpenseRequest, Authentication authentication) {
+        @RequestBody @Validated CreateExpenseRequest createExpenseRequest,
+        Authentication authentication) {
         ExpenseDto createdExpenseDto = expenseService.createExpense(createExpenseRequest,
             authentication);
         return ResponseEntity.ok().body(Result.builder().data(createdExpenseDto).build());
@@ -101,7 +103,8 @@ public class ExpenseController {
     @Operation(summary = "유저의 지출 내역(단건) 수정", description = "본인의 지출 내역만 수정 가능")
     @PatchMapping("/{id}")
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
-        @RequestBody UpdateExpenseRequest updateExpenseRequest, Authentication authentication) {
+        @RequestBody @Validated UpdateExpenseRequest updateExpenseRequest,
+        Authentication authentication) {
         ExpenseDto updatedExpenseDto = expenseService.updateExpense(id, updateExpenseRequest,
             authentication);
         if (updatedExpenseDto != null) {

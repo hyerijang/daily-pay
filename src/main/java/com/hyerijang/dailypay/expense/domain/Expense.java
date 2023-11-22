@@ -15,6 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,29 +30,38 @@ import lombok.NoArgsConstructor;
 public class Expense extends BaseTimeEntity {
 
     @Id
+    @Column(name = "expense_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
-    @Column(nullable = false)
+    @Column(name = "category")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Category category;
 
-    @Column(nullable = false)
+    @Column(name = "amount")
+    @PositiveOrZero
     private Long amount;
 
-    @Column(length = 100, nullable = false)
+    @Column(name = "memo")
+    @NotNull
     private String memo;
 
-    @Column(nullable = false)
-    private Boolean excludeFromTotal;
+    @Column(name = "excludeFromTotal")
+    @NotNull
+    private Boolean excludeFromTotal = false;
 
-    @Column(nullable = false)
+    @Column(name = "expenseDate")
+    @NotNull
     private LocalDateTime expenseDate;
 
+    @Column(name = "deleted")
+    @NotNull
     Boolean deleted = false;
 
 
