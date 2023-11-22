@@ -6,7 +6,6 @@ import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
@@ -30,7 +29,7 @@ public record CreateExpenseRequest
         @Schema(description = "전체 지출 제외 유무")
         Boolean excludeFromTotal,
 
-        @PastOrPresent
+        @NotNull
         @Schema(description = "지출일시")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime expenseDate
