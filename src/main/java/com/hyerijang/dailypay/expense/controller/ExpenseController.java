@@ -9,6 +9,7 @@ import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.util.List;
@@ -135,15 +136,19 @@ public class ExpenseController {
         return ResponseEntity.notFound().build();
     }
 
-
+    @Schema(description = "지출 응답")
     @Getter
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class Result<T> {
 
+        @Schema(description = "데이터의 개수")
         private Integer count;
+        @Schema(description = "총 지출액")
         private Long totalExpense;
+        @Schema(description = "API 응답 결과를 data에 담아서 반환")
         private T data; // 리스트의 값
+        @Schema(description = "지출 목록 API의 경우 카테고리 별 지출 합계를 포함")
         private Map<Category, BigDecimal> CategoryWiseExpenseSum;
     }
 
