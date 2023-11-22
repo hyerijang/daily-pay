@@ -9,6 +9,7 @@ public enum ExceptionEnum {
     RUNTIME_EXCEPTION(HttpStatus.BAD_REQUEST, "E001"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E002"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "E003", "잘못된 입력입니다."),
+    ENTITY_VALID_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E004", "엔티티 검증 과정에서 변환에 실패했습니다."),
     //auth
     ACCESS_DENIED_EXCEPTION(HttpStatus.UNAUTHORIZED, "A002", "인증이 필요합니다"),
     WRONG_REQUEST(HttpStatus.BAD_REQUEST, "A003", "잘못된 요청입니다."),
