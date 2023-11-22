@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.YearMonth;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,16 +40,20 @@ public class Budget extends BaseTimeEntity {
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Category category;
 
     @Column(name = "amount")
+    @PositiveOrZero
     private Long budgetAmount;
 
     @Column(name = "yyyy_mm")
+    @NotNull
     private YearMonth yearMonth; //년월
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
     @Builder
