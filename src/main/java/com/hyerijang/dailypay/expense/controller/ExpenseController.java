@@ -8,6 +8,8 @@ import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "expenses", description = "지출 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/expenses")
@@ -36,9 +39,8 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    /**
-     * 새 지출 내역 (단건) 생성 API <br> 본인의 지출 내역만 생성 가능
-     */
+    @ExeTimer
+    @Operation(summary = "새 지출 내역 (단건) 생성", description = "본인의 지출 내역만 생성 가능")
     @PostMapping
     public ResponseEntity<Result> createExpense(
         @RequestBody CreateExpenseRequest createExpenseRequest, Authentication authentication) {
@@ -48,9 +50,9 @@ public class ExpenseController {
 
     }
 
-    /**
-     * 유저의 지출 내역 (목록) 조회 API br> 본인의 지출 내역만 조회 가능
-     */
+
+    @ExeTimer
+    @Operation(summary = " 유저의 지출 내역 (목록) 조회", description = "본인의 지출 내역만 조회 가능")
     @GetMapping
     public ResponseEntity<Result> getAllExpenses(GetAllExpenseParam getAllExpenseParam,
         Authentication authentication) {
@@ -79,10 +81,9 @@ public class ExpenseController {
                 .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
-    /***
-     * 유저의 지출 내역(단건) 조회 API
-     */
+
     @ExeTimer
+    @Operation(summary = "유저의 지출 내역(단건) 조회", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/{id}")
     public ResponseEntity<Result> getExpenseById(@PathVariable Long id,
         Authentication authentication) {
@@ -94,10 +95,9 @@ public class ExpenseController {
         }
     }
 
-    /**
-     * 유저의 지출 내역(단건) 수정 API
-     */
+
     @ExeTimer
+    @Operation(summary = "유저의 지출 내역(단건) 수정", description = "본인의 지출 내역만 수정 가능")
     @PatchMapping("/{id}")
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
         @RequestBody UpdateExpenseRequest updateExpenseRequest, Authentication authentication) {
@@ -109,10 +109,9 @@ public class ExpenseController {
         return ResponseEntity.notFound().build();
     }
 
-    /**
-     * 유저의 지출 내역(단건) 삭제 API
-     */
+
     @ExeTimer
+    @Operation(summary = "유저의 지출 내역(단건) 삭제", description = "본인의 지출 내역만 삭제 가능")
     @DeleteMapping("/{id}")
     public ResponseEntity<Result> deleteExpense(@PathVariable Long id,
         Authentication authentication) {
@@ -124,10 +123,8 @@ public class ExpenseController {
     }
 
 
-    /**
-     * 유저의 지출 내역(단건)을 합계에서 제외하는 API
-     */
     @ExeTimer
+    @Operation(summary = "유저의 지출 내역(단건)을 지출 합계에서 제외", description = "본인의 지출 내역만 제외 가능")
     @PatchMapping("/{id}/exclude-total-sum")
     public ResponseEntity<Result> excludeFromTotal(@PathVariable Long id,
         Authentication authentication) {

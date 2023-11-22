@@ -8,6 +8,8 @@ import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.budget.service.BudgetService;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "budgets", description = "예산 API")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/budgets")
@@ -30,10 +33,11 @@ public class BudgetController {
     private final BudgetService budgetService;
     private final BudgetRepository budgetRepository;
 
+    @ExeTimer
+    @Operation(summary = "카테고리 조회", description = "카테고리 조회")
     @GetMapping("/categories")
     ResponseEntity<Result> getBudgetCategories() {
         List<CategoryDto> categoryDtoList = budgetService.getCategories();
-
         return ResponseEntity.ok()
             .body(Result.builder()
                 .count(categoryDtoList.size())
@@ -48,11 +52,9 @@ public class BudgetController {
         private T data; // 리스트의 값
     }
 
-    /**
-     * 예산 설정 및 업데이트 (금액만 변경 가능)
-     */
 
     @ExeTimer
+    @Operation(summary = "예산 설정 및 업데이트", description = "예산 설정 및 업데이트 (금액만 변경 가능)")
     @PostMapping
     ResponseEntity<Result> updateBudgets(@RequestBody CreateBudgetListRequest request,
         Authentication authentication) {
@@ -61,10 +63,8 @@ public class BudgetController {
         return ResponseEntity.ok().body(result);
     }
 
-    /**
-     * 예산 설계(추천) API
-     */
     @ExeTimer
+    @Operation(summary = "예산 추천", description = "예산 추천")
     @GetMapping
     ResponseEntity<Result> recommendBudgets(@RequestBody RecommendBudgetRequest request,
         Authentication authentication) {
