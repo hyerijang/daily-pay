@@ -3,11 +3,8 @@ package com.hyerijang.dailypay.consulting.service;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.budget.service.BudgetService;
-import com.hyerijang.dailypay.common.exception.ApiException;
-import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
-import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,18 +30,15 @@ public class ConsultingService {
     /**
      * 이번 달 남은 예산 계산
      */
-    public Long getBudgetRemainingForThisMonth(Authentication authentication) {
+    public Long getBudgetRemainingForThisMonth(Long userId) {
         // (이번달) 남은 예산 = 예산 - 사용금액
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-
-        return getBudgetThisMonth(user.getId()) - getAmountSpentThisMonth(user.getId());
+        return getBudgetThisMonth(userId) - getAmountSpentThisMonth(userId);
     }
 
     /**
      * 이번 달 전체 지출
      */
-    private Long getAmountSpentThisMonth(Long userId) {
+    public Long getAmountSpentThisMonth(Long userId) {
         //이번달 전체 지출
         List<ExpenseDto> allUserExpensesInThinMonth = expenseService.getAllUserExpenseDtoListIn(
             YearMonth.now(),
@@ -56,19 +49,9 @@ public class ConsultingService {
     }
 
     /**
-     * 이번 달 전체 지출
-     */
-    public Long getAmountSpentThisMonth(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        return getAmountSpentThisMonth(user.getId()); //인자가 다른 동일한 메서드 호출
-    }
-
-
-    /**
      * 이번달 예산
      */
-    private Long getBudgetThisMonth(Long userId) {
+    public Long getBudgetThisMonth(Long userId) {
         return budgetService.getTotalAmountOfBudgetIn(YearMonth.now(),
             userId);
     }
@@ -82,26 +65,16 @@ public class ConsultingService {
     }
 
 
-    public Long getBudgetThisMonth(Authentication authentication) {
-
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-
-        return getBudgetThisMonth(user.getId());
-    }
-
     /**
      * 오늘 지출 내역 전체
      */
-    public List<ExpenseDto> getTodayExpenseInfo(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+    public List<ExpenseDto> getTodayExpenseInfo(Long userId) {
         return expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
-            user.getId());
+            userId);
     }
 
-    public Map<Category, BigDecimal> getExpenseStatisticsByCategory(Authentication authentication) {
-        List<ExpenseDto> todayExpenseInfo = getTodayExpenseInfo(authentication);
+    public Map<Category, BigDecimal> getExpenseStatisticsByCategory(Long userId) {
+        List<ExpenseDto> todayExpenseInfo = getTodayExpenseInfo(userId);
 
         return todayExpenseInfo.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
@@ -116,11 +89,7 @@ public class ConsultingService {
     /**
      * 이번 달 카테고리 별 예산 dto 반환
      */
-    public List<BudgetDto> getBudgetsByCategoryInThisMonth(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-
-        return budgetService.getBudgetDtoListOfAllCategoryListIn(YearMonth.now(), user.getId());
-
+    public List<BudgetDto> getBudgetsByCategoryInThisMonth(Long userId) {
+        return budgetService.getBudgetDtoListOfAllCategoryListIn(YearMonth.now(), userId);
     }
 }
