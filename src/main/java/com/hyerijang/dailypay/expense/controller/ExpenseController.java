@@ -1,6 +1,7 @@
 package com.hyerijang.dailypay.expense.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
@@ -8,6 +9,7 @@ import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
+import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +22,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,9 +47,9 @@ public class ExpenseController {
     @PostMapping
     public ResponseEntity<Result> createExpense(
         @RequestBody @Validated CreateExpenseRequest createExpenseRequest,
-        Authentication authentication) {
+        @CurrentUser User user) {
         ExpenseDto createdExpenseDto = expenseService.createExpense(createExpenseRequest,
-            authentication);
+            user.getId());
         return ResponseEntity.ok().body(Result.builder().data(createdExpenseDto).build());
 
     }
@@ -58,11 +59,11 @@ public class ExpenseController {
     @Operation(summary = " 유저의 지출 내역 (목록) 조회", description = "본인의 지출 내역만 조회 가능")
     @GetMapping
     public ResponseEntity<Result> getAllExpenses(GetAllExpenseParam getAllExpenseParam,
-        Authentication authentication) {
+        @CurrentUser User user) {
 
         //1. 기간 별 지출 내역 조회
         List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseParam,
-            authentication);
+            user);
 
         //2. 지출 내역 토대로 지출 합계 , 카테고리 별 지출 합계 계산
         //지출 합계 (excludeFromTotal이 true인 경우 제외)
@@ -89,8 +90,8 @@ public class ExpenseController {
     @Operation(summary = "유저의 지출 내역(단건) 조회", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/{id}")
     public ResponseEntity<Result> getExpenseById(@PathVariable Long id,
-        Authentication authentication) {
-        ExpenseDto expenseDto = expenseService.getExpenseById(id, authentication);
+        @CurrentUser User user) {
+        ExpenseDto expenseDto = expenseService.getExpenseById(id, user.getId());
         if (expenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(expenseDto).build());
         } else {
@@ -104,9 +105,9 @@ public class ExpenseController {
     @PatchMapping("/{id}")
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
         @RequestBody @Validated UpdateExpenseRequest updateExpenseRequest,
-        Authentication authentication) {
+        @CurrentUser User user) {
         ExpenseDto updatedExpenseDto = expenseService.updateExpense(id, updateExpenseRequest,
-            authentication);
+            user.getId());
         if (updatedExpenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
         }
@@ -118,8 +119,8 @@ public class ExpenseController {
     @Operation(summary = "유저의 지출 내역(단건) 삭제", description = "본인의 지출 내역만 삭제 가능")
     @DeleteMapping("/{id}")
     public ResponseEntity<Result> deleteExpense(@PathVariable Long id,
-        Authentication authentication) {
-        ExpenseDto updatedExpenseDto = expenseService.deleteExpense(id, authentication);
+        @CurrentUser User user) {
+        ExpenseDto updatedExpenseDto = expenseService.deleteExpense(id, user.getId());
         if (updatedExpenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
         }
@@ -131,8 +132,8 @@ public class ExpenseController {
     @Operation(summary = "유저의 지출 내역(단건)을 지출 합계에서 제외", description = "본인의 지출 내역만 제외 가능")
     @PatchMapping("/{id}/exclude-total-sum")
     public ResponseEntity<Result> excludeFromTotal(@PathVariable Long id,
-        Authentication authentication) {
-        ExpenseDto updatedExpenseDto = expenseService.excludeFromTotal(id, authentication);
+        @CurrentUser User user) {
+        ExpenseDto updatedExpenseDto = expenseService.excludeFromTotal(id, user.getId());
         if (updatedExpenseDto != null) {
             return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
         }
