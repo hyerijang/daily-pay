@@ -8,7 +8,6 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.statistics.dto.StatisticsDto;
-import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,16 +36,13 @@ public class StatisticsService {
     /**
      * (1) 지난 달 대비 총액 및 카테고리 별 소비율
      */
-    public StatisticsDto getExpenseComparisonLastMonth(Authentication authentication) {
-
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+    public StatisticsDto getExpenseComparisonLastMonth(Long userId) {
 
         //1. 지난 달 대비 총액 소비율
-        Long totalExpenseComparison = getTotalExpenseComparisonTotalLastMonth(user);
+        Long totalExpenseComparison = getTotalExpenseComparisonTotalLastMonth(userId);
         //2. 지난 달 대비 카테고리 별 소비율
         Map<Category, Double> categoryExpenseComparison = getCategoryExpenseComparisonLastMonth(
-            user);
+            userId);
 
         return new StatisticsDto(totalExpenseComparison, categoryExpenseComparison);
     }
@@ -56,17 +51,17 @@ public class StatisticsService {
     /**
      * 지난 달 대비 총액 소비율
      */
-    private Long getTotalExpenseComparisonTotalLastMonth(User user) {
+    private Long getTotalExpenseComparisonTotalLastMonth(Long userId) {
         //오늘이 yyyy 년 mm월 dd일 일때
         int yyyy = LocalDateTime.now().getYear(); //year
         int mm = LocalDateTime.now().getMonth().getValue(); //month
         int dd = LocalDateTime.now().getDayOfMonth(); // day
 
         // 1.지난달 1일 ~ b일 소비액
-        Long totalOfLastMonth = getTotal(yyyy, mm - 1, dd, user.getId()).stream()
+        Long totalOfLastMonth = getTotal(yyyy, mm - 1, dd, userId).stream()
             .mapToLong(x -> x.amount()).sum();
         // 2.이번 달 1일 ~ b일 소비액
-        Long totalOfThisMonth = getTotal(yyyy, mm, dd, user.getId()).stream()
+        Long totalOfThisMonth = getTotal(yyyy, mm, dd, userId).stream()
             .mapToLong(x -> x.amount()).sum();
 
         double v = (double) totalOfThisMonth / totalOfLastMonth;
@@ -101,18 +96,16 @@ public class StatisticsService {
     /**
      * 지난 달 대비 카테고리 별 소비율
      */
-    private Map<Category, Double> getCategoryExpenseComparisonLastMonth(User user) {
+    private Map<Category, Double> getCategoryExpenseComparisonLastMonth(Long userId) {
         //1. 지난 달 카테고리 별 소비액
         Map<Category, BigDecimal> categoryExpenseInLastMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now().minusMonths(1),
-                user.getId())
+            expenseService.getAllUserExpenseDtoListIn(YearMonth.now().minusMonths(1), userId)
         );
 
         //2. 이번 달 카테고리 별 소비액
 
         Map<Category, BigDecimal> categoryExpenseInThisMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now(),
-                user.getId())
+            expenseService.getAllUserExpenseDtoListIn(YearMonth.now(), userId)
         );
 
         //3. 지난달, 이번 달 비교
@@ -155,12 +148,10 @@ public class StatisticsService {
     /**
      * (2) 지난주 같은 요일 대비 소비율
      */
-    public Double getLastWeekSameWeekDayComparison(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+    public Double getLastWeekSameWeekDayComparison(Long userId) {
         // 지난주 같은 요일의 소비 총액
         Long last = expenseService.getAllUserExpenseDtoListIn(LocalDate.now().minusDays(7),
-                user.getId())
+                userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         if (last == 0) {
@@ -168,7 +159,7 @@ public class StatisticsService {
         }
 
         //오늘 소비 총액
-        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), user.getId())
+        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         return ((double) today / last) * 100;
@@ -177,18 +168,15 @@ public class StatisticsService {
     /**
      * (3) 다른 유저 대비 소비율
      */
-    public Double getExpenseComparisonWithOtherUser(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-
+    public Double getExpenseComparisonWithOtherUser(Long userId) {
         //오늘 user의 소비 총액
         Long userExpenseAmount = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
-                user.getId())
+                userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         //오늘 전체 유저들의 소비 평균액
         Long averageExpenseAmount = expenseService.getAverageExpenseAmountOfToday();
-        log.info("오늘 {}의 소비 총액 = {}", authentication.getName(), userExpenseAmount);
+        log.info("오늘 {}의 소비 총액 = {}", userId, userExpenseAmount);
         log.info("오늘 전체 유저들의 소비 평균액 = {}", averageExpenseAmount);
         log.info("비율 = {}", ((double) userExpenseAmount / averageExpenseAmount) * 100);
 
