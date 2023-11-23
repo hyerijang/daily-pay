@@ -10,6 +10,7 @@ import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "consulting", description = "지출 컨설팅 API")
+@SecurityRequirement(name = "Bearer Authentication")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/consulting")
