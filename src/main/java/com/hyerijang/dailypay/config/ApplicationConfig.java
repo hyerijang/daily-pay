@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.config;
 
-import com.hyerijang.dailypay.auth.CustomUserDetailsService;
+import com.hyerijang.dailypay.auth.service.CustomUserDetailsService;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class ApplicationConfig {
         throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

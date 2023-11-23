@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.auth;
+package com.hyerijang.dailypay.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

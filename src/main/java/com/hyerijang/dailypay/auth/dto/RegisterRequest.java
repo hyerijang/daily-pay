@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.auth;
+package com.hyerijang.dailypay.auth.dto;
 
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
