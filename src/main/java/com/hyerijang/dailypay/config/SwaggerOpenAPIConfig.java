@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.config;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -9,10 +10,15 @@ import org.springframework.context.annotation.Configuration;
 /**
  * OpenAPI 설정
  */
+@io.swagger.v3.oas.annotations.security.SecurityScheme(
+    name = "Bearer Authentication",
+    type = SecuritySchemeType.HTTP,
+    bearerFormat = "JWT",
+    scheme = "bearer"
+)
 @Configuration
 public class SwaggerOpenAPIConfig {
-
-
+    
     // API info 등록
     @Bean
     public OpenAPI dailyPayAPI() {
