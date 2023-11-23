@@ -23,9 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
      * username이 DB에 존재하는지 확인
      **/
     @Override
-    public UserDetails loadUserByUsername(String email)
-        throws UsernameNotFoundException {
-        log.info("DB 확인 : {}", email);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("유저의 이메일이 DB에 있는지 확인 (이메일: {})", email);
         User user = userRepository.findByEmail(email).orElseThrow(
             () -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
 
