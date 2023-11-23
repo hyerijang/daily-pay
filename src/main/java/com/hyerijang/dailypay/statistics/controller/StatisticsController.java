@@ -9,6 +9,7 @@ import com.hyerijang.dailypay.statistics.service.StatisticsDummyDataGenerator;
 import com.hyerijang.dailypay.statistics.service.StatisticsService;
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
 import lombok.Builder;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "statistics", description = "통계  API")
+@SecurityRequirement(name = "Bearer Authentication")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
