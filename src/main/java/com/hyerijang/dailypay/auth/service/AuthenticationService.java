@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.auth.dto.AuthenticationRequest;
 import com.hyerijang.dailypay.auth.dto.AuthenticationResponse;
 import com.hyerijang.dailypay.auth.dto.RegisterRequest;
-import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.config.JwtService;
@@ -23,8 +22,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthenticationService {
 
@@ -34,7 +35,6 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    @ExeTimer
     public AuthenticationResponse register(RegisterRequest request) {
         User user = User.builder()
             .email(request.email())
@@ -59,7 +59,6 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    @ExeTimer
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -88,7 +87,7 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    @ExeTimer
+
     public void refreshToken(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
