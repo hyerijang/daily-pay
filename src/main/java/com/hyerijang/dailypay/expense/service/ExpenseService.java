@@ -16,7 +16,6 @@ import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ExpenseService {
-    // TODO : 지출 서비스 구현
 
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
@@ -34,73 +32,56 @@ public class ExpenseService {
      * 새 지출 내역 (단건) 생성
      */
     @Transactional
-    public ExpenseDto createExpense(CreateExpenseRequest createExpenseRequest,
-        Authentication authentication) {
-
-        User user = findUserByEmail(authentication);
+    public ExpenseDto createExpense(CreateExpenseRequest createExpenseRequest, Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         Expense savedExpense = expenseRepository.save(createExpenseRequest.toEntity(user));
-
         return ExpenseDto.of(savedExpense);
-    }
-
-    private User findUserByEmail(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(
-                ExceptionEnum.NOT_EXIST_USER));
-        return user;
     }
 
 
     /**
      * 유저의 지출 내역 (목록) 조회
      */
-    public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request,
-        Authentication authentication) {
-        User user = findUserByEmail(authentication);
-        List<Expense> result = findExpenseWithCondition(request, user);
-        log.info("result = {}", result.size());
+    public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request, User user) {
+        List<Expense> result = findExpenseWithCondition(request, user.getId());
         return ExpenseDto.getExpenseDtoList(result);
     }
 
-    private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, User user) {
+    private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, Long userId) {
         //조건 = {유저의 Expense ,기간 (start ~ end) , 삭제되지 않은 Expense}
         //기간은 시작일의 0시 0분 0초 ~ 종료일의 23시 59분 59초
-        return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
-            request.start().atStartOfDay(), request.end().atTime(23, 59, 59),
-
-            user);
+        return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
+            request.start().atStartOfDay(), request.end().atTime(23, 59, 59), userId);
     }
 
     /**
      * 유저의 지출 내역 (단건) 조회 , 삭제된 Expense는 제외
      */
-    public ExpenseDto getExpenseById(Long id, Authentication authentication) {
-        User user = findUserByEmail(authentication);
+    public ExpenseDto getExpenseById(Long id, Long userId) {
         Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
-        validateFound(user, found);
+        validateFound(userId, found);
 
         return ExpenseDto.of(found);
     }
 
 
-    Boolean isNotExpenseWriter(User user, User writerOfExpense) {
-        return user != writerOfExpense;
+    Boolean isNotExpenseWriter(Long userId, Long writerOfExpense) {
+        return (userId != writerOfExpense);
     }
 
     /**
      * 유저의 지출 내역(단건) 수정
      */
     @Transactional
-    public ExpenseDto updateExpense(Long id, UpdateExpenseRequest request,
-        Authentication authentication) {
+    public ExpenseDto updateExpense(Long id, UpdateExpenseRequest request, Long userId) {
 
-        User user = findUserByEmail(authentication);
         Expense found = expenseRepository.findById(id)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
-        validateFound(user, found);
+        validateFound(userId, found);
 
         //updateExpenseRequest의 내용으로 Expense found를 업데이트
         request.updateFoundWithRequest(found);
@@ -111,13 +92,12 @@ public class ExpenseService {
      * 유저의 지출 내역(단건) 삭제
      */
     @Transactional
-    public ExpenseDto deleteExpense(Long id, Authentication authentication) {
+    public ExpenseDto deleteExpense(Long id, Long userId) {
 
-        User user = findUserByEmail(authentication);
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
-        validateFound(user, found);
+        validateFound(userId, found);
 
         found.delete();
 
@@ -129,11 +109,10 @@ public class ExpenseService {
      * 유저의 지출 내역(단건)을 합계에서 제외
      */
     @Transactional
-    public ExpenseDto excludeFromTotal(Long id, Authentication authentication) {
-        User user = findUserByEmail(authentication);
+    public ExpenseDto excludeFromTotal(Long id, Long userId) {
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
-        validateFound(user, found);
+        validateFound(userId, found);
 
         found.excludeFromTotal();
 
@@ -144,9 +123,9 @@ public class ExpenseService {
     /**
      * user가 crud 가능한 found인지 검증
      */
-    private void validateFound(User user, Expense found) {
+    private void validateFound(Long userId, Expense found) {
         //작성자인지 체크
-        if (isNotExpenseWriter(user, found.getUser())) {
+        if (isNotExpenseWriter(userId, found.getUser().getId())) {
             throw new ApiException(ExceptionEnum.NOT_WRITER_OF_EXPENSE);
         }
 
@@ -162,8 +141,8 @@ public class ExpenseService {
     private List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        return expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
-            yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59), user);
+        return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
+            yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59), userId);
 
     }
 
@@ -176,10 +155,8 @@ public class ExpenseService {
      * 유저의 오늘 전체 지출
      */
     public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
-            localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), user);
+        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
+            localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), userId);
 
         //Dto로 변환
         return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
@@ -188,11 +165,8 @@ public class ExpenseService {
 
     public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
         Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserAndDeletedIsFalse(
-            start, end, user);
-
+        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
+            start, end, userId);
         //Dto로 변환
         return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
     }
