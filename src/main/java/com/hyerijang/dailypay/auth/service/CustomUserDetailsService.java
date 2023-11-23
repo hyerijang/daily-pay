@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.auth;
+package com.hyerijang.dailypay.auth.service;
 
 import com.hyerijang.dailypay.auth.dto.UserAdapter;
 import com.hyerijang.dailypay.common.exception.ApiException;

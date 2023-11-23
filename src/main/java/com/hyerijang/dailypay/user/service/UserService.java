@@ -1,6 +1,6 @@
 package com.hyerijang.dailypay.user.service;
 
-import com.hyerijang.dailypay.auth.RegisterRequest;
+import com.hyerijang.dailypay.auth.dto.RegisterRequest;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
