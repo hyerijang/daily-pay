@@ -1,11 +1,13 @@
 package com.hyerijang.dailypay.statistics.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.statistics.service.StatisticsDummyDataGenerator;
 import com.hyerijang.dailypay.statistics.service.StatisticsService;
+import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Arrays;
@@ -16,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,7 @@ public class StatisticsController {
     @Operation(summary = "지난 달 대비 이번 달 통계", description = " 지난 달 대비 총액 및 카테고리 별 소비율(퍼센티지) 을 반환")
     @GetMapping
     public ResponseEntity<Result> getExpenseComparison(@Param("condition") String condition,
-        Authentication authentication) {
+        @CurrentUser User user) {
 
         Result result;
         switch (condition) {
@@ -47,20 +48,20 @@ public class StatisticsController {
                 // (1)  지난 달 대비 총액 및 카테고리 별 소비율
                 result = Result.builder()
                     .expenseComparisonLastMonth(
-                        statisticsService.getExpenseComparisonLastMonth(authentication))
+                        statisticsService.getExpenseComparisonLastMonth(user.getId()))
                     .build();
                 return ResponseEntity.ok().body(result);
             case "last-week":
                 // (2) 지난주 같은 요일 대비 소비율
                 result = Result.builder()
                     .lastWeekSameWeekDayComparison(
-                        statisticsService.getLastWeekSameWeekDayComparison(authentication)).build();
+                        statisticsService.getLastWeekSameWeekDayComparison(user.getId())).build();
                 return ResponseEntity.ok().body(result);
             case "other-user":
                 // (3) 다른 유저 대비 소비율
                 result = Result.builder()
                     .expenseComparisonWithOtherUser(
-                        statisticsService.getExpenseComparisonWithOtherUser(authentication))
+                        statisticsService.getExpenseComparisonWithOtherUser(user.getId()))
                     .build();
                 return ResponseEntity.ok().body(result);
         }
@@ -83,7 +84,7 @@ public class StatisticsController {
     @ExeTimer
     @Operation(summary = "더미데이터 생성", description = "개발 환경에서만 실행가능한 API, (application-dev.yml)")
     @PostMapping("/dummy-data")
-    void generateDummy(Authentication authentication) {
+    void generateDummy(@CurrentUser User user) {
 
         //개발 환경인지 체크
         String[] activeProfiles = environment.getActiveProfiles();
@@ -93,7 +94,7 @@ public class StatisticsController {
             throw new ApiException(ExceptionEnum.NOT_DEV_ENVIRONMENT);
         }
 
-        dummyDataGenerator.generateDummy(authentication);
+        dummyDataGenerator.generateDummy(user.getId());
     }
 
 }
