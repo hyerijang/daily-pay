@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,26 +39,21 @@ public class BudgetService {
     }
 
     @Transactional
-    public List<BudgetDto> update(CreateBudgetListRequest request,
-        Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName()).orElseThrow(
-            () -> new ApiException(ExceptionEnum.NOT_EXIST_USER)
-        );
-
-        List<Budget> budgets = budgetRepository.saveAll(getBudgets(request, user));
+    public List<BudgetDto> update(CreateBudgetListRequest request, Long userId) {
+        List<Budget> budgets = budgetRepository.saveAll(getBudgets(request, userId));
         return BudgetDto.getBudgetDetailList(budgets);
     }
 
     /***
      * DB 에서 {유저id, 년월, 카테고리}가 일치하는 예산들을 조회한다. Budget 조회 과정에서 기존 예산이 없다면 새 예산 생성해서 리스트에 포함한다.
      */
-    private List<Budget> getBudgets(CreateBudgetListRequest request, User user) {
+    private List<Budget> getBudgets(CreateBudgetListRequest request, Long userId) {
         List<Budget> budgets = request.getData().stream()
             .map(d ->
                 {
                     //기존 예산 있다면 조회, 없다면 새 예산 생성
-                    Budget budget = findExistUser(user, request.getYearMonth(), d.getCategory())
-                        .orElse(createNewBudget(user, request.getYearMonth(), d.getCategory()));
+                    Budget budget = findExistUser(userId, request.getYearMonth(), d.getCategory())
+                        .orElse(createNewBudget(userId, request.getYearMonth(), d.getCategory()));
                     //업데이트
                     budget.updateBudgetAmount(d.getAmount());
                     return budget;
@@ -69,12 +63,14 @@ public class BudgetService {
         return budgets;
     }
 
-    private Optional<Budget> findExistUser(User user, YearMonth yearMonth, Category category) {
-        return budgetRepository.findByUserIdAndYearMonthAndCategory(user.getId(), yearMonth,
+    private Optional<Budget> findExistUser(Long userId, YearMonth yearMonth, Category category) {
+        return budgetRepository.findByUserIdAndYearMonthAndCategory(userId, yearMonth,
             category);
     }
 
-    private static Budget createNewBudget(User user, YearMonth yearMonth, Category category) {
+    private Budget createNewBudget(Long userId, YearMonth yearMonth, Category category) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         return Budget.builder()
             .category(category)
             .yearMonth(yearMonth)
