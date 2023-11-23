@@ -3,10 +3,12 @@ package com.hyerijang.dailypay.consulting.controller;
 import static java.lang.Math.max;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetDto;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
+import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
@@ -21,7 +23,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,10 +41,10 @@ public class ConsultingController {
     @ExeTimer
     @GetMapping("/proposal-info")
     @Operation(summary = "오늘 지출 추천", description = "오늘 지출 추천")
-    public ResponseEntity<Result> getProposalInfo(Authentication authentication) {
+    public ResponseEntity<Result> getProposalInfo(@CurrentUser User user) {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
-            authentication);
+            user.getId());
 
         // 2. 오늘 쓸 수 있는 금액 = (이번달 남은 예산) / (이번 달 남은 일 수)
         Long todayExpenseProposal = budgetRemainingForThisMonth / getRemainingDaysInMonth();
@@ -118,19 +119,18 @@ public class ConsultingController {
     @ExeTimer
     @Operation(summary = "오늘 지출 안내 ", description = "오늘 지출 안내 ")
     @GetMapping("/today-expenses")
-    public ResponseEntity<Result> getTodayExpenses(Authentication authentication) {
+    public ResponseEntity<Result> getTodayExpenses(@CurrentUser User user) {
 
         // 1.이번 달 예산
-        Long budgetForThisMonth = consultingService.getBudgetThisMonth(authentication);
+        Long budgetForThisMonth = consultingService.getBudgetThisMonth(user.getId());
         // 2.이번 달 남은 예산 계산
-        Long getAmountSpentThisMonth = consultingService.getAmountSpentThisMonth(
-            authentication);
+        Long getAmountSpentThisMonth = consultingService.getAmountSpentThisMonth(user.getId());
         // 3. 이번달 카테고리 별 지출 통계
         Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
-            authentication);
+            user.getId());
         // 4. 이번 달 카테고리 별 예산
         List<BudgetDto> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
-            authentication);
+            user.getId());
 
         // 로그
         log.info("이번 달 예산 = {}", budgetForThisMonth);
