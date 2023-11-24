@@ -11,12 +11,15 @@ import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
+import com.querydsl.core.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,10 +63,6 @@ public class ExpenseService {
             request.start().atStartOfDay(), request.end().atTime(23, 59, 59), userId);
     }
 
-
-    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
-        return expenseRepository.search(condition);
-    }
 
     /**
      * 유저의 지출 내역 (단건) 조회 , 삭제된 Expense는 제외
@@ -194,5 +193,35 @@ public class ExpenseService {
             .size(); //오늘 지출한 유저의 수
 
         return sum / numOfUserInToday;
+    }
+
+    //== QueryDsl==//
+
+    /**
+     * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
+     */
+    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+        return expenseRepository.search(condition);
+    }
+
+    /**
+     * 유저의 지출 내역 (목록) 조회 v3 (QueryDSL + Paging)
+     */
+    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
+        return expenseRepository.searchPage(condition, pageable);
+    }
+
+    /**
+     * 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
+     */
+    public Long getTotalExpenseAmount(ExpenseSearchCondition condition) {
+        return expenseRepository.getTotalExpenseAmount(condition);
+    }
+
+    /**
+     * 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
+     */
+    public List<Tuple> getCategoryWiseExpenseSum(ExpenseSearchCondition condition) {
+        return expenseRepository.getCategoryWiseExpenseSum(condition);
     }
 }
