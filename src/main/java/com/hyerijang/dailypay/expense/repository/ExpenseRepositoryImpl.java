@@ -77,7 +77,15 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 categoryEq(condition.category()),
                 minAmountGoe(condition.minAmount()),
                 maxAmountLoe(condition.maxAmount()),
-                isNotDeleted())
+                isNotDeleted());
+
+        // 동적 정렬
+        if (pageable.getSort().isSorted()) {
+            for (var order : pageable.getSort()) {
+                query.orderBy(getOrderSpecifier(order, expense));
+            }
+        }
+        return query
             .offset(pageable.getOffset())   // (2) 페이지 번호
             .limit(pageable.getPageSize())
             .fetch();
@@ -161,5 +169,31 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return expense.excludeFromTotal.eq(false);
     }
 
+    private OrderSpecifier<?> getOrderSpecifier(org.springframework.data.domain.Sort.Order order,
+        QExpense expense) {
+        ComparableExpressionBase<?> orderExpression = getOrderExpression(order, expense);
+        return order.isAscending() ? orderExpression.asc() : orderExpression.desc();
+    }
 
+    private ComparableExpressionBase<?> getOrderExpression(
+        org.springframework.data.domain.Sort.Order order, QExpense expense) {
+        switch (order.getProperty()) {
+            case "id":
+                return expense.id;
+            case "userId":
+                return expense.user.id;
+            case "category":
+                return expense.category;
+            case "amount":
+                return expense.amount;
+            case "memo":
+                return expense.memo;
+            case "excludeFromTotal":
+                return expense.excludeFromTotal;
+            case "expenseDate":
+                return expense.expenseDate;
+            default:
+                throw new IllegalArgumentException("Invalid sort property: " + order.getProperty());
+        }
+    }
 }
