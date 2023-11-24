@@ -133,6 +133,7 @@ public class ExpenseController {
     @GetMapping
     public ResponseEntity<Result> search(GetAllExpenseParam getAllExpenseParam,
         @CurrentUser User user) {
+        log.info(getAllExpenseParam.toString());
         ExpenseSearchCondition condition = ExpenseSearchCondition.of(getAllExpenseParam,
             user.getId()); //본인 지출내역만 조회 가능
 
