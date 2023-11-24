@@ -5,17 +5,21 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
+import com.querydsl.core.Tuple;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,18 +46,23 @@ public class ExpenseService {
 
     /**
      * 유저의 지출 내역 (목록) 조회
+     *
+     * @see : com.hyerijang.dailypay.expense.service.search
      */
+    @Deprecated
     public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request, User user) {
         List<Expense> result = findExpenseWithCondition(request, user.getId());
         return ExpenseDto.getExpenseDtoList(result);
     }
 
+    @Deprecated
     private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, Long userId) {
         //조건 = {유저의 Expense ,기간 (start ~ end) , 삭제되지 않은 Expense}
         //기간은 시작일의 0시 0분 0초 ~ 종료일의 23시 59분 59초
         return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             request.start().atStartOfDay(), request.end().atTime(23, 59, 59), userId);
     }
+
 
     /**
      * 유저의 지출 내역 (단건) 조회 , 삭제된 Expense는 제외
@@ -184,5 +193,35 @@ public class ExpenseService {
             .size(); //오늘 지출한 유저의 수
 
         return sum / numOfUserInToday;
+    }
+
+    //== QueryDsl==//
+
+    /**
+     * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
+     */
+    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+        return expenseRepository.search(condition);
+    }
+
+    /**
+     * 유저의 지출 내역 (목록) 조회 v3 (QueryDSL + Paging)
+     */
+    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
+        return expenseRepository.searchPage(condition, pageable);
+    }
+
+    /**
+     * 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
+     */
+    public Long getTotalExpenseAmount(ExpenseSearchCondition condition) {
+        return expenseRepository.getTotalExpenseAmount(condition);
+    }
+
+    /**
+     * 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
+     */
+    public List<Tuple> getCategoryWiseExpenseSum(ExpenseSearchCondition condition) {
+        return expenseRepository.getCategoryWiseExpenseSum(condition);
     }
 }
