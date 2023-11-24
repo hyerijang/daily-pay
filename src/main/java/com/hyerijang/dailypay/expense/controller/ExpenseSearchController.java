@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class ExpenseSearchController {
     private final ExpenseService expenseService;
 
     @ExeTimer
-    @Operation(summary = " 유저의 지출 내역 (목록) 조회 V1", description = "본인의 지출 내역만 조회 가능")
+    @Operation(summary = "유저의 지출 내역 (목록) 조회 V1", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/api/v1/expenses")
     public ResponseEntity<Result> searchV1(GetAllExpenseParam getAllExpenseParam,
         @CurrentUser User user) {
@@ -52,9 +53,7 @@ public class ExpenseSearchController {
             user);
 
         //2. 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
-        Long totalExpense = userAllExpenses.stream()
-            .filter(exDto -> !exDto.excludeFromTotal())
-            .mapToLong(exDto -> exDto.amount()).sum();
+        Long totalExpense = getTotalExpenseFrom(userAllExpenses);
 
         //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
         Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
@@ -72,7 +71,7 @@ public class ExpenseSearchController {
 
 
     @ExeTimer
-    @Operation(summary = " 유저의 지출 내역 (목록) 조회 V2 (QueryDsl)", description = "본인의 지출 내역만 조회 가능")
+    @Operation(summary = "유저의 지출 내역 (목록) 조회 V2 (QueryDsl)", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/api/v2/expenses")
     public ResponseEntity<Result> searchV2(GetAllExpenseParam getAllExpenseParam,
         @CurrentUser User user) {
@@ -83,9 +82,7 @@ public class ExpenseSearchController {
         List<ExpenseDto> userAllExpenses = expenseService.search(condition);
 
         //2. 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
-        Long totalExpense = userAllExpenses.stream()
-            .filter(exDto -> !exDto.excludeFromTotal())
-            .mapToLong(exDto -> exDto.amount()).sum();
+        Long totalExpense = getTotalExpenseFrom(userAllExpenses);
 
         //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
         Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
@@ -101,9 +98,17 @@ public class ExpenseSearchController {
                 .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
+    private static Long getTotalExpenseFrom(List<ExpenseDto> userAllExpenses) {
+        Long totalExpense = userAllExpenses.stream()
+            .filter(exDto -> !exDto.excludeFromTotal())
+            .sorted(Comparator.comparing(ExpenseDto::expenseDate)) //  expenseDate 순으로 정렬
+            .mapToLong(exDto -> exDto.amount()).sum();
+        return totalExpense;
+    }
+
 
     @ExeTimer
-    @Operation(summary = " 유저의 지출 내역 (목록) 조회 V3 (QueryDsl + 페이징)", description = "본인의 지출 내역만 조회 가능")
+    @Operation(summary = "유저의 지출 내역 (목록) 조회 V3 (QueryDsl + 페이징)", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/api/v3/expenses")
     public ResponseEntity<ResultV3> searchV3(GetAllExpenseParam getAllExpenseParam,
         @CurrentUser User user, Pageable pageable
