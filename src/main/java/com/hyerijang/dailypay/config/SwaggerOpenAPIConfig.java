@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 )
 @Configuration
 public class SwaggerOpenAPIConfig {
-
+    
     // API info 등록
     @Bean
     public OpenAPI dailyPayAPI() {
@@ -34,7 +34,7 @@ public class SwaggerOpenAPIConfig {
     public GroupedOpenApi group1Config() {
         return GroupedOpenApi.builder()
             .group("v1-definition")
-            .pathsToMatch("/api/**")
+            .pathsToMatch("/api/v1/**")
             .build();
     }
 

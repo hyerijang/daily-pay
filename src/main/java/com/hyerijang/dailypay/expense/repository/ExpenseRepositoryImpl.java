@@ -3,23 +3,15 @@ package com.hyerijang.dailypay.expense.repository;
 import static com.hyerijang.dailypay.expense.domain.QExpense.expense;
 
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.expense.domain.QExpense;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.ComparableExpressionBase;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -44,85 +36,6 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 maxAmountLoe(condition.maxAmount()),
                 isNotDeleted()
             )
-            .fetch();
-    }
-
-    @Override
-    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
-        List<ExpenseDto> content = getExpenseList(condition, pageable);
-        JPAQuery<Long> countQuery = getCount(condition);
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
-
-    @Override
-    public Long getTotalExpenseAmount(ExpenseSearchCondition condition) {
-        return getSumOfAmount(condition).fetchOne();
-    }
-
-    @Override
-    public List<Tuple> getCategoryWiseExpenseSum(ExpenseSearchCondition condition) {
-        return getCategorySumGroupByCategory(condition);
-    }
-
-
-    private List<ExpenseDto> getExpenseList(ExpenseSearchCondition condition, Pageable pageable) {
-        JPAQuery<ExpenseDto> query = queryFactory.select(
-                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
-                    expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
-            .from(expense)
-            .where(
-                userIdEq(condition.userId()),
-                startAfter(condition.start()),
-                endBefore(condition.end()),
-                categoryEq(condition.category()),
-                minAmountGoe(condition.minAmount()),
-                maxAmountLoe(condition.maxAmount()),
-                isNotDeleted())
-            .offset(pageable.getOffset())   // (2) 페이지 번호
-            .limit(pageable.getPageSize())
-            .fetch();
-    }
-
-    private JPAQuery<Long> getCount(ExpenseSearchCondition condition) {
-        return queryFactory.select(expense.count())
-            .from(expense)
-            .where(
-                userIdEq(condition.userId()),
-                startAfter(condition.start()),
-                endBefore(condition.end()),
-                categoryEq(condition.category()),
-                minAmountGoe(condition.minAmount()),
-                maxAmountLoe(condition.maxAmount()),
-                isNotDeleted());
-    }
-
-    private JPAQuery<Long> getSumOfAmount(ExpenseSearchCondition condition) {
-        return queryFactory.select(expense.amount.sum())
-            .from(expense)
-            .where(
-                userIdEq(condition.userId()),
-                startAfter(condition.start()),
-                endBefore(condition.end()),
-                categoryEq(condition.category()),
-                minAmountGoe(condition.minAmount()),
-                maxAmountLoe(condition.maxAmount()),
-                isNotDeleted(),
-                notExcludeFromTotal());
-    }
-
-    private List<Tuple> getCategorySumGroupByCategory(ExpenseSearchCondition condition) {
-        return queryFactory.select(expense.category, expense.amount.sum())
-            .from(expense)
-            .where(
-                userIdEq(condition.userId()),
-                startAfter(condition.start()),
-                endBefore(condition.end()),
-                categoryEq(condition.category()),
-                minAmountGoe(condition.minAmount()),
-                maxAmountLoe(condition.maxAmount()),
-                isNotDeleted(),
-                notExcludeFromTotal())
-            .groupBy(expense.category)
             .fetch();
     }
 
@@ -152,14 +65,9 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return maxAmount != null ? expense.amount.loe(maxAmount) : null;
     }
 
+
     private static BooleanExpression isNotDeleted() {
         return expense.deleted.eq(false);
     }
-
-    private BooleanExpression notExcludeFromTotal() {
-        //제외되지 않았으면 true리턴
-        return expense.excludeFromTotal.eq(false);
-    }
-
 
 }
