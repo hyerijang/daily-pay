@@ -3,6 +3,7 @@ package com.hyerijang.dailypay.expense.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.domain.Expense;
+import com.querydsl.core.annotations.QueryProjection;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
@@ -34,4 +35,10 @@ public record ExpenseDto(
     public static List<ExpenseDto> getExpenseDtoList(List<Expense> expenses) {
         return expenses.stream().map((expense) -> ExpenseDto.of(expense)).toList();
     }
+
+    @QueryProjection
+    public ExpenseDto {
+    }
+
+
 }
