@@ -34,7 +34,7 @@ public class SwaggerOpenAPIConfig {
     public GroupedOpenApi group1Config() {
         return GroupedOpenApi.builder()
             .group("v1-definition")
-            .pathsToMatch("/api/**")
+            .pathsToMatch("/api/**") //
             .build();
     }
 
