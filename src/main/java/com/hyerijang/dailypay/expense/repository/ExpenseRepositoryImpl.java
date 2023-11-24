@@ -2,6 +2,7 @@ package com.hyerijang.dailypay.expense.repository;
 
 import static com.hyerijang.dailypay.expense.domain.QExpense.expense;
 
+import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.querydsl.core.types.Projections;
@@ -30,9 +31,14 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 userIdEq(condition.userId()),
                 startAfter(condition.start()),
                 endBefore(condition.end()),
+                categoryEq(condition.category()),
                 isNotDeleted()
             )
             .fetch();
+    }
+
+    private BooleanExpression categoryEq(Category category) {
+        return category != null ? expense.category.eq(category) : null;
     }
 
     private static BooleanExpression userIdEq(Long userId) {
