@@ -5,6 +5,7 @@ import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.repository.ExpenseRepository;
@@ -42,17 +43,26 @@ public class ExpenseService {
 
     /**
      * 유저의 지출 내역 (목록) 조회
+     *
+     * @see : com.hyerijang.dailypay.expense.service.search
      */
+    @Deprecated
     public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request, User user) {
         List<Expense> result = findExpenseWithCondition(request, user.getId());
         return ExpenseDto.getExpenseDtoList(result);
     }
 
+    @Deprecated
     private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, Long userId) {
         //조건 = {유저의 Expense ,기간 (start ~ end) , 삭제되지 않은 Expense}
         //기간은 시작일의 0시 0분 0초 ~ 종료일의 23시 59분 59초
         return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             request.start().atStartOfDay(), request.end().atTime(23, 59, 59), userId);
+    }
+
+
+    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+        return expenseRepository.search(condition);
     }
 
     /**
