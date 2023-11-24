@@ -6,7 +6,7 @@ springdoc:
     groups:
       enabled: true
   
-  paths-to-match: /api/v1/**
+  paths-to-match: /api/**
   packages-to-scan: com.hyerijang.dailypay
   swagger-ui:
     path: /swagger-ui.html # http://server:port + path를  Swagger UI page(http://server:port/swagger-ui/index.html) 로 리다이렉트 시킴
