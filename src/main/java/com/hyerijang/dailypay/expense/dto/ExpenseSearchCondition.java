@@ -9,7 +9,9 @@ public record ExpenseSearchCondition(
     LocalDateTime start,
     LocalDateTime end,
     Long userId,
-    Category category
+    Category category,
+    Long minAmount,
+    Long maxAmount
 ) {
 
     public static ExpenseSearchCondition of(GetAllExpenseParam getAllExpenseParam, Long userId) {
@@ -26,6 +28,8 @@ public record ExpenseSearchCondition(
             .end(end)
             .userId(userId)
             .category(getAllExpenseParam.category())
+            .minAmount(getAllExpenseParam.min_amount())
+            .maxAmount(getAllExpenseParam.max_amount())
             .build();
     }
 }

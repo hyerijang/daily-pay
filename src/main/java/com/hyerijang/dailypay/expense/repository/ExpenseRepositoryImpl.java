@@ -32,13 +32,11 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 startAfter(condition.start()),
                 endBefore(condition.end()),
                 categoryEq(condition.category()),
+                minAmountGoe(condition.minAmount()),
+                maxAmountLoe(condition.maxAmount()),
                 isNotDeleted()
             )
             .fetch();
-    }
-
-    private BooleanExpression categoryEq(Category category) {
-        return category != null ? expense.category.eq(category) : null;
     }
 
     private static BooleanExpression userIdEq(Long userId) {
@@ -53,15 +51,23 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return end != null ? expense.expenseDate.before(end) : null;
     }
 
+    private BooleanExpression categoryEq(Category category) {
+        return category != null ? expense.category.eq(category) : null;
+    }
+
+    private BooleanExpression minAmountGoe(Long minAmount) {
+        // expense.amount >= minAmount
+        return minAmount != null ? expense.amount.goe(minAmount) : null;
+    }
+
+    private BooleanExpression maxAmountLoe(Long maxAmount) {
+        // expense.amount >= maxAmount
+        return maxAmount != null ? expense.amount.loe(maxAmount) : null;
+    }
+
+
     private static BooleanExpression isNotDeleted() {
         return expense.deleted.eq(false);
     }
 
-//    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
-//        return queryFactory.select(
-//                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
-//                    expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
-//            .from(expense)
-//            .fetch();
-//    }
 }
