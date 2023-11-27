@@ -138,11 +138,11 @@ test
 사항은 [Notion - DAILY PAY : 프로젝트 목표](https://www.notion.so/hyerijang/DAILY-PAY-f87db3c141604f11a4e1da933f25a86c)
 참고 바랍니다.
 
-<img  src = "https://github.com/hyerijang/daily-pay/assets/46921979/3447bacb-1f5b-405f-b207-3f3917b11c67" width="70%"  />
+<img  src = "https://github.com/hyerijang/daily-pay/assets/46921979/3447bacb-1f5b-405f-b207-3f3917b11c67" width="80%"  />
 
 <details>
     <summary><h4>ERD (자세히)</h4></summary>
-<img src="https://github.com/hyerijang/daily-pay/assets/46921979/d4a8925c-a99d-4928-862b-ee248549c0f6" width="70%" />
+<img src="https://github.com/hyerijang/daily-pay/assets/46921979/d4a8925c-a99d-4928-862b-ee248549c0f6" width="80%" />
 </details>
 <details>
     <summary> <h4>[A] 유저 기능 (자세히)</h4></summary>
