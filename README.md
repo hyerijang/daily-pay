@@ -343,9 +343,11 @@ test
 
 ### Swagger
 
-URL : `http://server:port/swagger-ui/index.html`
+- URL : `http://server:port/swagger-ui/index.html`
+- 인증 API를 제외한 다른 API들은 Acceess Token을 필요로 합니다.
 
-<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/386b1359-5688-46e0-b0ed-7137c41c4c0f" width="80%"/>
+<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/f1d2d79a-577b-4b90-a88c-a53345490a96" width="80%"/>
+<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/736025d1-74d4-4779-821a-9c6797352310" width="80%"/>
 
 ## 7. 프로젝트 회고
 
