@@ -56,17 +56,24 @@ public class ExpenseSearchController {
         Long totalExpense = getTotalExpenseFrom(userAllExpenses);
 
         //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
+        Map<Category, BigDecimal> categoryWiseExpenseSum = getCategoryWiseSumMap(
+            userAllExpenses);
+
+        return ResponseEntity.ok()
+            .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size())
+                .totalExpense(totalExpense)
+                .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
+    }
+
+    private static Map<Category, BigDecimal> getCategoryWiseSumMap(
+        List<ExpenseDto> userAllExpenses) {
         Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())
             .collect(Collectors.groupingBy(ExpenseDto::category,
                 Collectors.reducing(BigDecimal.ZERO,
                     exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
             ));
-
-        return ResponseEntity.ok()
-            .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size())
-                .totalExpense(totalExpense)
-                .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
+        return categoryWiseExpenseSum;
     }
 
 
@@ -85,12 +92,8 @@ public class ExpenseSearchController {
         Long totalExpense = getTotalExpenseFrom(userAllExpenses);
 
         //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
-        Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
-            .filter(exDto -> !exDto.excludeFromTotal())
-            .collect(Collectors.groupingBy(ExpenseDto::category,
-                Collectors.reducing(BigDecimal.ZERO,
-                    exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
-            ));
+        Map<Category, BigDecimal> categoryWiseExpenseSum = getCategoryWiseSumMap(
+            userAllExpenses);
 
         return ResponseEntity.ok()
             .body(Result.builder().data(userAllExpenses).count(userAllExpenses.size())
