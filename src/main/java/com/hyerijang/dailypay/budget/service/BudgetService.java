@@ -2,7 +2,7 @@ package com.hyerijang.dailypay.budget.service;
 
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
@@ -39,9 +39,9 @@ public class BudgetService {
     }
 
     @Transactional
-    public List<BudgetDto> update(CreateBudgetListRequest request, Long userId) {
+    public List<BudgetResponse> update(CreateBudgetListRequest request, Long userId) {
         List<Budget> budgets = budgetRepository.saveAll(getBudgets(request, userId));
-        return BudgetDto.getBudgetDetailList(budgets);
+        return BudgetResponse.getBudgetDetailList(budgets);
     }
 
     /***
@@ -81,7 +81,7 @@ public class BudgetService {
     /***
      * 예산 추천 기능
      */
-    public List<BudgetDto> recommend(RecommendBudgetRequest request) {
+    public List<BudgetResponse> recommend(RecommendBudgetRequest request) {
 
         //1. 카테고리 별  평균 예산 비율 계산
         List<Object[]> result = budgetRepository.getUserBudgetTotalAmountByCategoryOrderBySumDesc();
@@ -94,7 +94,7 @@ public class BudgetService {
             (category, rate) -> log.debug("{} : {} ", category, rate));
 
         //2. 카테고리 별  평균 예산 비율 계산을 바탕으로 결과 생성
-        return BudgetDto.generateBudgetDetails(request.userBudgetTotalAmount(),
+        return BudgetResponse.generateBudgetDetails(request.userBudgetTotalAmount(),
             averageRatioByCategory);
     }
 
@@ -150,11 +150,13 @@ public class BudgetService {
     /**
      * 유저의 해당 년월 예산 을 DTO로 변환한 뒤 전부 반환
      */
-    public List<BudgetDto> getBudgetDtoListOfAllCategoryListIn(YearMonth this_month, Long userId) {
-        return BudgetDto.getBudgetDetailList(getBudgetListOfAllCategoryListIn(this_month, userId));
+    public List<BudgetResponse> getBudgetDtoListOfAllCategoryListIn(YearMonth this_month,
+        Long userId) {
+        return BudgetResponse.getBudgetDetailList(
+            getBudgetListOfAllCategoryListIn(this_month, userId));
     }
 
-    public List<BudgetDto> recommend(Long finalTodayExpenseProposal) {
+    public List<BudgetResponse> recommend(Long finalTodayExpenseProposal) {
         return recommend(new RecommendBudgetRequest(finalTodayExpenseProposal));
     }
 }

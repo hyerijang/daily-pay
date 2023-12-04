@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
@@ -68,7 +68,7 @@ public class BudgetControllerTest {
 
 
     List<CategoryDto> categoryDtoList;
-    List<BudgetDto> budgetDtoList;
+    List<BudgetResponse> budgetResponseList;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
@@ -78,11 +78,11 @@ public class BudgetControllerTest {
         // 테스트용 데이터 생성
         ObjectMapper objectMapper = new ObjectMapper();
 
-        budgetDtoList = new ArrayList<>();
-        BudgetDto budgetDto = objectMapper.readValue(json, BudgetDto.class);
-        BudgetDto budgetDto2 = objectMapper.readValue(json2, BudgetDto.class);
-        budgetDtoList.add(budgetDto);
-        budgetDtoList.add(budgetDto2);
+        budgetResponseList = new ArrayList<>();
+        BudgetResponse budgetResponse = objectMapper.readValue(json, BudgetResponse.class);
+        BudgetResponse budgetResponse2 = objectMapper.readValue(json2, BudgetResponse.class);
+        budgetResponseList.add(budgetResponse);
+        budgetResponseList.add(budgetResponse2);
 
         categoryDtoList = Category
             .toList()
@@ -115,7 +115,7 @@ public class BudgetControllerTest {
 
         // given
         when(budgetService.update(any(CreateBudgetListRequest.class), any()))
-            .thenReturn(budgetDtoList);
+            .thenReturn(budgetResponseList);
 
         String requestBody = """
             {
@@ -156,7 +156,8 @@ public class BudgetControllerTest {
     void testRecommendBudgets() throws Exception {
 
         // given
-        when(budgetService.recommend(any(RecommendBudgetRequest.class))).thenReturn(budgetDtoList);
+        when(budgetService.recommend(any(RecommendBudgetRequest.class))).thenReturn(
+            budgetResponseList);
 
         String requestBody = """
                 {
@@ -171,7 +172,7 @@ public class BudgetControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(print());
-        
+
         // than
         verify(budgetService, times(1)).recommend(any(RecommendBudgetRequest.class));
 

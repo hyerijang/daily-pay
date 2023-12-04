@@ -2,7 +2,7 @@ package com.hyerijang.dailypay.budget.controller;
 
 
 import com.hyerijang.dailypay.auth.CurrentUser;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.budget.dto.CategoryDto;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
@@ -48,22 +48,15 @@ public class BudgetController {
                 .data(categoryDtoList).build());
     }
 
-    @Getter
-    @Builder
-    static class Result<T> {
-
-        private int count;
-        private T data; // 리스트의 값
-    }
-
-
     @ExeTimer
     @Operation(summary = "예산 설정 및 업데이트", description = "예산 설정 및 업데이트 (금액만 변경 가능)")
     @PostMapping
     ResponseEntity<Result> updateBudgets(@RequestBody @Validated CreateBudgetListRequest request,
         @CurrentUser User user) {
-        List<BudgetDto> data = budgetService.update(request, user.getId());
-        Result result = Result.builder().count(data.size()).data(data).build();
+        List<BudgetResponse> updatedBudgetResponseList = budgetService.update(request,
+            user.getId());
+        Result result = Result.builder().count(updatedBudgetResponseList.size())
+            .data(updatedBudgetResponseList).build();
         return ResponseEntity.ok().body(result);
     }
 
@@ -72,9 +65,19 @@ public class BudgetController {
     @GetMapping
     ResponseEntity<Result> recommendBudgets(
         @RequestBody @Validated RecommendBudgetRequest request) {
-        List<BudgetDto> data = budgetService.recommend(request);
-        Result result = Result.builder().count(data.size()).data(data).build();
+        List<BudgetResponse> recommendBudgetResponseList = budgetService.recommend(request);
+        Result result = Result.builder().count(recommendBudgetResponseList.size())
+            .data(recommendBudgetResponseList)
+            .build();
         return ResponseEntity.ok().body(result);
+    }
+
+    @Getter
+    @Builder
+    static class Result<T> {
+
+        private int count;
+        private T data; // 리스트의 값
     }
 
 }

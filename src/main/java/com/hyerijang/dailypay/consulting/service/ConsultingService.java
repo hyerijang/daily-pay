@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.consulting.service;
 
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.budget.service.BudgetService;
 import com.hyerijang.dailypay.expense.dto.ExpenseDto;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
@@ -59,8 +59,8 @@ public class ConsultingService {
     /**
      * 카테고리 별 제안액
      */
-    public List<BudgetDto> getProposalInfo(Long finalTodayExpenseProposal) {
-        List<BudgetDto> recommend = budgetService.recommend(finalTodayExpenseProposal);
+    public List<BudgetResponse> getProposalInfo(Long finalTodayExpenseProposal) {
+        List<BudgetResponse> recommend = budgetService.recommend(finalTodayExpenseProposal);
         return recommend;
     }
 
@@ -89,7 +89,7 @@ public class ConsultingService {
     /**
      * 이번 달 카테고리 별 예산 dto 반환
      */
-    public List<BudgetDto> getBudgetsByCategoryInThisMonth(Long userId) {
+    public List<BudgetResponse> getBudgetsByCategoryInThisMonth(Long userId) {
         return budgetService.getBudgetDtoListOfAllCategoryListIn(YearMonth.now(), userId);
     }
 }

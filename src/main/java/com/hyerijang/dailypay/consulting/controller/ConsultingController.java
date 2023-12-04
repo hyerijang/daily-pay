@@ -5,7 +5,7 @@ import static java.lang.Math.max;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import com.hyerijang.dailypay.user.domain.User;
@@ -59,7 +59,8 @@ public class ConsultingController {
             todayExpenseProposal < MIN_EXPENSE_OF_A_DAY ? MIN_EXPENSE_OF_A_DAY
                 : todayExpenseProposal;
         // 3.카테고리 별 제안액
-        List<BudgetDto> proposalResponse = consultingService.getProposalInfo(todayExpenseProposal);
+        List<BudgetResponse> proposalResponse = consultingService.getProposalInfo(
+            todayExpenseProposal);
 
         // 로그
         log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
@@ -131,7 +132,7 @@ public class ConsultingController {
         Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
             user.getId());
         // 4. 이번 달 카테고리 별 예산
-        List<BudgetDto> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
+        List<BudgetResponse> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
             user.getId());
 
         // 로그
@@ -156,17 +157,17 @@ public class ConsultingController {
      */
     private Map<Category, CombinedDataDto> analysis(
         Map<Category, BigDecimal> expenseStatisticsByCategory,
-        List<BudgetDto> budgetsByCategoryInThisMonth) {
+        List<BudgetResponse> budgetsByCategoryInThisMonth) {
         Map<Category, CombinedDataDto> combinedDataByCategory = new LinkedHashMap<>();
 
-        for (BudgetDto budgetDto : budgetsByCategoryInThisMonth) {
+        for (BudgetResponse budgetResponse : budgetsByCategoryInThisMonth) {
             //카테고리 (예산에 등록되어 있는 카테고리 한정)
-            Category expectedCategory = budgetDto.category();
+            Category expectedCategory = budgetResponse.category();
             //해당 카테고리의 지출액
-            Long expenseAmount = expenseStatisticsByCategory.getOrDefault(budgetDto.category(),
+            Long expenseAmount = expenseStatisticsByCategory.getOrDefault(budgetResponse.category(),
                 BigDecimal.ZERO).longValue(); //지출액이 없는경우 0으로 설정
             //해당 카테고리의 예산액
-            Long budgetAmount = budgetDto.amount();
+            Long budgetAmount = budgetResponse.amount();
 
             //위험도 (퍼센티지) 계산
             double riskRate = 0.0;
