@@ -34,6 +34,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * 회원 가입
+     *
+     * @param request
+     * @return
+     */
     public AuthenticationResponse register(RegisterRequest request) {
         User user = User.builder()
             .email(request.email())
@@ -47,6 +53,9 @@ public class AuthenticationService {
 
     }
 
+    /**
+     * 유저 토큰 DB에 저장
+     */
     private void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
             .user(user)
@@ -58,6 +67,12 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+    /**
+     * 인증 및 로그인
+     *
+     * @param request
+     * @return
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -74,6 +89,11 @@ public class AuthenticationService {
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
+    /**
+     * user의 모든 토큰을 취소, 만료 시킴
+     *
+     * @param user
+     */
     private void revokeAllUserTokens(User user) {
         List<Token> validUserTokens = tokenRepository.findAllValidTokenByUserId(user.getId());
         if (validUserTokens.isEmpty()) {
@@ -87,6 +107,13 @@ public class AuthenticationService {
     }
 
 
+    /**
+     * 유저의 토큰 갱신 ,authHeader를 체크해서 유효한 refresh 토큰이면 access토큰 갱신해 준다.
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     public void refreshToken(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
