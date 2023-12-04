@@ -175,8 +175,8 @@ public class ConsultingController {
                 riskRate = ((double) expenseAmount / budgetAmount) * 100; // 퍼센티지 (riskRate %)
             }
 
-            CombinedDataDto combinedDataDto = new CombinedDataDto(
-                (int) riskRate, budgetAmount - expenseAmount, expenseAmount, budgetAmount);
+            CombinedDataDto combinedDataDto = new CombinedDataDto(riskRate,
+                budgetAmount - expenseAmount, expenseAmount, budgetAmount);
             combinedDataByCategory.put(expectedCategory, combinedDataDto);
         }
         return combinedDataByCategory;
@@ -187,7 +187,7 @@ public class ConsultingController {
     private static class CombinedDataDto //카테고리의 예산
     {
 
-        private Integer riskRate;
+        private Double riskRate; // 위험도 (0~1)
         private Long remainingBudgetByCategory; //카테고리의 남은 예산
         private Long expenseByCategory; // 카테고리의 지출
         private Long categoryBudge;
