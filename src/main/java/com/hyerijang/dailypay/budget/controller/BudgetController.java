@@ -3,7 +3,7 @@ package com.hyerijang.dailypay.budget.controller;
 
 import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.dto.BudgetResponse;
-import com.hyerijang.dailypay.budget.dto.CategoryDto;
+import com.hyerijang.dailypay.budget.dto.CategoryResponse;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
@@ -41,11 +41,11 @@ public class BudgetController {
     @Operation(summary = "카테고리 조회", description = "카테고리 조회")
     @GetMapping("/categories")
     ResponseEntity<Result> getBudgetCategories() {
-        List<CategoryDto> categoryDtoList = budgetService.getCategories();
+        List<CategoryResponse> categoryResponseList = budgetService.getCategories();
         return ResponseEntity.ok()
             .body(Result.builder()
-                .count(categoryDtoList.size())
-                .data(categoryDtoList).build());
+                .count(categoryResponseList.size())
+                .data(categoryResponseList).build());
     }
 
     @ExeTimer

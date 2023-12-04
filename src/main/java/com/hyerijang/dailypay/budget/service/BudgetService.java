@@ -3,7 +3,7 @@ package com.hyerijang.dailypay.budget.service;
 import com.hyerijang.dailypay.budget.domain.Budget;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetResponse;
-import com.hyerijang.dailypay.budget.dto.CategoryDto;
+import com.hyerijang.dailypay.budget.dto.CategoryResponse;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
@@ -31,10 +31,10 @@ public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
 
-    public List<CategoryDto> getCategories() {
+    public List<CategoryResponse> getCategories() {
         return Category.toList()
             .stream()
-            .map((c) -> new CategoryDto(c.getCode(), c.getTitle()))
+            .map((c) -> new CategoryResponse(c.getCode(), c.getTitle()))
             .toList();
     }
 
