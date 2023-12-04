@@ -3,7 +3,7 @@ package com.hyerijang.dailypay.consulting.service;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.budget.service.BudgetService;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.math.BigDecimal;
@@ -40,7 +40,7 @@ public class ConsultingService {
      */
     public Long getAmountSpentThisMonth(Long userId) {
         //이번달 전체 지출
-        List<ExpenseDto> allUserExpensesInThinMonth = expenseService.getAllUserExpenseDtoListIn(
+        List<ExpenseResponse> allUserExpensesInThinMonth = expenseService.getAllUserExpenseDtoListIn(
             YearMonth.now(),
             userId);
 
@@ -68,18 +68,18 @@ public class ConsultingService {
     /**
      * 오늘 지출 내역 전체
      */
-    public List<ExpenseDto> getTodayExpenseInfo(Long userId) {
+    public List<ExpenseResponse> getTodayExpenseInfo(Long userId) {
         return expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
             userId);
     }
 
     public Map<Category, BigDecimal> getExpenseStatisticsByCategory(Long userId) {
-        List<ExpenseDto> todayExpenseInfo = getTodayExpenseInfo(userId);
+        List<ExpenseResponse> todayExpenseInfo = getTodayExpenseInfo(userId);
 
         return todayExpenseInfo.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
             .collect(
-                Collectors.groupingBy(ExpenseDto::category,
+                Collectors.groupingBy(ExpenseResponse::category,
                     Collectors.reducing(BigDecimal.ZERO,
                         exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
                 ));

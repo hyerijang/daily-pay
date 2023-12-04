@@ -5,7 +5,7 @@ import static java.lang.Math.min;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.statistics.dto.StatisticsDto;
 import com.hyerijang.dailypay.user.repository.UserRepository;
@@ -69,7 +69,7 @@ public class StatisticsService {
     }
 
     // yy년 m월 1일~  m월 d일의 소비 내역 리턴
-    private List<ExpenseDto> getTotal(int yyyy, int mm, int dd, Long userId) {
+    private List<ExpenseResponse> getTotal(int yyyy, int mm, int dd, Long userId) {
         //0월은 존재 하지 않으므로 yy-1년 12월로 변경
         if (mm == 0) {
             yyyy -= 1;
@@ -132,11 +132,12 @@ public class StatisticsService {
     }
 
 
-    private static Map<Category, BigDecimal> getCategoryExpense(List<ExpenseDto> expenseDtoList) {
-        Map<Category, BigDecimal> collect = expenseDtoList.stream()
+    private static Map<Category, BigDecimal> getCategoryExpense(
+        List<ExpenseResponse> expenseResponseList) {
+        Map<Category, BigDecimal> collect = expenseResponseList.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
             .collect(
-                Collectors.groupingBy(ExpenseDto::category,
+                Collectors.groupingBy(ExpenseResponse::category,
                     Collectors.reducing(BigDecimal.ZERO,
                         exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
                 ));

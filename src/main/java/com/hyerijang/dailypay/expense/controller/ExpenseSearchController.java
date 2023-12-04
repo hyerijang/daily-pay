@@ -5,7 +5,7 @@ import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.expense.controller.ExpenseController.Result;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
@@ -49,7 +49,8 @@ public class ExpenseSearchController {
             user.getId()); //본인 지출내역만 조회 가능
 
         //1. 기간 별 지출 내역 조회
-        List<ExpenseDto> userAllExpenses = expenseService.getUserAllExpenses(getAllExpenseParam,
+        List<ExpenseResponse> userAllExpenses = expenseService.getUserAllExpenses(
+            getAllExpenseParam,
             user);
 
         //2. 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
@@ -66,10 +67,10 @@ public class ExpenseSearchController {
     }
 
     private static Map<Category, BigDecimal> getCategoryWiseSumMap(
-        List<ExpenseDto> userAllExpenses) {
+        List<ExpenseResponse> userAllExpenses) {
         Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())
-            .collect(Collectors.groupingBy(ExpenseDto::category,
+            .collect(Collectors.groupingBy(ExpenseResponse::category,
                 Collectors.reducing(BigDecimal.ZERO,
                     exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
             ));
@@ -86,7 +87,7 @@ public class ExpenseSearchController {
             user.getId()); //본인 지출내역만 조회 가능
 
         //1. 기간 별 지출 내역 조회 (QueryDsl)
-        List<ExpenseDto> userAllExpenses = expenseService.search(condition);
+        List<ExpenseResponse> userAllExpenses = expenseService.search(condition);
 
         //2. 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
         Long totalExpense = getTotalExpenseFrom(userAllExpenses);
@@ -101,10 +102,10 @@ public class ExpenseSearchController {
                 .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
-    private static Long getTotalExpenseFrom(List<ExpenseDto> userAllExpenses) {
+    private static Long getTotalExpenseFrom(List<ExpenseResponse> userAllExpenses) {
         Long totalExpense = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())
-            .sorted(Comparator.comparing(ExpenseDto::expenseDate)) //  expenseDate 순으로 정렬
+            .sorted(Comparator.comparing(ExpenseResponse::expenseDate)) //  expenseDate 순으로 정렬
             .mapToLong(exDto -> exDto.amount()).sum();
         return totalExpense;
     }
@@ -121,7 +122,7 @@ public class ExpenseSearchController {
             user.getId()); //본인 지출내역만 조회 가능
 
         //1. 기간 별 지출 내역 조회 (QueryDsl, page)
-        Page<ExpenseDto> userExpensesPage = expenseService.searchPage(condition, pageable);
+        Page<ExpenseResponse> userExpensesPage = expenseService.searchPage(condition, pageable);
 
         //3. 카테고리 별 지출 합계 (excludeFromTotal이 true인 경우 제외)
         List<Tuple> categoryWiseExpenseSum = expenseService.getCategoryWiseExpenseSum(condition);

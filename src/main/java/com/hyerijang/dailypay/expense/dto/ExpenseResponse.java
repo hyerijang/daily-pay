@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record ExpenseDto(
+public record ExpenseResponse(
     Long id,
     Long userId,
     Category category,
@@ -20,8 +20,8 @@ public record ExpenseDto(
     LocalDateTime expenseDate
 ) {
 
-    public static ExpenseDto of(Expense savedExpense) {
-        return ExpenseDto.builder()
+    public static ExpenseResponse of(Expense savedExpense) {
+        return ExpenseResponse.builder()
             .id(savedExpense.getId())
             .userId(savedExpense.getUser().getId())
             .category(savedExpense.getCategory())
@@ -32,12 +32,12 @@ public record ExpenseDto(
             .build();
     }
 
-    public static List<ExpenseDto> getExpenseDtoList(List<Expense> expenses) {
-        return expenses.stream().map((expense) -> ExpenseDto.of(expense)).toList();
+    public static List<ExpenseResponse> getExpenseDtoList(List<Expense> expenses) {
+        return expenses.stream().map((expense) -> ExpenseResponse.of(expense)).toList();
     }
 
     @QueryProjection
-    public ExpenseDto {
+    public ExpenseResponse {
     }
 
 

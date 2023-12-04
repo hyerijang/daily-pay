@@ -4,7 +4,7 @@ import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.hyerijang.dailypay.expense.dto.GetAllExpenseParam;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
@@ -36,11 +36,11 @@ public class ExpenseService {
      * 새 지출 내역 (단건) 생성
      */
     @Transactional
-    public ExpenseDto createExpense(CreateExpenseRequest createExpenseRequest, Long userId) {
+    public ExpenseResponse createExpense(CreateExpenseRequest createExpenseRequest, Long userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         Expense savedExpense = expenseRepository.save(createExpenseRequest.toEntity(user));
-        return ExpenseDto.of(savedExpense);
+        return ExpenseResponse.of(savedExpense);
     }
 
 
@@ -50,9 +50,9 @@ public class ExpenseService {
      * @see : com.hyerijang.dailypay.expense.service.search
      */
     @Deprecated
-    public List<ExpenseDto> getUserAllExpenses(GetAllExpenseParam request, User user) {
+    public List<ExpenseResponse> getUserAllExpenses(GetAllExpenseParam request, User user) {
         List<Expense> result = findExpenseWithCondition(request, user.getId());
-        return ExpenseDto.getExpenseDtoList(result);
+        return ExpenseResponse.getExpenseDtoList(result);
     }
 
     @Deprecated
@@ -67,13 +67,13 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역 (단건) 조회 , 삭제된 Expense는 제외
      */
-    public ExpenseDto getExpenseById(Long id, Long userId) {
+    public ExpenseResponse getExpenseById(Long id, Long userId) {
         Expense found = expenseRepository.findByIdAndDeletedIsFalse(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
 
         validateFound(userId, found);
 
-        return ExpenseDto.of(found);
+        return ExpenseResponse.of(found);
     }
 
 
@@ -85,7 +85,7 @@ public class ExpenseService {
      * 유저의 지출 내역(단건) 수정
      */
     @Transactional
-    public ExpenseDto updateExpense(Long id, UpdateExpenseRequest request, Long userId) {
+    public ExpenseResponse updateExpense(Long id, UpdateExpenseRequest request, Long userId) {
 
         Expense found = expenseRepository.findById(id)
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
@@ -94,14 +94,14 @@ public class ExpenseService {
 
         //updateExpenseRequest의 내용으로 Expense found를 업데이트
         request.updateFoundWithRequest(found);
-        return ExpenseDto.of(found);
+        return ExpenseResponse.of(found);
     }
 
     /**
      * 유저의 지출 내역(단건) 삭제
      */
     @Transactional
-    public ExpenseDto deleteExpense(Long id, Long userId) {
+    public ExpenseResponse deleteExpense(Long id, Long userId) {
 
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
@@ -110,7 +110,7 @@ public class ExpenseService {
 
         found.delete();
 
-        return ExpenseDto.of(found);
+        return ExpenseResponse.of(found);
 
     }
 
@@ -118,14 +118,14 @@ public class ExpenseService {
      * 유저의 지출 내역(단건)을 합계에서 제외
      */
     @Transactional
-    public ExpenseDto excludeFromTotal(Long id, Long userId) {
+    public ExpenseResponse excludeFromTotal(Long id, Long userId) {
         Expense found = expenseRepository.findById(id) // 삭제된 Expense 제외
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_EXPENSE));
         validateFound(userId, found);
 
         found.excludeFromTotal();
 
-        return ExpenseDto.of(found);
+        return ExpenseResponse.of(found);
 
     }
 
@@ -155,29 +155,29 @@ public class ExpenseService {
 
     }
 
-    public List<ExpenseDto> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
+    public List<ExpenseResponse> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
         List<Expense> expenses = getAllUserExpensesIn(yearMonth, userId);
-        return ExpenseDto.getExpenseDtoList(expenses);
+        return ExpenseResponse.getExpenseDtoList(expenses);
     }
 
     /**
      * 유저의 오늘 전체 지출
      */
-    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
+    public List<ExpenseResponse> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
         List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), userId);
 
         //Dto로 변환
-        return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
+        return ExpenseResponse.getExpenseDtoList(allUserExpensesIn);
     }
 
 
-    public List<ExpenseDto> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
+    public List<ExpenseResponse> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
         Long userId) {
         List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             start, end, userId);
         //Dto로 변환
-        return ExpenseDto.getExpenseDtoList(allUserExpensesIn);
+        return ExpenseResponse.getExpenseDtoList(allUserExpensesIn);
     }
 
     public Long getAverageExpenseAmountOfToday() {
@@ -200,14 +200,14 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
      */
-    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+    public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return expenseRepository.search(condition);
     }
 
     /**
      * 유저의 지출 내역 (목록) 조회 v3 (QueryDSL + Paging)
      */
-    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
+    public Page<ExpenseResponse> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
         return expenseRepository.searchPage(condition, pageable);
     }
 

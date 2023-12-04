@@ -4,7 +4,7 @@ import static com.hyerijang.dailypay.expense.domain.QExpense.expense;
 
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.domain.QExpense;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -31,9 +31,10 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+    public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return queryFactory.select(
-                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
+                Projections.constructor(ExpenseResponse.class, expense.id, expense.user.id,
+                    expense.category,
                     expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
             .from(expense)
             .where(
@@ -49,8 +50,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
     @Override
-    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
-        List<ExpenseDto> content = getExpenseList(condition, pageable);
+    public Page<ExpenseResponse> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
+        List<ExpenseResponse> content = getExpenseList(condition, pageable);
         JPAQuery<Long> countQuery = getCount(condition);
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
@@ -66,9 +67,11 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
 
-    private List<ExpenseDto> getExpenseList(ExpenseSearchCondition condition, Pageable pageable) {
-        JPAQuery<ExpenseDto> query = queryFactory.select(
-                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
+    private List<ExpenseResponse> getExpenseList(ExpenseSearchCondition condition,
+        Pageable pageable) {
+        JPAQuery<ExpenseResponse> query = queryFactory.select(
+                Projections.constructor(ExpenseResponse.class, expense.id, expense.user.id,
+                    expense.category,
                     expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
             .from(expense)
             .where(

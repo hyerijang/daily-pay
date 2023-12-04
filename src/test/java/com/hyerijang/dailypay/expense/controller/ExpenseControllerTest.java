@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,8 +57,8 @@ class ExpenseControllerTest {
     }
 
 
-    private ExpenseDto createSampleExpenseDto() {
-        return ExpenseDto.builder()
+    private ExpenseResponse createSampleExpenseDto() {
+        return ExpenseResponse.builder()
             .id(1L)
             .userId(1L)
             .category(Category.FOOD)
@@ -69,9 +69,9 @@ class ExpenseControllerTest {
             .build();
     }
 
-    private List<ExpenseDto> createSampleExpenseDtoList() {
-        ExpenseDto expense1 = createSampleExpenseDto();
-        ExpenseDto expense2 = ExpenseDto.builder()
+    private List<ExpenseResponse> createSampleExpenseDtoList() {
+        ExpenseResponse expense1 = createSampleExpenseDto();
+        ExpenseResponse expense2 = ExpenseResponse.builder()
             .id(2L)
             .userId(1L)
             .category(Category.UTILITIES)
@@ -87,10 +87,10 @@ class ExpenseControllerTest {
     @DisplayName("성공 : 지출 내역 생성 API 테스트 ")
     void createExpense() throws Exception {
         // given
-        ExpenseDto createdExpenseDto = createSampleExpenseDto();
+        ExpenseResponse createdExpenseResponse = createSampleExpenseDto();
 
         when(expenseService.createExpense(any(), any()))
-            .thenReturn(createdExpenseDto);
+            .thenReturn(createdExpenseResponse);
 
         String json = """
                 {
@@ -122,10 +122,10 @@ class ExpenseControllerTest {
     @DisplayName("성공 : 지출 내역 조회 API 테스트 ")
     void getAllExpenses() throws Exception {
         // given
-        List<ExpenseDto> sampleExpenseDtoList = createSampleExpenseDtoList();
+        List<ExpenseResponse> sampleExpenseResponseList = createSampleExpenseDtoList();
 
         when(expenseService.getUserAllExpenses(any(), any()))
-            .thenReturn(sampleExpenseDtoList);
+            .thenReturn(sampleExpenseResponseList);
 
         // when
         mockMvc.perform(get("/api/v1/expenses")
