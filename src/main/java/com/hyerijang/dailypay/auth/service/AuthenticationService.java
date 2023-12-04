@@ -65,10 +65,10 @@ public class AuthenticationService {
                 request.password()
             )
         );
-        var user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken);
         return new AuthenticationResponse(accessToken, refreshToken);

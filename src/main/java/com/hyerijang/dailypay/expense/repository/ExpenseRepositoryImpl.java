@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
@@ -81,7 +82,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
         // 동적 정렬
         if (pageable.getSort().isSorted()) {
-            for (var order : pageable.getSort()) {
+            for (Order order : pageable.getSort()) {
                 query.orderBy(getOrderSpecifier(order, expense));
             }
         }
