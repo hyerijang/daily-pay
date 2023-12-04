@@ -39,6 +39,10 @@ public class ExpenseSearchController {
 
     private final ExpenseService expenseService;
 
+    /**
+     * v3으로 대체되었습니다. {@link #searchV3(GetAllExpenseParam, User, Pageable)}
+     */
+    @Deprecated
     @ExeTimer
     @Operation(summary = "유저의 지출 내역 (목록) 조회 V1", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/api/v1/expenses")
@@ -66,18 +70,11 @@ public class ExpenseSearchController {
                 .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
-    private static Map<Category, BigDecimal> getCategoryWiseSumMap(
-        List<ExpenseResponse> userAllExpenses) {
-        Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
-            .filter(exDto -> !exDto.excludeFromTotal())
-            .collect(Collectors.groupingBy(ExpenseResponse::category,
-                Collectors.reducing(BigDecimal.ZERO,
-                    exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
-            ));
-        return categoryWiseExpenseSum;
-    }
 
-
+    /**
+     * v3으로 대체되었습니다. {@link #searchV3(GetAllExpenseParam, User, Pageable)}
+     */
+    @Deprecated
     @ExeTimer
     @Operation(summary = "유저의 지출 내역 (목록) 조회 V2 (QueryDsl)", description = "본인의 지출 내역만 조회 가능")
     @GetMapping("/api/v2/expenses")
@@ -102,6 +99,25 @@ public class ExpenseSearchController {
                 .CategoryWiseExpenseSum(categoryWiseExpenseSum).build());
     }
 
+    /**
+     * v3으로 대체 된 후,  더는 사용되지 않습니다.  {@link #searchV3(GetAllExpenseParam, User, Pageable)}
+     */
+    @Deprecated
+    private static Map<Category, BigDecimal> getCategoryWiseSumMap(
+        List<ExpenseResponse> userAllExpenses) {
+        Map<Category, BigDecimal> categoryWiseExpenseSum = userAllExpenses.stream()
+            .filter(exDto -> !exDto.excludeFromTotal())
+            .collect(Collectors.groupingBy(ExpenseResponse::category,
+                Collectors.reducing(BigDecimal.ZERO,
+                    exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
+            ));
+        return categoryWiseExpenseSum;
+    }
+
+    /**
+     * v3으로 대체 된 후,  더는 사용되지 않습니다. {@link #searchV3(GetAllExpenseParam, User, Pageable)}
+     */
+    @Deprecated
     private static Long getTotalExpenseFrom(List<ExpenseResponse> userAllExpenses) {
         Long totalExpense = userAllExpenses.stream()
             .filter(exDto -> !exDto.excludeFromTotal())

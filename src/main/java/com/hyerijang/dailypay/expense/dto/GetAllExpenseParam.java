@@ -6,6 +6,12 @@ import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
+/**
+ * 지출 목록 v1, v2에서 조회 조건을  쿼리 스트링으로 받기 위해 사용되었습니다. v3부터 QueryDsl을 적용하여 해당 record는 더이상 사용하지 않습니다. v3의
+ * 쿼리 스트링은 {@link ExpenseSearchCondition} 참조
+ */
+@Deprecated
 @Schema(description = "지출 내역 목록 조회 조건")
 public record GetAllExpenseParam(
     @Schema(description = "시작일")

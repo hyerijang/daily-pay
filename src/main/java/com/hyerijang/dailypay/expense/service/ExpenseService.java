@@ -45,7 +45,7 @@ public class ExpenseService {
 
 
     /**
-     * 유저의 지출 내역 (목록) 조회
+     * 유저의 지출 내역 (목록) 조회 V1
      *
      * @see : com.hyerijang.dailypay.expense.service.search
      */
@@ -200,6 +200,7 @@ public class ExpenseService {
     /**
      * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
      */
+    @Deprecated
     public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return expenseRepository.search(condition);
     }
