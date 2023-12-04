@@ -1,7 +1,8 @@
 package com.hyerijang.dailypay.config;
 
 import com.hyerijang.dailypay.auth.service.CustomUserDetailsService;
-import com.hyerijang.dailypay.token.TokenRepository;
+import com.hyerijang.dailypay.auth.service.JwtService;
+import com.hyerijang.dailypay.auth.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
