@@ -1,0 +1,9 @@
+#Disable p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
+---
+spring:
+  profiles:
+    active: dev, p6spy, security
