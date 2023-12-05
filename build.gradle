@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.hyerijang'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
@@ -52,4 +52,9 @@ tasks.named('test') {
 tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
+}
+
+//docker
+jar {
+    enabled = false
 }
