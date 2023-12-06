@@ -1,0 +1,3 @@
+[submodule "daily-pay-config"]
+	path = daily-pay-config
+	url = https://github.com/hyerijang/daily-pay-config.git
