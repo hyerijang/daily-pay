@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.hyerijang'
-version = '1.0.0-SNAPSHOT'
+version = '1.0.2-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
@@ -64,6 +64,17 @@ tasks.named('asciidoctor') {
 //docker
 jar {
     enabled = false
+}
+
+// git submodule
+task copyPrivate(type: Copy) {
+    copy {
+        from './daily-pay-config' //위 사진과 같은 폴더 명
+        include "application-dev.yml"
+        include "application-prod.yml"
+        include "application-security.yaml"
+        into 'src/main/resources' //복사할 위치
+    }
 }
 
 // querydsl
