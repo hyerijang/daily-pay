@@ -58,3 +58,14 @@ tasks.named('asciidoctor') {
 jar {
     enabled = false
 }
+
+
+task copyPrivate(type: Copy) {
+    copy {
+        from './daily-pay-config' //위 사진과 같은 폴더 명
+        include "application-dev.yml"
+        include "application-prod.yml"
+        include "application-security.yaml"
+        into 'src/main/resources' //복사할 위치
+    }
+}
