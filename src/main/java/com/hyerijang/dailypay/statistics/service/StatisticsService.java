@@ -5,7 +5,7 @@ import static java.lang.Math.min;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.statistics.dto.StatisticsDto;
 import com.hyerijang.dailypay.user.repository.UserRepository;
@@ -17,6 +17,7 @@ import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +70,7 @@ public class StatisticsService {
     }
 
     // yy년 m월 1일~  m월 d일의 소비 내역 리턴
-    private List<ExpenseDto> getTotal(int yyyy, int mm, int dd, Long userId) {
+    private List<ExpenseResponse> getTotal(int yyyy, int mm, int dd, Long userId) {
         //0월은 존재 하지 않으므로 yy-1년 12월로 변경
         if (mm == 0) {
             yyyy -= 1;
@@ -87,10 +88,7 @@ public class StatisticsService {
             59); // min(주어진 날짜 ,이번 달의 마지막 일), e.g. 31이 주어졌는데, 2월이라 28일까지 밖에 없으면 28.
 
         // start 부터 end 까지의 소비 내역 DTO로 반환
-        return expenseService.getAllUserExpenseDtoListIn(start, end, userId)
-            .stream()
-            .filter(expenseDto -> !expenseDto.excludeFromTotal())
-            .toList();
+        return expenseService.getAllExpenseListBetween(start, end, userId);
     }
 
     /**
@@ -99,29 +97,28 @@ public class StatisticsService {
     private Map<Category, Double> getCategoryExpenseComparisonLastMonth(Long userId) {
         //1. 지난 달 카테고리 별 소비액
         Map<Category, BigDecimal> categoryExpenseInLastMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now().minusMonths(1), userId)
+            expenseService.getAllExpenseListBetween(YearMonth.now().minusMonths(1), userId)
         );
 
         //2. 이번 달 카테고리 별 소비액
 
         Map<Category, BigDecimal> categoryExpenseInThisMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now(), userId)
+            expenseService.getAllExpenseListBetween(YearMonth.now(), userId)
         );
 
         //3. 지난달, 이번 달 비교
-
         Map<Category, Double> comparison = new LinkedHashMap<>();
 
-        for (Category category : categoryExpenseInThisMonth.keySet()) { // 이번달 지출 카테고리
+        for (Entry<Category,BigDecimal> entry : categoryExpenseInThisMonth.entrySet()) { // 이번달 지출 카테고리
+            Category category = entry.getKey();
             if (!categoryExpenseInLastMonth.containsKey(category)) {
-                //지난 달에는 해당 카테고리 소비 없었음
+                //지난 달에는 해당 카테고리 소비 없었으면
                 continue;
             }
-
+            // 카테고리 별 소비액
             long lastMonthExpenseInThisCategory = categoryExpenseInLastMonth.get(category)
-                .longValue(); //해당 카테고리 지난달 소비액
-            long thisMonthExpenseInThisCategory = categoryExpenseInThisMonth.get(category)
-                .longValue(); //해당 카테고리 이번달 소비액
+                .longValue(); //지난달 소비액
+            long thisMonthExpenseInThisCategory = entry.getValue().longValue(); //이번달 소비액
 
             comparison.put(category, ((double) thisMonthExpenseInThisCategory
                 / lastMonthExpenseInThisCategory) * 100);
@@ -132,11 +129,12 @@ public class StatisticsService {
     }
 
 
-    private static Map<Category, BigDecimal> getCategoryExpense(List<ExpenseDto> expenseDtoList) {
-        Map<Category, BigDecimal> collect = expenseDtoList.stream()
+    private static Map<Category, BigDecimal> getCategoryExpense(
+        List<ExpenseResponse> expenseResponseList) {
+        Map<Category, BigDecimal> collect = expenseResponseList.stream()
             .filter(expenseDto -> !expenseDto.excludeFromTotal())
             .collect(
-                Collectors.groupingBy(ExpenseDto::category,
+                Collectors.groupingBy(ExpenseResponse::category,
                     Collectors.reducing(BigDecimal.ZERO,
                         exDto -> BigDecimal.valueOf(exDto.amount()), BigDecimal::add)
                 ));
@@ -150,7 +148,7 @@ public class StatisticsService {
      */
     public Double getLastWeekSameWeekDayComparison(Long userId) {
         // 지난주 같은 요일의 소비 총액
-        Long last = expenseService.getAllUserExpenseDtoListIn(LocalDate.now().minusDays(7),
+        Long last = expenseService.getAllExpenseListBetween(LocalDate.now().minusDays(7),
                 userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
@@ -159,7 +157,7 @@ public class StatisticsService {
         }
 
         //오늘 소비 총액
-        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), userId)
+        Long today = expenseService.getAllExpenseListBetween(LocalDate.now(), userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         return ((double) today / last) * 100;
@@ -170,15 +168,15 @@ public class StatisticsService {
      */
     public Double getExpenseComparisonWithOtherUser(Long userId) {
         //오늘 user의 소비 총액
-        Long userExpenseAmount = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
+        Long userExpenseAmount = expenseService.getAllExpenseListBetween(LocalDate.now(),
                 userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         //오늘 전체 유저들의 소비 평균액
         Long averageExpenseAmount = expenseService.getAverageExpenseAmountOfToday();
-        log.info("오늘 {}의 소비 총액 = {}", userId, userExpenseAmount);
-        log.info("오늘 전체 유저들의 소비 평균액 = {}", averageExpenseAmount);
-        log.info("비율 = {}", ((double) userExpenseAmount / averageExpenseAmount) * 100);
+        log.debug("오늘 {}의 소비 총액 = {}", userId, userExpenseAmount);
+        log.debug("오늘 전체 유저들의 소비 평균액 = {}", averageExpenseAmount);
+        log.debug("유저 평균 대비 {} % 소비하였습니다", ((double) userExpenseAmount / averageExpenseAmount) * 100);
 
         return ((double) userExpenseAmount / averageExpenseAmount) * 100;
     }

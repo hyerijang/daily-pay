@@ -1,7 +1,7 @@
-package com.hyerijang.dailypay.config;
+package com.hyerijang.dailypay.auth.service;
 
-import com.hyerijang.dailypay.token.Token;
-import com.hyerijang.dailypay.token.TokenRepository;
+import com.hyerijang.dailypay.auth.token.Token;
+import com.hyerijang.dailypay.auth.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

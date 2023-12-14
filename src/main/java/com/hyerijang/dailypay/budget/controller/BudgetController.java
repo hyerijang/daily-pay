@@ -2,8 +2,8 @@ package com.hyerijang.dailypay.budget.controller;
 
 
 import com.hyerijang.dailypay.auth.CurrentUser;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
-import com.hyerijang.dailypay.budget.dto.CategoryDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
+import com.hyerijang.dailypay.budget.dto.CategoryResponse;
 import com.hyerijang.dailypay.budget.dto.CreateBudgetListRequest;
 import com.hyerijang.dailypay.budget.dto.RecommendBudgetRequest;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
@@ -41,29 +41,22 @@ public class BudgetController {
     @Operation(summary = "카테고리 조회", description = "카테고리 조회")
     @GetMapping("/categories")
     ResponseEntity<Result> getBudgetCategories() {
-        List<CategoryDto> categoryDtoList = budgetService.getCategories();
+        List<CategoryResponse> categoryResponseList = budgetService.getCategories();
         return ResponseEntity.ok()
             .body(Result.builder()
-                .count(categoryDtoList.size())
-                .data(categoryDtoList).build());
+                .count(categoryResponseList.size())
+                .data(categoryResponseList).build());
     }
-
-    @Getter
-    @Builder
-    static class Result<T> {
-
-        private int count;
-        private T data; // 리스트의 값
-    }
-
 
     @ExeTimer
     @Operation(summary = "예산 설정 및 업데이트", description = "예산 설정 및 업데이트 (금액만 변경 가능)")
     @PostMapping
     ResponseEntity<Result> updateBudgets(@RequestBody @Validated CreateBudgetListRequest request,
         @CurrentUser User user) {
-        List<BudgetDto> data = budgetService.update(request, user.getId());
-        Result result = Result.builder().count(data.size()).data(data).build();
+        List<BudgetResponse> updatedBudgetResponseList = budgetService.update(request,
+            user.getId());
+        Result result = Result.builder().count(updatedBudgetResponseList.size())
+            .data(updatedBudgetResponseList).build();
         return ResponseEntity.ok().body(result);
     }
 
@@ -72,9 +65,19 @@ public class BudgetController {
     @GetMapping
     ResponseEntity<Result> recommendBudgets(
         @RequestBody @Validated RecommendBudgetRequest request) {
-        List<BudgetDto> data = budgetService.recommend(request);
-        Result result = Result.builder().count(data.size()).data(data).build();
-        return ResponseEntity.ok().body(result);
+        List<BudgetResponse> recommendBudgetResponseList = budgetService.recommend(request);
+        return ResponseEntity.ok()
+            .body(
+                Result.builder().count(recommendBudgetResponseList.size())
+                    .data(recommendBudgetResponseList)
+                    .build());
+    }
+
+    @Getter
+    @Builder
+    static class Result<T> {
+        private int count;
+        private T data; // 리스트의 값
     }
 
 }

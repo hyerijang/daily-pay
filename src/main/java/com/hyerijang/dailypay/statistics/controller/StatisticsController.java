@@ -61,14 +61,16 @@ public class StatisticsController {
                 return ResponseEntity.ok().body(result);
             case "other-user":
                 // (3) 다른 유저 대비 소비율
+                Double userExpenseRatio = statisticsService.getExpenseComparisonWithOtherUser(
+                    user.getId());
                 result = Result.builder()
-                    .expenseComparisonWithOtherUser(
-                        statisticsService.getExpenseComparisonWithOtherUser(user.getId()))
+                    .expenseComparisonWithOtherUser(userExpenseRatio)
                     .build();
                 return ResponseEntity.ok().body(result);
         }
         throw new ApiException(ExceptionEnum.WRONG_EXPENSE_COMPARISON_CONDITION);
     }
+
 
 
     @Getter

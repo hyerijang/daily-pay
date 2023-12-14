@@ -5,7 +5,7 @@ import static java.lang.Math.max;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import com.hyerijang.dailypay.user.domain.User;
@@ -47,6 +47,7 @@ public class ConsultingController {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
             user.getId());
+        log.debug("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
 
         // 2. 오늘 쓸 수 있는 금액 = (이번달 남은 예산) / (이번 달 남은 일 수)
         Long todayExpenseProposal = budgetRemainingForThisMonth / getRemainingDaysInMonth();
@@ -58,13 +59,14 @@ public class ConsultingController {
         todayExpenseProposal =
             todayExpenseProposal < MIN_EXPENSE_OF_A_DAY ? MIN_EXPENSE_OF_A_DAY
                 : todayExpenseProposal;
-        // 3.카테고리 별 제안액
-        List<BudgetDto> proposalResponse = consultingService.getProposalInfo(todayExpenseProposal);
 
-        // 로그
-        log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
-        log.info("오늘 쓸 수 있는 금액 = {}", todayExpenseProposal);
-        log.info("카테고리 별 제안액 = {}", proposalResponse);
+        log.debug("오늘 쓸 수 있는 금액 = {}", todayExpenseProposal);
+
+        // 3.카테고리 별 제안액
+        List<BudgetResponse> proposalResponse = consultingService.getProposalInfo(
+            todayExpenseProposal);
+
+        log.debug("카테고리 별 제안액 = {}", proposalResponse);
         return ResponseEntity.ok().body(Result.builder()
             .budgetRemainingForThisMonth(budgetRemainingForThisMonth)
             .todayExpenseProposal(todayExpenseProposal)
@@ -112,9 +114,7 @@ public class ConsultingController {
         int totalDaysInMonth = YearMonth.of(year, month).lengthOfMonth();
 
         // 현재 일을 뺀 남은 일수를 계산합니다.
-        int remainingDays = totalDaysInMonth - currentDate.getDayOfMonth();
-
-        return remainingDays;
+        return totalDaysInMonth - currentDate.getDayOfMonth();
     }
 
 
@@ -131,17 +131,17 @@ public class ConsultingController {
         Map<Category, BigDecimal> expenseStatisticsByCategory = consultingService.getExpenseStatisticsByCategory(
             user.getId());
         // 4. 이번 달 카테고리 별 예산
-        List<BudgetDto> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
+        List<BudgetResponse> budgetsByCategoryInThisMonth = consultingService.getBudgetsByCategoryInThisMonth(
             user.getId());
 
         // 로그
-        log.info("이번 달 예산 = {}", budgetForThisMonth);
-        log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
-        log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
-        log.info("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
+        log.debug("이번 달 예산 = {}", budgetForThisMonth);
+        log.debug("이번달 지출 금액 = {}", getAmountSpentThisMonth);
+        log.debug("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
+        log.debug("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
 
         // 5. 3와 4를 결합하여 유저에게 지출 분석 데이터 제공
-        Map<Category, CombinedDataDto> analysisData = analysis(
+        Map<Category, ExpenseAnalysisDto> analysisData = analysis(
             expenseStatisticsByCategory, budgetsByCategoryInThisMonth);
 
         return ResponseEntity.ok().body(Result.builder()
@@ -154,19 +154,21 @@ public class ConsultingController {
     /**
      * 유저에게 지출 분석 데이터 제공. 제공되는 분석 데이터는 '예산에 등록되어 있는 카테고리 한정'입니다.
      */
-    private Map<Category, CombinedDataDto> analysis(
+    private Map<Category, ExpenseAnalysisDto> analysis(
         Map<Category, BigDecimal> expenseStatisticsByCategory,
-        List<BudgetDto> budgetsByCategoryInThisMonth) {
-        Map<Category, CombinedDataDto> combinedDataByCategory = new LinkedHashMap<>();
+        List<BudgetResponse> budgetsByCategoryInThisMonth) {
 
-        for (BudgetDto budgetDto : budgetsByCategoryInThisMonth) {
+        Map<Category, ExpenseAnalysisDto> combinedDataByCategory = new LinkedHashMap<>();
+
+        // 이번달 예산 목록
+        for (BudgetResponse budgetResponse : budgetsByCategoryInThisMonth) {
             //카테고리 (예산에 등록되어 있는 카테고리 한정)
-            Category expectedCategory = budgetDto.category();
+            Category expectedCategory = budgetResponse.category();
             //해당 카테고리의 지출액
-            Long expenseAmount = expenseStatisticsByCategory.getOrDefault(budgetDto.category(),
+            Long expenseAmount = expenseStatisticsByCategory.getOrDefault(budgetResponse.category(),
                 BigDecimal.ZERO).longValue(); //지출액이 없는경우 0으로 설정
             //해당 카테고리의 예산액
-            Long budgetAmount = budgetDto.amount();
+            Long budgetAmount = budgetResponse.amount();
 
             //위험도 (퍼센티지) 계산
             double riskRate = 0.0;
@@ -174,28 +176,24 @@ public class ConsultingController {
                 riskRate = ((double) expenseAmount / budgetAmount) * 100; // 퍼센티지 (riskRate %)
             }
 
-            CombinedDataDto combinedDataDto = new CombinedDataDto(
-                (int) riskRate, budgetAmount - expenseAmount, expenseAmount, budgetAmount);
-            combinedDataByCategory.put(expectedCategory, combinedDataDto);
+            Long leftBudgetAmount = max(0, budgetAmount - expenseAmount); // 남은 예산액은 0 또는 양수
+
+            ExpenseAnalysisDto expenseAnalysisDto = new ExpenseAnalysisDto(riskRate, leftBudgetAmount,
+                expenseAmount, budgetAmount);
+            combinedDataByCategory.put(expectedCategory, expenseAnalysisDto);
         }
         return combinedDataByCategory;
     }
 
     @Getter
     @AllArgsConstructor
-    private static class CombinedDataDto //카테고리의 예산
+    private static class ExpenseAnalysisDto
     {
-
-        private Integer riskRate;
-        private Long remainingBudgetByCategory; //카테고리의 남은 예산
+        private Double riskRate; // 위험도 (0~1)
+        private Long leftBudgetByCategory; //카테고리의 남은 예산
         private Long expenseByCategory; // 카테고리의 지출
-        private Long categoryBudge;
+        private Long categoryBudgetOfThisMonth; // 이번 달 카테고리 별 예산
 
-        public void add(Long amount) {
-            this.remainingBudgetByCategory = max(0,
-                remainingBudgetByCategory - amount); //남은 예산액은 0 ~ 양수만 표시
-            this.expenseByCategory += amount;
-        }
     }
 
 }

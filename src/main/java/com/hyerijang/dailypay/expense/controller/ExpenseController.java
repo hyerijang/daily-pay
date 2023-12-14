@@ -5,7 +5,7 @@ import com.hyerijang.dailypay.auth.CurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.common.aop.ExeTimer;
 import com.hyerijang.dailypay.expense.dto.CreateExpenseRequest;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.dto.UpdateExpenseRequest;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import com.hyerijang.dailypay.user.domain.User;
@@ -47,9 +47,9 @@ public class ExpenseController {
     public ResponseEntity<Result> createExpense(
         @RequestBody @Validated CreateExpenseRequest createExpenseRequest,
         @CurrentUser User user) {
-        ExpenseDto createdExpenseDto = expenseService.createExpense(createExpenseRequest,
+        ExpenseResponse createdExpenseResponse = expenseService.createExpense(createExpenseRequest,
             user.getId());
-        return ResponseEntity.ok().body(Result.builder().data(createdExpenseDto).build());
+        return ResponseEntity.ok().body(Result.builder().data(createdExpenseResponse).build());
 
     }
 
@@ -58,9 +58,9 @@ public class ExpenseController {
     @GetMapping("/{id}")
     public ResponseEntity<Result> getExpenseById(@PathVariable Long id,
         @CurrentUser User user) {
-        ExpenseDto expenseDto = expenseService.getExpenseById(id, user.getId());
-        if (expenseDto != null) {
-            return ResponseEntity.ok().body(Result.builder().data(expenseDto).build());
+        ExpenseResponse expenseResponse = expenseService.getExpenseById(id, user.getId());
+        if (expenseResponse != null) {
+            return ResponseEntity.ok().body(Result.builder().data(expenseResponse).build());
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -73,10 +73,11 @@ public class ExpenseController {
     public ResponseEntity<Result> updateExpense(@PathVariable Long id,
         @RequestBody @Validated UpdateExpenseRequest updateExpenseRequest,
         @CurrentUser User user) {
-        ExpenseDto updatedExpenseDto = expenseService.updateExpense(id, updateExpenseRequest,
+        ExpenseResponse updatedExpenseResponse = expenseService.updateExpense(id,
+            updateExpenseRequest,
             user.getId());
-        if (updatedExpenseDto != null) {
-            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
+        if (updatedExpenseResponse != null) {
+            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseResponse).build());
         }
         return ResponseEntity.notFound().build();
     }
@@ -87,9 +88,9 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Result> deleteExpense(@PathVariable Long id,
         @CurrentUser User user) {
-        ExpenseDto updatedExpenseDto = expenseService.deleteExpense(id, user.getId());
-        if (updatedExpenseDto != null) {
-            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
+        ExpenseResponse updatedExpenseResponse = expenseService.deleteExpense(id, user.getId());
+        if (updatedExpenseResponse != null) {
+            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseResponse).build());
         }
         return ResponseEntity.notFound().build();
     }
@@ -100,9 +101,9 @@ public class ExpenseController {
     @PatchMapping("/{id}/exclude-total-sum")
     public ResponseEntity<Result> excludeFromTotal(@PathVariable Long id,
         @CurrentUser User user) {
-        ExpenseDto updatedExpenseDto = expenseService.excludeFromTotal(id, user.getId());
-        if (updatedExpenseDto != null) {
-            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseDto).build());
+        ExpenseResponse updatedExpenseResponse = expenseService.excludeFromTotal(id, user.getId());
+        if (updatedExpenseResponse != null) {
+            return ResponseEntity.ok().body(Result.builder().data(updatedExpenseResponse).build());
         }
         return ResponseEntity.notFound().build();
     }

@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.auth.dto.AuthenticationRequest;
 import com.hyerijang.dailypay.auth.dto.AuthenticationResponse;
 import com.hyerijang.dailypay.auth.dto.RegisterRequest;
+import com.hyerijang.dailypay.auth.token.Token;
+import com.hyerijang.dailypay.auth.token.TokenRepository;
+import com.hyerijang.dailypay.auth.token.TokenType;
 import com.hyerijang.dailypay.common.exception.ApiException;
 import com.hyerijang.dailypay.common.exception.response.ExceptionEnum;
-import com.hyerijang.dailypay.config.JwtService;
-import com.hyerijang.dailypay.token.Token;
-import com.hyerijang.dailypay.token.TokenRepository;
-import com.hyerijang.dailypay.token.TokenType;
 import com.hyerijang.dailypay.user.domain.User;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +34,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * 회원 가입
+     *
+     * @param request
+     * @return
+     */
     public AuthenticationResponse register(RegisterRequest request) {
         User user = User.builder()
             .email(request.email())
@@ -48,6 +53,9 @@ public class AuthenticationService {
 
     }
 
+    /**
+     * 유저 토큰 DB에 저장
+     */
     private void saveUserToken(User user, String jwtToken) {
         Token token = Token.builder()
             .user(user)
@@ -59,6 +67,12 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+    /**
+     * 인증 및 로그인
+     *
+     * @param request
+     * @return
+     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -66,15 +80,20 @@ public class AuthenticationService {
                 request.password()
             )
         );
-        var user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email())
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
+    /**
+     * user의 모든 토큰을 취소, 만료 시킴
+     *
+     * @param user
+     */
     private void revokeAllUserTokens(User user) {
         List<Token> validUserTokens = tokenRepository.findAllValidTokenByUserId(user.getId());
         if (validUserTokens.isEmpty()) {
@@ -88,6 +107,13 @@ public class AuthenticationService {
     }
 
 
+    /**
+     * 유저의 토큰 갱신 ,authHeader를 체크해서 유효한 refresh 토큰이면 access토큰 갱신해 준다.
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     public void refreshToken(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

@@ -4,7 +4,7 @@ import static com.hyerijang.dailypay.expense.domain.QExpense.expense;
 
 import com.hyerijang.dailypay.budget.domain.Category;
 import com.hyerijang.dailypay.expense.domain.QExpense;
-import com.hyerijang.dailypay.expense.dto.ExpenseDto;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.dto.ExpenseSearchCondition;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
@@ -13,12 +13,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
@@ -30,9 +32,10 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<ExpenseDto> search(ExpenseSearchCondition condition) {
+    public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return queryFactory.select(
-                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
+                Projections.constructor(ExpenseResponse.class, expense.id, expense.user.id,
+                    expense.category,
                     expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
             .from(expense)
             .where(
@@ -42,14 +45,15 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 categoryEq(condition.category()),
                 minAmountGoe(condition.minAmount()),
                 maxAmountLoe(condition.maxAmount()),
-                isNotDeleted()
+                isNotDeleted(),
+                notExcludeFromTotal(condition.exclusion())
             )
             .fetch();
     }
 
     @Override
-    public Page<ExpenseDto> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
-        List<ExpenseDto> content = getExpenseList(condition, pageable);
+    public Page<ExpenseResponse> searchPage(ExpenseSearchCondition condition, Pageable pageable) {
+        List<ExpenseResponse> content = getExpenseList(condition, pageable);
         JPAQuery<Long> countQuery = getCount(condition);
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
@@ -64,10 +68,19 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return getCategorySumGroupByCategory(condition);
     }
 
+    @Override
+    public Tuple getTotalExpenseAmountOfAllUser(LocalDate today) {
+        return getTotalExpenseAmountOfAllUser(today.atStartOfDay(), today.atTime(23, 59, 59)).fetchOne();
+    }
 
-    private List<ExpenseDto> getExpenseList(ExpenseSearchCondition condition, Pageable pageable) {
-        JPAQuery<ExpenseDto> query = queryFactory.select(
-                Projections.constructor(ExpenseDto.class, expense.id, expense.user.id, expense.category,
+
+    // === JPA 쿼리 === //
+
+    private List<ExpenseResponse> getExpenseList(ExpenseSearchCondition condition,
+        Pageable pageable) {
+        JPAQuery<ExpenseResponse> query = queryFactory.select(
+                Projections.constructor(ExpenseResponse.class, expense.id, expense.user.id,
+                    expense.category,
                     expense.amount, expense.memo, expense.excludeFromTotal, expense.expenseDate))
             .from(expense)
             .where(
@@ -81,7 +94,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
 
         // 동적 정렬
         if (pageable.getSort().isSorted()) {
-            for (var order : pageable.getSort()) {
+            for (Order order : pageable.getSort()) {
                 query.orderBy(getOrderSpecifier(order, expense));
             }
         }
@@ -134,6 +147,18 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
             .fetch();
     }
 
+    private JPAQuery<Tuple> getTotalExpenseAmountOfAllUser(LocalDateTime start, LocalDateTime end) {
+        return queryFactory.select(expense.amount.sum(), expense.user.countDistinct())
+            .from(expense)
+            .where(
+                startAfter(start),
+                endBefore(end),
+                isNotDeleted(),
+                notExcludeFromTotal());
+    }
+
+    // === 조건식 === //
+
     private static BooleanExpression userIdEq(Long userId) {
         return userId != null ? expense.user.id.eq(userId) : null;
     }
@@ -164,11 +189,19 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return expense.deleted.eq(false);
     }
 
+    /**
+     * 제외한 지출은 포함하지 않는다.
+     * @return
+     */
     private BooleanExpression notExcludeFromTotal() {
-        //제외되지 않았으면 true리턴
         return expense.excludeFromTotal.eq(false);
     }
 
+    private BooleanExpression notExcludeFromTotal(Boolean exclusion) {
+            return exclusion == Boolean.TRUE ? notExcludeFromTotal() : null;
+    }
+
+    // === 동적 정렬 === //
     private OrderSpecifier<?> getOrderSpecifier(org.springframework.data.domain.Sort.Order order,
         QExpense expense) {
         ComparableExpressionBase<?> orderExpression = getOrderExpression(order, expense);

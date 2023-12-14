@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.token;
+package com.hyerijang.dailypay.auth.token;
 
 import java.util.List;
 import java.util.Optional;

@@ -2,7 +2,7 @@ package com.hyerijang.dailypay.budget.service;
 
 
 import com.hyerijang.dailypay.budget.domain.Category;
-import com.hyerijang.dailypay.budget.dto.CategoryDto;
+import com.hyerijang.dailypay.budget.dto.CategoryResponse;
 import com.hyerijang.dailypay.budget.repository.BudgetRepository;
 import com.hyerijang.dailypay.user.repository.UserRepository;
 import java.util.List;
@@ -29,7 +29,7 @@ class BudgetServiceTest {
     @Test
     @DisplayName("카테고리 목록 조회시 모든 카테고리를 가져와야한다.")
     void getCategories() {
-        List<CategoryDto> categories = budgetService.getCategories();
+        List<CategoryResponse> categories = budgetService.getCategories();
         // CategoryEnum과 동일한 길이의 리스트를 받아야한다.
         Assertions.assertThat(categories.size())
             .isEqualTo(Category.values().length);

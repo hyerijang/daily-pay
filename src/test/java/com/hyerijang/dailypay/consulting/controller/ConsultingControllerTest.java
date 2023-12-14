@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hyerijang.dailypay.budget.dto.BudgetDto;
+import com.hyerijang.dailypay.budget.dto.BudgetResponse;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -47,7 +47,7 @@ class ConsultingControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(consultingController).build();
     }
 
-    private List<BudgetDto> createBudgetDtoList() throws JsonProcessingException {
+    private List<BudgetResponse> createBudgetDtoList() throws JsonProcessingException {
         String json = """
                     {
                         "yearMonth": "2023-11",
@@ -63,12 +63,12 @@ class ConsultingControllerTest {
                     }
             """;
 
-        BudgetDto budgetDto = objectMapper.readValue(json, BudgetDto.class);
-        BudgetDto budgetDto2 = objectMapper.readValue(json2, BudgetDto.class);
+        BudgetResponse budgetResponse = objectMapper.readValue(json, BudgetResponse.class);
+        BudgetResponse budgetResponse2 = objectMapper.readValue(json2, BudgetResponse.class);
 
-        List<BudgetDto> list = new ArrayList<>();
-        list.add(budgetDto);
-        list.add(budgetDto2);
+        List<BudgetResponse> list = new ArrayList<>();
+        list.add(budgetResponse);
+        list.add(budgetResponse2);
         return list;
     }
 
