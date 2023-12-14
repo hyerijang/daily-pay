@@ -186,17 +186,13 @@ public class ExpenseService {
     }
 
     public Long getAverageExpenseAmountOfToday() {
-
-        // FIXME : 오늘 일어났던 모든 소비를 DB에서 가져와서 stream으로 읽기 때문에 매우 비효율 적임. QueryDsl 적용 이후 수정요망.
-
         //오늘 전체 유저들의 소비액 총합
-        List<Expense> allExpenseOfToday = expenseRepository.findByExpenseDateBetweenAndDeletedIsFalse(
-            LocalDateTime.now().withHour(0).withMinute(0).withSecond(0), // 오늘 0시 0분 0초부터
-            LocalDateTime.now());//현재 시각 까지
-        long sum = allExpenseOfToday.stream().mapToLong(Expense::getAmount).sum(); //오늘 전체 유저의 지출 총액
-        long numOfUserInToday = allExpenseOfToday.stream().map(Expense::getUser).distinct().toList()
-            .size(); //오늘 지출한 유저의 수
+        Tuple tuple = expenseRepository.getTotalExpenseAmountOfAllUser(LocalDate.now());
 
+        Long sum = tuple.get(0,Long.class);
+        Long numOfUserInToday = tuple.get(1,Long.class);
+        log.debug("전체 유저 소비 총합 = {}", sum);
+        log.debug("오늘 소비를 기록한 유저 수 = {}",numOfUserInToday);
         return sum / numOfUserInToday;
     }
 

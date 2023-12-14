@@ -176,7 +176,7 @@ public class StatisticsService {
         Long averageExpenseAmount = expenseService.getAverageExpenseAmountOfToday();
         log.debug("오늘 {}의 소비 총액 = {}", userId, userExpenseAmount);
         log.debug("오늘 전체 유저들의 소비 평균액 = {}", averageExpenseAmount);
-        log.debug("비율 = {}", ((double) userExpenseAmount / averageExpenseAmount) * 100);
+        log.debug("유저 평균 대비 {} % 소비하였습니다", ((double) userExpenseAmount / averageExpenseAmount) * 100);
 
         return ((double) userExpenseAmount / averageExpenseAmount) * 100;
     }
