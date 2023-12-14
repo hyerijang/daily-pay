@@ -17,6 +17,7 @@ import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,19 +110,18 @@ public class StatisticsService {
         );
 
         //3. 지난달, 이번 달 비교
-
         Map<Category, Double> comparison = new LinkedHashMap<>();
 
-        for (Category category : categoryExpenseInThisMonth.keySet()) { // 이번달 지출 카테고리
+        for (Entry<Category,BigDecimal> entry : categoryExpenseInThisMonth.entrySet()) { // 이번달 지출 카테고리
+            Category category = entry.getKey();
             if (!categoryExpenseInLastMonth.containsKey(category)) {
-                //지난 달에는 해당 카테고리 소비 없었음
+                //지난 달에는 해당 카테고리 소비 없었으면
                 continue;
             }
-
+            // 카테고리 별 소비액
             long lastMonthExpenseInThisCategory = categoryExpenseInLastMonth.get(category)
-                .longValue(); //해당 카테고리 지난달 소비액
-            long thisMonthExpenseInThisCategory = categoryExpenseInThisMonth.get(category)
-                .longValue(); //해당 카테고리 이번달 소비액
+                .longValue(); //지난달 소비액
+            long thisMonthExpenseInThisCategory = entry.getValue().longValue(); //이번달 소비액
 
             comparison.put(category, ((double) thisMonthExpenseInThisCategory
                 / lastMonthExpenseInThisCategory) * 100);

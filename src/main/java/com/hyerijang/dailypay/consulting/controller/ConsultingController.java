@@ -141,7 +141,7 @@ public class ConsultingController {
         log.info("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
 
         // 5. 3와 4를 결합하여 유저에게 지출 분석 데이터 제공
-        Map<Category, CombinedDataDto> analysisData = analysis(
+        Map<Category, ExpenseAnalysisDto> analysisData = analysis(
             expenseStatisticsByCategory, budgetsByCategoryInThisMonth);
 
         return ResponseEntity.ok().body(Result.builder()
@@ -154,11 +154,11 @@ public class ConsultingController {
     /**
      * 유저에게 지출 분석 데이터 제공. 제공되는 분석 데이터는 '예산에 등록되어 있는 카테고리 한정'입니다.
      */
-    private Map<Category, CombinedDataDto> analysis(
+    private Map<Category, ExpenseAnalysisDto> analysis(
         Map<Category, BigDecimal> expenseStatisticsByCategory,
         List<BudgetResponse> budgetsByCategoryInThisMonth) {
 
-        Map<Category, CombinedDataDto> combinedDataByCategory = new LinkedHashMap<>();
+        Map<Category, ExpenseAnalysisDto> combinedDataByCategory = new LinkedHashMap<>();
 
         // 이번달 예산 목록
         for (BudgetResponse budgetResponse : budgetsByCategoryInThisMonth) {
@@ -178,21 +178,21 @@ public class ConsultingController {
 
             Long leftBudgetAmount = max(0, budgetAmount - expenseAmount); // 남은 예산액은 0 또는 양수
 
-            CombinedDataDto combinedDataDto = new CombinedDataDto(riskRate, leftBudgetAmount,
+            ExpenseAnalysisDto expenseAnalysisDto = new ExpenseAnalysisDto(riskRate, leftBudgetAmount,
                 expenseAmount, budgetAmount);
-            combinedDataByCategory.put(expectedCategory, combinedDataDto);
+            combinedDataByCategory.put(expectedCategory, expenseAnalysisDto);
         }
         return combinedDataByCategory;
     }
 
     @Getter
     @AllArgsConstructor
-    private static class CombinedDataDto //카테고리의 예산
+    private static class ExpenseAnalysisDto
     {
         private Double riskRate; // 위험도 (0~1)
-        private Long remainingBudgetByCategory; //카테고리의 남은 예산
+        private Long leftBudgetByCategory; //카테고리의 남은 예산
         private Long expenseByCategory; // 카테고리의 지출
-        private Long categoryBudge;
+        private Long categoryBudgetOfThisMonth; // 이번 달 카테고리 별 예산
 
     }
 
