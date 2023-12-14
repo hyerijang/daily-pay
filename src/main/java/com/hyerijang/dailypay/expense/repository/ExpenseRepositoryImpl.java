@@ -44,7 +44,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 categoryEq(condition.category()),
                 minAmountGoe(condition.minAmount()),
                 maxAmountLoe(condition.maxAmount()),
-                isNotDeleted()
+                isNotDeleted(),
+                notExcludeFromTotal(condition.exclusion())
             )
             .fetch();
     }
@@ -65,6 +66,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     public List<Tuple> getCategoryWiseExpenseSum(ExpenseSearchCondition condition) {
         return getCategorySumGroupByCategory(condition);
     }
+
 
 
     private List<ExpenseResponse> getExpenseList(ExpenseSearchCondition condition,
@@ -138,6 +140,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
             .fetch();
     }
 
+    // === 조건식 === //
+
     private static BooleanExpression userIdEq(Long userId) {
         return userId != null ? expense.user.id.eq(userId) : null;
     }
@@ -168,11 +172,19 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return expense.deleted.eq(false);
     }
 
+    /**
+     * 제외한 지출은 포함하지 않는다.
+     * @return
+     */
     private BooleanExpression notExcludeFromTotal() {
-        //제외되지 않았으면 true리턴
         return expense.excludeFromTotal.eq(false);
     }
 
+    private BooleanExpression notExcludeFromTotal(Boolean exclusion) {
+            return exclusion == Boolean.TRUE ? notExcludeFromTotal() : null;
+    }
+
+    // === 동적 정렬 === //
     private OrderSpecifier<?> getOrderSpecifier(org.springframework.data.domain.Sort.Order order,
         QExpense expense) {
         ComparableExpressionBase<?> orderExpression = getOrderExpression(order, expense);

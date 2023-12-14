@@ -63,7 +63,7 @@ public class ConsultingService {
      * 오늘 지출 내역 전체
      */
     public List<ExpenseResponse> getTodayExpenseInfo(Long userId) {
-        return expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
+        return expenseService.getAllExpenseListBetween(LocalDate.now(),
             userId);
     }
 

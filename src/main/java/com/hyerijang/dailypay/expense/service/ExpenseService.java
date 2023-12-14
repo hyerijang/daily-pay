@@ -148,36 +148,41 @@ public class ExpenseService {
     /**
      * 유저의 특정 년월 전체 지출
      */
-    private List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
-        return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
-            yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59), userId);
-
-    }
-
-    //FIXME : DTO로 바로 조회하도록 변경
-    public List<ExpenseResponse> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
-        List<Expense> expenses = getAllUserExpensesIn(yearMonth, userId);
-        return ExpenseResponse.getExpenseDtoList(expenses);
+    public List<ExpenseResponse> getAllExpenseListBetween(YearMonth yearMonth, Long userId) {
+        ExpenseSearchCondition expenseSearchCondition = ExpenseSearchCondition.builder()
+            .start(yearMonth.atDay(1).atStartOfDay()) // 1일 0시 0분 0초
+            .end(yearMonth.atEndOfMonth().atTime(23, 59, 59)) // 31일 23시 59분 59초
+            .userId(userId)
+            .build();
+        return expenseRepository.search(expenseSearchCondition);
     }
 
     /**
-     * 유저의 오늘 전체 지출
+     * 특정 일의 전체 지출
      */
-    public List<ExpenseResponse> getAllUserExpenseDtoListIn(LocalDate localDate, Long userId) {
-        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
-            localDate.atTime(0, 0, 0), localDate.atTime(23, 59, 59), userId);
-
-        //Dto로 변환
-        return ExpenseResponse.getExpenseDtoList(allUserExpensesIn);
+    public List<ExpenseResponse> getAllExpenseListBetween(LocalDate localDate, Long userId) {
+        ExpenseSearchCondition expenseSearchCondition = ExpenseSearchCondition.builder()
+            .userId(userId)
+            .start(localDate.atStartOfDay()) // localDate일 0시 0분 0초
+            .end(localDate.atTime(23, 59, 59)) // localDate일 23시 59분 59초
+            .build();
+        
+        return expenseRepository.search(expenseSearchCondition);
     }
 
 
-    public List<ExpenseResponse> getAllUserExpenseDtoListIn(LocalDateTime start, LocalDateTime end,
+    /**
+     * 특정 기간 내의 모든 소비 내역 조회 (excludeFromTotal이 true인 경우 제외)
+     */
+    public List<ExpenseResponse> getAllExpenseListBetween(LocalDateTime start, LocalDateTime end,
         Long userId) {
-        List<Expense> allUserExpensesIn = expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
-            start, end, userId);
-        //Dto로 변환
-        return ExpenseResponse.getExpenseDtoList(allUserExpensesIn);
+        return search(
+            ExpenseSearchCondition.builder()
+                .start(start)
+                .end(end)
+                .userId(userId)
+                .exclusion(true) // (excludeFromTotal이 true인 경우 제외)
+                .build());
     }
 
     public Long getAverageExpenseAmountOfToday() {
@@ -198,9 +203,8 @@ public class ExpenseService {
     //== QueryDsl==//
 
     /**
-     * @deprecated 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
+     * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
      */
-    @Deprecated(since = "1.1.0", forRemoval = true)
     public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return expenseRepository.search(condition);
     }
@@ -215,8 +219,12 @@ public class ExpenseService {
     /**
      * 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
      */
-    public Long getTotalExpenseAmount(ExpenseSearchCondition condition) {
-        return expenseRepository.getTotalExpenseAmount(condition);
+    public Long getTotalExpenseAmount(YearMonth yearMonth, Long userId) {
+        return expenseRepository.getTotalExpenseAmount(ExpenseSearchCondition.builder()
+            .start(yearMonth.atDay(1).atStartOfDay())
+            .end(yearMonth.atEndOfMonth().atTime(23, 59, 59))
+            .userId(userId)
+            .build());
     }
 
     /**

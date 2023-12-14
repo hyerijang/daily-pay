@@ -88,10 +88,7 @@ public class StatisticsService {
             59); // min(주어진 날짜 ,이번 달의 마지막 일), e.g. 31이 주어졌는데, 2월이라 28일까지 밖에 없으면 28.
 
         // start 부터 end 까지의 소비 내역 DTO로 반환
-        return expenseService.getAllUserExpenseDtoListIn(start, end, userId)
-            .stream()
-            .filter(expenseDto -> !expenseDto.excludeFromTotal())
-            .toList();
+        return expenseService.getAllExpenseListBetween(start, end, userId);
     }
 
     /**
@@ -100,13 +97,13 @@ public class StatisticsService {
     private Map<Category, Double> getCategoryExpenseComparisonLastMonth(Long userId) {
         //1. 지난 달 카테고리 별 소비액
         Map<Category, BigDecimal> categoryExpenseInLastMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now().minusMonths(1), userId)
+            expenseService.getAllExpenseListBetween(YearMonth.now().minusMonths(1), userId)
         );
 
         //2. 이번 달 카테고리 별 소비액
 
         Map<Category, BigDecimal> categoryExpenseInThisMonth = getCategoryExpense(
-            expenseService.getAllUserExpenseDtoListIn(YearMonth.now(), userId)
+            expenseService.getAllExpenseListBetween(YearMonth.now(), userId)
         );
 
         //3. 지난달, 이번 달 비교
@@ -151,7 +148,7 @@ public class StatisticsService {
      */
     public Double getLastWeekSameWeekDayComparison(Long userId) {
         // 지난주 같은 요일의 소비 총액
-        Long last = expenseService.getAllUserExpenseDtoListIn(LocalDate.now().minusDays(7),
+        Long last = expenseService.getAllExpenseListBetween(LocalDate.now().minusDays(7),
                 userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
@@ -160,7 +157,7 @@ public class StatisticsService {
         }
 
         //오늘 소비 총액
-        Long today = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(), userId)
+        Long today = expenseService.getAllExpenseListBetween(LocalDate.now(), userId)
             .stream().mapToLong(x -> x.amount()).sum();
 
         return ((double) today / last) * 100;
@@ -171,7 +168,7 @@ public class StatisticsService {
      */
     public Double getExpenseComparisonWithOtherUser(Long userId) {
         //오늘 user의 소비 총액
-        Long userExpenseAmount = expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
+        Long userExpenseAmount = expenseService.getAllExpenseListBetween(LocalDate.now(),
                 userId)
             .stream().mapToLong(x -> x.amount()).sum();
 

@@ -11,7 +11,8 @@ public record ExpenseSearchCondition(
     Long userId,
     Category category,
     Long minAmount,
-    Long maxAmount
+    Long maxAmount,
+    Boolean exclusion
 ) {
 
     public static ExpenseSearchCondition of(GetAllExpenseParam getAllExpenseParam, Long userId) {
@@ -32,4 +33,5 @@ public record ExpenseSearchCondition(
             .maxAmount(getAllExpenseParam.max_amount())
             .build();
     }
+
 }
