@@ -36,16 +36,10 @@ public class ConsultingService {
     }
 
     /**
-     * 이번 달 전체 지출
+     * 이번 달 전체 지출 총액
      */
     public Long getAmountSpentThisMonth(Long userId) {
-        //이번달 전체 지출
-        List<ExpenseResponse> allUserExpensesInThinMonth = expenseService.getAllUserExpenseDtoListIn(
-            YearMonth.now(),
-            userId);
-
-        return allUserExpensesInThinMonth.stream().filter(expense -> !expense.excludeFromTotal())
-            .mapToLong(ExpenseResponse::amount).sum();
+        return expenseService.getTotalExpenseAmount(YearMonth.now(), userId);
     }
 
     /**
@@ -69,7 +63,7 @@ public class ConsultingService {
      * 오늘 지출 내역 전체
      */
     public List<ExpenseResponse> getTodayExpenseInfo(Long userId) {
-        return expenseService.getAllUserExpenseDtoListIn(LocalDate.now(),
+        return expenseService.getAllExpenseListBetween(LocalDate.now(),
             userId);
     }
 

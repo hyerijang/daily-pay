@@ -13,6 +13,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,8 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
                 categoryEq(condition.category()),
                 minAmountGoe(condition.minAmount()),
                 maxAmountLoe(condition.maxAmount()),
-                isNotDeleted()
+                isNotDeleted(),
+                notExcludeFromTotal(condition.exclusion())
             )
             .fetch();
     }
@@ -66,6 +68,13 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return getCategorySumGroupByCategory(condition);
     }
 
+    @Override
+    public Tuple getTotalExpenseAmountOfAllUser(LocalDate today) {
+        return getTotalExpenseAmountOfAllUser(today.atStartOfDay(), today.atTime(23, 59, 59)).fetchOne();
+    }
+
+
+    // === JPA 쿼리 === //
 
     private List<ExpenseResponse> getExpenseList(ExpenseSearchCondition condition,
         Pageable pageable) {
@@ -138,6 +147,18 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
             .fetch();
     }
 
+    private JPAQuery<Tuple> getTotalExpenseAmountOfAllUser(LocalDateTime start, LocalDateTime end) {
+        return queryFactory.select(expense.amount.sum(), expense.user.countDistinct())
+            .from(expense)
+            .where(
+                startAfter(start),
+                endBefore(end),
+                isNotDeleted(),
+                notExcludeFromTotal());
+    }
+
+    // === 조건식 === //
+
     private static BooleanExpression userIdEq(Long userId) {
         return userId != null ? expense.user.id.eq(userId) : null;
     }
@@ -168,11 +189,19 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
         return expense.deleted.eq(false);
     }
 
+    /**
+     * 제외한 지출은 포함하지 않는다.
+     * @return
+     */
     private BooleanExpression notExcludeFromTotal() {
-        //제외되지 않았으면 true리턴
         return expense.excludeFromTotal.eq(false);
     }
 
+    private BooleanExpression notExcludeFromTotal(Boolean exclusion) {
+            return exclusion == Boolean.TRUE ? notExcludeFromTotal() : null;
+    }
+
+    // === 동적 정렬 === //
     private OrderSpecifier<?> getOrderSpecifier(org.springframework.data.domain.Sort.Order order,
         QExpense expense) {
         ComparableExpressionBase<?> orderExpression = getOrderExpression(order, expense);
