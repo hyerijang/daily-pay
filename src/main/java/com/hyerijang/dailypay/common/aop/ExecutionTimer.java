@@ -24,14 +24,17 @@ public class ExecutionTimer {
     public Object AssumeExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 
         StopWatch stopWatch = new StopWatch();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+
+
+        log.debug("[START] 실행 메서드: {}", signature.toShortString());
 
         stopWatch.start();
         Object proceed = joinPoint.proceed();
         stopWatch.stop();
-
         long totalTimeMillis = stopWatch.getTotalTimeMillis();
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        log.info("실행 메서드: {}, 실행시간: {}ms", signature.toShortString(), totalTimeMillis);
+
+        log.debug("[END] 실행 메서드: {}, 실행시간: {}ms", signature.toShortString(), totalTimeMillis);
         return proceed;
     }
 }

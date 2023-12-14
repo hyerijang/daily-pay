@@ -47,6 +47,7 @@ public class ConsultingController {
         // 1.이번 달 남은 예산 계산
         Long budgetRemainingForThisMonth = consultingService.getBudgetRemainingForThisMonth(
             user.getId());
+        log.debug("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
 
         // 2. 오늘 쓸 수 있는 금액 = (이번달 남은 예산) / (이번 달 남은 일 수)
         Long todayExpenseProposal = budgetRemainingForThisMonth / getRemainingDaysInMonth();
@@ -59,14 +60,13 @@ public class ConsultingController {
             todayExpenseProposal < MIN_EXPENSE_OF_A_DAY ? MIN_EXPENSE_OF_A_DAY
                 : todayExpenseProposal;
 
+        log.debug("오늘 쓸 수 있는 금액 = {}", todayExpenseProposal);
+
         // 3.카테고리 별 제안액
         List<BudgetResponse> proposalResponse = consultingService.getProposalInfo(
             todayExpenseProposal);
 
-        // 로그
-        log.info("이번달 남은 예산 = {}", budgetRemainingForThisMonth);
-        log.info("오늘 쓸 수 있는 금액 = {}", todayExpenseProposal);
-        log.info("카테고리 별 제안액 = {}", proposalResponse);
+        log.debug("카테고리 별 제안액 = {}", proposalResponse);
         return ResponseEntity.ok().body(Result.builder()
             .budgetRemainingForThisMonth(budgetRemainingForThisMonth)
             .todayExpenseProposal(todayExpenseProposal)
@@ -135,10 +135,10 @@ public class ConsultingController {
             user.getId());
 
         // 로그
-        log.info("이번 달 예산 = {}", budgetForThisMonth);
-        log.info("이번달 지출 금액 = {}", getAmountSpentThisMonth);
-        log.info("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
-        log.info("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
+        log.debug("이번 달 예산 = {}", budgetForThisMonth);
+        log.debug("이번달 지출 금액 = {}", getAmountSpentThisMonth);
+        log.debug("카테고리 별 지출 금액 = {}", expenseStatisticsByCategory);
+        log.debug("이번 달 카테고리 별 예산 = {}", budgetsByCategoryInThisMonth);
 
         // 5. 3와 4를 결합하여 유저에게 지출 분석 데이터 제공
         Map<Category, ExpenseAnalysisDto> analysisData = analysis(

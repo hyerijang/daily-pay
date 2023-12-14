@@ -37,7 +37,7 @@ public class StatisticsDummyDataGenerator {
         final LocalDate TODAY = LocalDate.now();
         final int SIZE = 10;
 
-        log.info("=== 더미 데이터 생성 시작 ===");
+        log.debug("=== 더미 데이터 생성 시작 ===");
         //1. 유저의 지난달 소비 데이터 10개 생성
         createAndSaveExpenses(userId, DateType.LAST_MONTH, SIZE); //유저, 지난달
 
@@ -52,7 +52,7 @@ public class StatisticsDummyDataGenerator {
         createAndSaveExpenses(otherUser.getId(), DateType.TODAY,
             SIZE); //다른유저, 오늘
 
-        log.info("=== 더미 데이터 생성 완료 ===");
+        log.debug("=== 더미 데이터 생성 완료 ===");
 
     }
 
