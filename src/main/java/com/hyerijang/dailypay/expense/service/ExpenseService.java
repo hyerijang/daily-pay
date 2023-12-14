@@ -45,19 +45,20 @@ public class ExpenseService {
 
 
     /**
-     * 유저의 지출 내역 (목록) 조회 V1
-     *
      * @see : com.hyerijang.dailypay.expense.service.search
+     * @deprecated 유저의 지출 내역 (목록) 조회 V1
      */
-    @Deprecated
+    @Deprecated(since = "1.1.0", forRemoval = true)
     public List<ExpenseResponse> getUserAllExpenses(GetAllExpenseParam request, User user) {
         List<Expense> result = findExpenseWithCondition(request, user.getId());
         return ExpenseResponse.getExpenseDtoList(result);
     }
 
-    @Deprecated
+    /**
+     * @deprecated 유저의 지출 내역 (목록) 조회
+     */
+    @Deprecated(since = "1.1.0", forRemoval = true)
     private List<Expense> findExpenseWithCondition(GetAllExpenseParam request, Long userId) {
-        //조건 = {유저의 Expense ,기간 (start ~ end) , 삭제되지 않은 Expense}
         //기간은 시작일의 0시 0분 0초 ~ 종료일의 23시 59분 59초
         return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             request.start().atStartOfDay(), request.end().atTime(23, 59, 59), userId);
@@ -78,7 +79,7 @@ public class ExpenseService {
 
 
     Boolean isNotExpenseWriter(Long userId, Long writerOfExpense) {
-        return (userId != writerOfExpense);
+        return userId.equals(writerOfExpense);
     }
 
     /**
@@ -148,13 +149,12 @@ public class ExpenseService {
      * 유저의 특정 년월 전체 지출
      */
     private List<Expense> getAllUserExpensesIn(YearMonth yearMonth, Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
         return expenseRepository.findByExpenseDateBetweenAndUserIdAndDeletedIsFalse(
             yearMonth.atDay(1).atStartOfDay(), yearMonth.atEndOfMonth().atTime(23, 59, 59), userId);
 
     }
 
+    //FIXME : DTO로 바로 조회하도록 변경
     public List<ExpenseResponse> getAllUserExpenseDtoListIn(YearMonth yearMonth, Long userId) {
         List<Expense> expenses = getAllUserExpensesIn(yearMonth, userId);
         return ExpenseResponse.getExpenseDtoList(expenses);
@@ -188,7 +188,7 @@ public class ExpenseService {
         List<Expense> allExpenseOfToday = expenseRepository.findByExpenseDateBetweenAndDeletedIsFalse(
             LocalDateTime.now().withHour(0).withMinute(0).withSecond(0), // 오늘 0시 0분 0초부터
             LocalDateTime.now());//현재 시각 까지
-        long sum = allExpenseOfToday.stream().mapToLong(x -> x.getAmount()).sum(); //오늘 전체 유저의 지출 총액
+        long sum = allExpenseOfToday.stream().mapToLong(Expense::getAmount).sum(); //오늘 전체 유저의 지출 총액
         long numOfUserInToday = allExpenseOfToday.stream().map(Expense::getUser).distinct().toList()
             .size(); //오늘 지출한 유저의 수
 
@@ -198,9 +198,9 @@ public class ExpenseService {
     //== QueryDsl==//
 
     /**
-     * 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
+     * @deprecated 유저의 지출 내역 (목록) 조회 v2 (QueryDSL)
      */
-    @Deprecated
+    @Deprecated(since = "1.1.0", forRemoval = true)
     public List<ExpenseResponse> search(ExpenseSearchCondition condition) {
         return expenseRepository.search(condition);
     }

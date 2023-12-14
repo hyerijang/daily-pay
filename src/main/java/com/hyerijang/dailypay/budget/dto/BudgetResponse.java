@@ -20,7 +20,7 @@ public record BudgetResponse(Long id,
                              YearMonth yearMonth,
                              @Schema(description = "카테고리")
                              Category category,
-                             @Schema(description = "카테고리 별 남은 예산액")
+                             @Schema(description = "카테고리 별 예산액")
                              Long amount) {
 
     public static List<BudgetResponse> getBudgetDetailList(List<Budget> budgets) {

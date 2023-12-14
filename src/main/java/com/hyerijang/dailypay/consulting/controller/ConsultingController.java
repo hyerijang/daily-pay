@@ -58,6 +58,7 @@ public class ConsultingController {
         todayExpenseProposal =
             todayExpenseProposal < MIN_EXPENSE_OF_A_DAY ? MIN_EXPENSE_OF_A_DAY
                 : todayExpenseProposal;
+
         // 3.카테고리 별 제안액
         List<BudgetResponse> proposalResponse = consultingService.getProposalInfo(
             todayExpenseProposal);
@@ -113,9 +114,7 @@ public class ConsultingController {
         int totalDaysInMonth = YearMonth.of(year, month).lengthOfMonth();
 
         // 현재 일을 뺀 남은 일수를 계산합니다.
-        int remainingDays = totalDaysInMonth - currentDate.getDayOfMonth();
-
-        return remainingDays;
+        return totalDaysInMonth - currentDate.getDayOfMonth();
     }
 
 
@@ -158,8 +157,10 @@ public class ConsultingController {
     private Map<Category, CombinedDataDto> analysis(
         Map<Category, BigDecimal> expenseStatisticsByCategory,
         List<BudgetResponse> budgetsByCategoryInThisMonth) {
+
         Map<Category, CombinedDataDto> combinedDataByCategory = new LinkedHashMap<>();
 
+        // 이번달 예산 목록
         for (BudgetResponse budgetResponse : budgetsByCategoryInThisMonth) {
             //카테고리 (예산에 등록되어 있는 카테고리 한정)
             Category expectedCategory = budgetResponse.category();
@@ -175,8 +176,10 @@ public class ConsultingController {
                 riskRate = ((double) expenseAmount / budgetAmount) * 100; // 퍼센티지 (riskRate %)
             }
 
-            CombinedDataDto combinedDataDto = new CombinedDataDto(riskRate,
-                budgetAmount - expenseAmount, expenseAmount, budgetAmount);
+            Long leftBudgetAmount = max(0, budgetAmount - expenseAmount); // 남은 예산액은 0 또는 양수
+
+            CombinedDataDto combinedDataDto = new CombinedDataDto(riskRate, leftBudgetAmount,
+                expenseAmount, budgetAmount);
             combinedDataByCategory.put(expectedCategory, combinedDataDto);
         }
         return combinedDataByCategory;
@@ -186,17 +189,11 @@ public class ConsultingController {
     @AllArgsConstructor
     private static class CombinedDataDto //카테고리의 예산
     {
-
         private Double riskRate; // 위험도 (0~1)
         private Long remainingBudgetByCategory; //카테고리의 남은 예산
         private Long expenseByCategory; // 카테고리의 지출
         private Long categoryBudge;
 
-        public void add(Long amount) {
-            this.remainingBudgetByCategory = max(0,
-                remainingBudgetByCategory - amount); //남은 예산액은 0 ~ 양수만 표시
-            this.expenseByCategory += amount;
-        }
     }
 
 }

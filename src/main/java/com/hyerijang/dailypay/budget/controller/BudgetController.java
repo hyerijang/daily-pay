@@ -66,16 +66,16 @@ public class BudgetController {
     ResponseEntity<Result> recommendBudgets(
         @RequestBody @Validated RecommendBudgetRequest request) {
         List<BudgetResponse> recommendBudgetResponseList = budgetService.recommend(request);
-        Result result = Result.builder().count(recommendBudgetResponseList.size())
-            .data(recommendBudgetResponseList)
-            .build();
-        return ResponseEntity.ok().body(result);
+        return ResponseEntity.ok()
+            .body(
+                Result.builder().count(recommendBudgetResponseList.size())
+                    .data(recommendBudgetResponseList)
+                    .build());
     }
 
     @Getter
     @Builder
     static class Result<T> {
-
         private int count;
         private T data; // 리스트의 값
     }

@@ -45,7 +45,7 @@ public class ConsultingService {
             userId);
 
         return allUserExpensesInThinMonth.stream().filter(expense -> !expense.excludeFromTotal())
-            .mapToLong(e -> e.amount()).sum();
+            .mapToLong(ExpenseResponse::amount).sum();
     }
 
     /**
@@ -87,7 +87,7 @@ public class ConsultingService {
     }
 
     /**
-     * 이번 달 카테고리 별 예산 dto 반환
+     * 이번 달 카테고리 별 예산 반환
      */
     public List<BudgetResponse> getBudgetsByCategoryInThisMonth(Long userId) {
         return budgetService.getBudgetDtoListOfAllCategoryListIn(YearMonth.now(), userId);
