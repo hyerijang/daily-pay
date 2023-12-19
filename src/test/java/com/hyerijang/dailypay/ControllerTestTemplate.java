@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.ResultActions;
 /***
  * API 컨트롤러 테스트 템플릿
  */
+@Disabled // 해제 후 사용
 @Slf4j
 @DisplayName("단위테스트 - ControllerTestTemplate")
 @WithMockCurrentUser //테스트 시 @WithMockUser 사용 불가 (커스텀 auth 저장) ->  @WithMockCurrentUser 사용해야함
@@ -48,6 +50,7 @@ class ControllerTestTemplate {
     @Autowired
     private ObjectMapper objectMapper;
     // === DI === //
+    //    @MockBean
     //    private final BudgetService budgetService;
 
     @BeforeAll
