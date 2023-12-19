@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * API 컨트롤러 테스트 템플릿
  */
 @Slf4j
+@DisplayName("단위테스트 - ControllerTestTemplate")
 @WithMockCurrentUser //테스트 시 @WithMockUser 사용 불가 (커스텀 auth 저장) ->  @WithMockCurrentUser 사용해야함
 @WebMvcTest(
     value = {CurrentUserTestController.class}, // 특정 Controller만 로딩하여 테스트
@@ -37,7 +39,7 @@ import org.springframework.test.web.servlet.ResultActions;
             classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class}) //스캔 대상에서 제외
     }
 )
-@AutoConfigureMockMvc //MockMvc를 자동으로 설정 (@Autowired)
+@AutoConfigureMockMvc(addFilters = false) //MockMvc를 자동으로 설정 (@Autowired)
 class ControllerTestTemplate {
 
     @Autowired
@@ -57,6 +59,7 @@ class ControllerTestTemplate {
     }
 
     // === TEST === //
+    @DisplayName("테스트 API는 OK를 리턴한다.")
     @Test
     void ok() throws Exception {
         //given
