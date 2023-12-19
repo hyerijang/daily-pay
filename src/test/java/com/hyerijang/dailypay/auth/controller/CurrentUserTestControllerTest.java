@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.auth;
+package com.hyerijang.dailypay.auth.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.hyerijang.dailypay.WithMockCurrentUser;
-import com.hyerijang.dailypay.auth.controller.CurrentUserTestController;
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
 import org.junit.jupiter.api.Test;
