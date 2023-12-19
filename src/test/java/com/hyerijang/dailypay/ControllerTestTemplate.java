@@ -47,6 +47,8 @@ class ControllerTestTemplate {
 
     @Autowired
     private ObjectMapper objectMapper;
+    // === DI === //
+    //    private final BudgetService budgetService;
 
     @BeforeAll
     static void beforeAll() throws Exception {
@@ -58,7 +60,16 @@ class ControllerTestTemplate {
         log.info("@BeforeEach");
     }
 
-    // === TEST === //
+
+    // === 테스트 API  === //
+    // == Request == //
+    @Builder
+    @Getter
+    static class PostDto {
+        String title;
+        String content;
+    }
+    // == Response == //
     @DisplayName("테스트 API는 OK를 리턴한다.")
     @Test
     void ok() throws Exception {
@@ -78,11 +89,5 @@ class ControllerTestTemplate {
             .andDo(print());
     }
 
-    @Builder
-    @Getter
-    static class PostDto {
 
-        String title;
-        String content;
-    }
 }
