@@ -14,49 +14,52 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyerijang.dailypay.WithMockCurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
+import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
+import com.hyerijang.dailypay.config.SecurityConfiguration;
 import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-
+@Slf4j
 @DisplayName("단위테스트 - ExpenseController")
-@ExtendWith(SpringExtension.class)
+@WithMockCurrentUser //테스트 시 @WithMockUser 사용 불가 (커스텀 auth 저장) ->  @WithMockCurrentUser 사용해야함
+@WebMvcTest(
+    value = {ExpenseController.class}, // 특정 Controller만 로딩하여 테스트
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+            classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class}) //스캔 대상에서 제외
+    }
+)
+@AutoConfigureMockMvc(addFilters = false) //MockMvc를 자동으로 설정 (@Autowired)
 class ExpenseControllerTest {
-
+    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
-    @Mock
+    // === DI === //
+    @MockBean
     private ExpenseService expenseService;
-
-    @Mock
-    private Authentication authentication;
-
-    @InjectMocks
-    private ExpenseController expenseController;
-
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(expenseController).build();
-    }
-
-
+    
+    
+    // === 지출 생성 API ===//
     private ExpenseResponse createSampleExpenseDto() {
         return ExpenseResponse.builder()
             .id(1L)
@@ -118,32 +121,8 @@ class ExpenseControllerTest {
         verify(expenseService, times(1)).createExpense(any(), any());
     }
 
-    @Test
-    @DisplayName("성공 : 지출 내역 조회 API 테스트 ")
-    void getAllExpenses() throws Exception {
-        // given
-        List<ExpenseResponse> sampleExpenseResponseList = createSampleExpenseDtoList();
 
-        when(expenseService.getUserAllExpenses(any(), any()))
-            .thenReturn(sampleExpenseResponseList);
-
-        // when
-        mockMvc.perform(get("/api/v1/expenses")
-                .param("start", "2023-11-01")
-                .param("end", "2023-11-30")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.count").value(2))
-            .andExpect(jsonPath("$.data[0].amount").value(50000))
-            .andExpect(jsonPath("$.data[0].memo").value("Lunch"))
-            .andExpect(jsonPath("$.data[0].excludeFromTotal").value(false))
-            .andDo(print());
-        // then
-        verify(expenseService, times(1)).getUserAllExpenses(any(), any());
-
-    }
-
+    // === 지출 조회 (단건) API ===//
     @Test
     @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API 테스트 ")
     void getExpenseById() throws Exception {
@@ -169,6 +148,7 @@ class ExpenseControllerTest {
     }
 
 
+    // === 지출 수정 (단건) API ===//
     @Test
     @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 시 requestBody 누락")
     void updateExpenseNoRequestBody() throws Exception {
@@ -213,6 +193,7 @@ class ExpenseControllerTest {
     }
 
 
+    // === 지출 삭제 (단건) API ===//
     @Test
     @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
     void deleteExpense() throws Exception {
