@@ -1,9 +1,9 @@
 ---
 name: QuantumJump team Issue Template
 about: 팀 퀀텀점프 이슈 템플릿입니다!
-title: ''
+title: 'feat : '
 labels: ''
-assignees: ''
+assignees: hyerijang
 
 ---
 
