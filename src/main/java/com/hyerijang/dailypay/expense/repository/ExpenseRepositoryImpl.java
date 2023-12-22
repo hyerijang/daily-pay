@@ -118,7 +118,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
     private JPAQuery<Long> getSumOfAmount(ExpenseSearchCondition condition) {
-        return queryFactory.select(expense.amount.sum())
+        return queryFactory.select(expense.amount.sum().coalesce(0L))
             .from(expense)
             .where(
                 userIdEq(condition.userId()),
@@ -148,7 +148,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryCustom {
     }
 
     private JPAQuery<Tuple> getTotalExpenseAmountOfAllUser(LocalDateTime start, LocalDateTime end) {
-        return queryFactory.select(expense.amount.sum(), expense.user.countDistinct())
+        return queryFactory.select(expense.amount.sum().coalesce(0L), expense.user.countDistinct())
             .from(expense)
             .where(
                 startAfter(start),
