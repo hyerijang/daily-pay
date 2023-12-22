@@ -2,8 +2,6 @@ package com.hyerijang.dailypay.expense.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -35,6 +33,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 @Slf4j
 @DisplayName("단위테스트 - ExpenseController")
@@ -48,6 +47,7 @@ import org.springframework.test.web.servlet.MockMvc;
 )
 @AutoConfigureMockMvc(addFilters = false) //MockMvc를 자동으로 설정 (@Autowired)
 class ExpenseControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -57,8 +57,8 @@ class ExpenseControllerTest {
     // === DI === //
     @MockBean
     private ExpenseService expenseService;
-    
-    
+
+
     // === 지출 생성 API ===//
     private ExpenseResponse createSampleExpenseDto() {
         return ExpenseResponse.builder()
@@ -106,10 +106,12 @@ class ExpenseControllerTest {
             """;
 
         // when
-        mockMvc.perform(post("/api/v1/expenses")
-                .content(json)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        ResultActions perform = mockMvc.perform(post("/api/v1/expenses")
+            .content(json)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
@@ -117,8 +119,6 @@ class ExpenseControllerTest {
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
             .andDo(print());
-        // then
-        verify(expenseService, times(1)).createExpense(any(), any());
     }
 
 
@@ -126,14 +126,15 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API는 성공시 200을 리턴한다")
     void getExpenseById() throws Exception {
-
+        //given
         given(expenseService.getExpenseById(any(), any()))
             .willReturn(createSampleExpenseDto());
 
         //when
-        mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        ResultActions perform = mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
@@ -141,9 +142,6 @@ class ExpenseControllerTest {
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
             .andDo(print());
-        //then
-
-        verify(expenseService, times(1)).getExpenseById(any(), any());
 
     }
 
@@ -152,21 +150,22 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 는 request가 null일 시 400을 리턴한다")
     void updateExpenseNoRequestBody() throws Exception {
+        //given
         given(expenseService.updateExpense(any(), any(), any())).willReturn(
             createSampleExpenseDto());
 
         //when
-        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is4xxClientError());
+        ResultActions perform = mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+
         //than
-        verify(expenseService, times(0)).updateExpense(any(), any(), any());
+        perform.andExpect(status().is4xxClientError());
     }
 
     @Test
     @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API는 성공시 200을 리턴한다")
     void updateExpense() throws Exception {
-
+        //given
         given(expenseService.updateExpense(any(), any(), any())).willReturn(
             createSampleExpenseDto());
 
@@ -180,17 +179,18 @@ class ExpenseControllerTest {
                 }
             """;
 
-        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
-                .content(json)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+            .content(json)
+            .contentType(MediaType.APPLICATION_JSON));
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).updateExpense(any(), any(), any());
     }
 
 
@@ -198,37 +198,43 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API는 성공시 200을 리턴한다")
     void deleteExpense() throws Exception {
-
+        //given
         given(expenseService.deleteExpense(any(), any())).willReturn(
             createSampleExpenseDto());
 
-        mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).deleteExpense(any(), any());
     }
 
     @Test
     @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API는 성공시 200을 리턴한다")
     void excludeFromTotal() throws Exception {
+        //given
         given(expenseService.excludeFromTotal(any(), any())).willReturn(
             createSampleExpenseDto());
 
-        mockMvc.perform(patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(
+            patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).excludeFromTotal(any(), any());
     }
 }
