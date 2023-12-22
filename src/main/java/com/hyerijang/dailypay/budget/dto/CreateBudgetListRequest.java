@@ -7,8 +7,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.time.YearMonth;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "예산 생성 및 업데이트 요청")
 @Getter
 public class CreateBudgetListRequest {
@@ -23,6 +29,8 @@ public class CreateBudgetListRequest {
 
     @Schema(description = "카테고리 및 카테고리 별 남은 예산액")
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class CreateBudgetDetail {
 
         @NotNull

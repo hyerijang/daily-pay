@@ -34,11 +34,15 @@ public class Token {
     @NotBlank
     public String token;
 
+    @Builder.Default
     public TokenType tokenType = TokenType.BEARER;
 
     @Setter
+    @Builder.Default
     public boolean revoked = true;
+
     @Setter
+    @Builder.Default
     public boolean expired = true;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

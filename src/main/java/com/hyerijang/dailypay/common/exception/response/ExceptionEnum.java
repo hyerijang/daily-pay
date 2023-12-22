@@ -34,6 +34,7 @@ public enum ExceptionEnum {
     WRONG_EXPENSE_COMPARISON_CONDITION(HttpStatus.BAD_REQUEST, "S003",
         "지출 통계 쿼리 파라미터가 잘못 되었습니다."),
     NOT_EXIST_LAST_WEEK_EXPENSE(HttpStatus.FORBIDDEN, "S004", "유저의 지난 주 같은 요일에 소비 내역이 없습니다. "),
+    NO_ONE_CONSUMES( HttpStatus.NOT_FOUND, "S005","오늘 지출을 기록한 사용자가 0명입니다."),
     ;
 
 

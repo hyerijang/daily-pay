@@ -79,7 +79,7 @@ public class ExpenseService {
 
 
     Boolean isNotExpenseWriter(Long userId, Long writerOfExpense) {
-        return userId.equals(writerOfExpense);
+        return !userId.equals(writerOfExpense);
     }
 
     /**
@@ -189,10 +189,13 @@ public class ExpenseService {
         //오늘 전체 유저들의 소비액 총합
         Tuple tuple = expenseRepository.getTotalExpenseAmountOfAllUser(LocalDate.now());
 
-        Long sum = tuple.get(0,Long.class);
         Long numOfUserInToday = tuple.get(1,Long.class);
-        log.debug("전체 유저 소비 총합 = {}", sum);
         log.debug("오늘 소비를 기록한 유저 수 = {}",numOfUserInToday);
+        if (numOfUserInToday == 0) {
+            throw new ApiException(ExceptionEnum.NO_ONE_CONSUMES);
+        }
+        Long sum = tuple.get(0,Long.class);
+        log.debug("전체 유저 소비 총합 = {}", sum);
         return sum / numOfUserInToday;
     }
 
@@ -216,11 +219,15 @@ public class ExpenseService {
      * 지출 내역 토대로 지출 합계 계산 (excludeFromTotal이 true인 경우 제외)
      */
     public Long getTotalExpenseAmount(YearMonth yearMonth, Long userId) {
-        return expenseRepository.getTotalExpenseAmount(ExpenseSearchCondition.builder()
-            .start(yearMonth.atDay(1).atStartOfDay())
-            .end(yearMonth.atEndOfMonth().atTime(23, 59, 59))
-            .userId(userId)
-            .build());
+        Long totalExpenseAmount = expenseRepository.getTotalExpenseAmount(
+            ExpenseSearchCondition.builder()
+                .start(yearMonth.atDay(1).atStartOfDay())
+                .end(yearMonth.atEndOfMonth().atTime(23, 59, 59))
+                .userId(userId)
+                .build());
+
+        return totalExpenseAmount == null ? 0L :totalExpenseAmount;
+
     }
 
     /**

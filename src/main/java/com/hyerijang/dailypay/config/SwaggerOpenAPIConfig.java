@@ -34,7 +34,8 @@ public class SwaggerOpenAPIConfig {
     public GroupedOpenApi group1Config() {
         return GroupedOpenApi.builder()
             .group("v1-definition")
-            .pathsToMatch("/api/**") //
+            .pathsToMatch("/api/**")
+            .pathsToExclude("/api/test/**") //test 용 API는 제외
             .build();
     }
 
