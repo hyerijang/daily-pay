@@ -36,7 +36,7 @@ class CurrentUserTestControllerTest {
     private MockMvc mockMvc;
 
     // === CurrentUser 테스트 API ===//
-    @DisplayName("로그인한 유저가 존재하면 유저 정보를 응답한다.")
+    @DisplayName("성공 : 로그인한 유저가 존재하면 유저 정보를 응답한다.")
     @Test
     void currentUser() throws Exception {
         //given

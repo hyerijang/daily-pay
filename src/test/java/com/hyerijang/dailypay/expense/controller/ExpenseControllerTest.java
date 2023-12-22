@@ -87,7 +87,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("성공 : 지출 내역 생성 API 테스트 ")
+    @DisplayName("성공 : 지출 내역 생성 API는 성공시 200을 리턴한다")
     void createExpense() throws Exception {
         // given
         ExpenseResponse createdExpenseResponse = createSampleExpenseDto();
@@ -124,7 +124,7 @@ class ExpenseControllerTest {
 
     // === 지출 조회 (단건) API ===//
     @Test
-    @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API 테스트 ")
+    @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API는 성공시 200을 리턴한다")
     void getExpenseById() throws Exception {
 
         given(expenseService.getExpenseById(any(), any()))
@@ -150,20 +150,21 @@ class ExpenseControllerTest {
 
     // === 지출 수정 (단건) API ===//
     @Test
-    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 시 requestBody 누락")
+    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 는 request가 null일 시 400을 리턴한다")
     void updateExpenseNoRequestBody() throws Exception {
-
         given(expenseService.updateExpense(any(), any(), any())).willReturn(
             createSampleExpenseDto());
 
+        //when
         mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().is4xxClientError());
+        //than
         verify(expenseService, times(0)).updateExpense(any(), any(), any());
     }
 
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API ")
+    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API는 성공시 200을 리턴한다")
     void updateExpense() throws Exception {
 
         given(expenseService.updateExpense(any(), any(), any())).willReturn(
@@ -195,7 +196,7 @@ class ExpenseControllerTest {
 
     // === 지출 삭제 (단건) API ===//
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
+    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API는 성공시 200을 리턴한다")
     void deleteExpense() throws Exception {
 
         given(expenseService.deleteExpense(any(), any())).willReturn(
@@ -214,7 +215,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
+    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API는 성공시 200을 리턴한다")
     void excludeFromTotal() throws Exception {
         given(expenseService.excludeFromTotal(any(), any())).willReturn(
             createSampleExpenseDto());

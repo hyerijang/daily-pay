@@ -65,7 +65,7 @@ class BudgetControllerTest {
     private BudgetRepository budgetRepository;
 
     // === 카테고리 API  ===//
-    @DisplayName("카테고리 API는 OK를 리턴한다")
+    @DisplayName("성공 : 카테고리 API는 성공시 200을 리턴한다")
     @Test
     void getCategories() throws Exception {
         //given
@@ -115,7 +115,7 @@ class BudgetControllerTest {
     }};
 
 
-    @DisplayName("예산 변경 API는 requset body가 null일 시 400을 리턴한다")
+    @DisplayName("실패 : 예산 변경 API는 requset body가 null일 시 400을 리턴한다")
     @Test
     void updateBudgets_will_return400() throws Exception {
         // when
@@ -128,7 +128,7 @@ class BudgetControllerTest {
     }
 
 
-    @DisplayName("예산 변경 API는 성공시 ok를 리턴한다.")
+    @DisplayName("성공 : 예산 변경 API는 성공시 200을 리턴한다.")
     @Test
     void updateBudgets_will_return_ok() throws Exception {
         //given
@@ -146,7 +146,7 @@ class BudgetControllerTest {
             .andDo(print());
     }
 
-    @DisplayName("예산 변경 API는 성공시 body에 변경 결과를 리턴한다.")
+    @DisplayName("성공 : 예산 변경 API는 성공시 body에 변경 결과를 리턴한다.")
     @Test
     void updateBudgets() throws Exception {
         //given
@@ -167,7 +167,7 @@ class BudgetControllerTest {
 
 
     // === 예산 추천 API  === //
-    @DisplayName("예산 추천 API는 requset body가 null일 시 400을 리턴한다")
+    @DisplayName("실패 : 예산 추천 API는 requset body가 null일 시 400을 리턴한다")
     void recommendBudgets_with_null_request() throws Exception {
 
         // given
@@ -185,7 +185,7 @@ class BudgetControllerTest {
 
     }
 
-    @DisplayName("예산 추천 API 테스트")
+    @DisplayName("성공 : 예산 추천 API는 성공시 200을 리턴한다.")
     @Test
     void recommendBudgets() throws Exception {
 

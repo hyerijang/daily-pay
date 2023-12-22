@@ -52,7 +52,7 @@ class ExpenseSearchControllerTest {
     private ExpenseService expenseService;
 
     @Test
-    @DisplayName("조회 조건을 지정하지 않아도 200을 리턴한다")
+    @DisplayName("성공 : 지출 내역 조회 API는 조회 조건을 지정하지 않아도 200을 리턴한다")
     void getAllExpenses_no_param() throws Exception {
         // given
         Page<ExpenseResponse> userExpensesPage = Page.empty();
@@ -73,7 +73,7 @@ class ExpenseSearchControllerTest {
 
 
     @Test
-    @DisplayName("지출 내역 조회 성공시 200을 리턴한다")
+    @DisplayName("성공 : 지출 내역 조회 API는 성공시 200을 리턴한다")
     void getAllExpenses() throws Exception {
         // given
         Page<ExpenseResponse> userExpensesPage = Page.empty();
