@@ -1,5 +1,7 @@
 package com.hyerijang.dailypay;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -8,8 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.auth.controller.CurrentUserTestController;
+import com.hyerijang.dailypay.budget.service.BudgetService;
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
+import java.util.ArrayList;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
@@ -50,8 +55,8 @@ class ControllerTestTemplate {
     @Autowired
     private ObjectMapper objectMapper;
     // === DI === //
-    //    @MockBean
-    //    private final BudgetService budgetService;
+    @MockBean
+    private BudgetService budgetService; // 예시를 위해 넣은 Service.
 
     @BeforeAll
     static void beforeAll() throws Exception {
@@ -63,26 +68,18 @@ class ControllerTestTemplate {
         log.info("@BeforeEach");
     }
 
-
     // === 테스트 API  === //
-    // == Request == //
-    @Builder
-    @Getter
-    static class PostDto {
-        String title;
-        String content;
-    }
-    // == Response == //
     @DisplayName("테스트 API는 OK를 리턴한다.")
     @Test
     void ok() throws Exception {
         //given
-        PostDto postDto = PostDto.builder().title("제목").content("내용").build();
+        given(budgetService.update(any(), any())).willReturn(new ArrayList<>());
+        PostRequset postRequset = PostRequset.builder().title("제목").content("내용").build();
         //when
         ResultActions perform = mockMvc
             .perform(get("/api/test/currentUser")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postDto))); //Request body
+                .content(objectMapper.writeValueAsString(postRequset))); //Request body
 
         //than
         perform.andExpect(status().isOk()) //status
@@ -90,6 +87,24 @@ class ControllerTestTemplate {
             .andExpect(jsonPath("$.data.id").value(12345)) // Response body
             .andExpect(jsonPath("$.data.email").value("dailypay@gmail.com"))
             .andDo(print());
+    }
+
+    // == Request == //
+    @Builder
+    @Getter
+    static class PostRequset {
+
+        String title;
+        String content;
+    }
+
+    // == Response == //
+    @Builder
+    @Getter
+    static class PostResponse {
+
+        String title;
+        String content;
     }
 
 
