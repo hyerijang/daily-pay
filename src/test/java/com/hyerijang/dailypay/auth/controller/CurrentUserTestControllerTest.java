@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.hyerijang.dailypay.WithMockCurrentUser;
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-
+@DisplayName("단위테스트 - CurrentUserTestController")
 @WebMvcTest(
     value = {CurrentUserTestController.class}, // 특정 Controller만 로딩하여 테스트
     excludeFilters = {
@@ -34,6 +35,8 @@ class CurrentUserTestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    // === CurrentUser 테스트 API ===//
+    @DisplayName("로그인한 유저가 존재하면 유저 정보를 응답한다.")
     @Test
     void currentUser() throws Exception {
         //given
