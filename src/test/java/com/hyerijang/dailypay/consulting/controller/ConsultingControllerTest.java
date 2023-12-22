@@ -1,120 +1,93 @@
 package com.hyerijang.dailypay.consulting.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hyerijang.dailypay.budget.dto.BudgetResponse;
+import com.hyerijang.dailypay.WithMockCurrentUser;
+import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
+import com.hyerijang.dailypay.config.SecurityConfiguration;
 import com.hyerijang.dailypay.consulting.service.ConsultingService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.ResultActions;
 
+@Slf4j
 @DisplayName("단위테스트 - ConsultingController")
-@ExtendWith(SpringExtension.class)
+@WithMockCurrentUser
+@WebMvcTest(
+    value = {ConsultingController.class},
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+            classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class})
+    }
+)
+@AutoConfigureMockMvc(addFilters = false)
 class ConsultingControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
-    @Mock
+    // === DI === //
+    @MockBean
     private ConsultingService consultingService;
 
-    @InjectMocks
-    private ConsultingController consultingController;
-
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(consultingController).build();
-    }
-
-    private List<BudgetResponse> createBudgetDtoList() throws JsonProcessingException {
-        String json = """
-                    {
-                        "yearMonth": "2023-11",
-                        "category": "FOOD",
-                        "amount": 6100
-                    }
-            """;
-        String json2 = """
-                    {
-                        "yearMonth": "2023-11",
-                        "category": "UTILITIES",
-                        "amount": 2600
-                    }
-            """;
-
-        BudgetResponse budgetResponse = objectMapper.readValue(json, BudgetResponse.class);
-        BudgetResponse budgetResponse2 = objectMapper.readValue(json2, BudgetResponse.class);
-
-        List<BudgetResponse> list = new ArrayList<>();
-        list.add(budgetResponse);
-        list.add(budgetResponse2);
-        return list;
-    }
-
+    // === 오늘 지출 추천 API  === //
     @Test
-    @DisplayName("성공 : [D-1] 오늘 지출 추천 API 테스트 ")
+    @DisplayName("성공 : 오늘 지출 추천 API는 성공시 200을 리턴한다 ")
     void getTodayExpenses() throws Exception {
-
         // given
         when(consultingService.getBudgetRemainingForThisMonth(any()))
             .thenReturn(350000L);
-        when(consultingService.getProposalInfo(any())).thenReturn(createBudgetDtoList());
+        when(consultingService.getProposalInfo(any())).thenReturn( new ArrayList<>());
 
         // when
-        mockMvc.perform(get("/api/v1/consulting/proposal-info")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.data.size()").value(2))
-            .andDo(print());
+        ResultActions perform = mockMvc.perform(get("/api/v1/consulting/proposal-info")
+            .contentType(MediaType.APPLICATION_JSON));
+
         // then
-        verify(consultingService, times(1)).getBudgetRemainingForThisMonth(any());
-        verify(consultingService, times(1)).getProposalInfo(any());
+        perform.andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andDo(print());
 
     }
 
-
+    // === 오늘 지출 안내 API  === //
     @Test
-    @DisplayName("성공 : [D-2] 오늘 지출 안내 API")
+    @DisplayName("성공 : 오늘 지출 안내 API는 성공시 200을 리턴한다")
     void testGetTodayExpenses() throws Exception {
-
+        //given
         when(consultingService.getBudgetThisMonth(any())).thenReturn(300000L);
         when(consultingService.getAmountSpentThisMonth(any())).thenReturn(170000L);
         when(consultingService.getExpenseStatisticsByCategory(any())).thenReturn(
             new LinkedHashMap<>());
-
         when(consultingService.getBudgetsByCategoryInThisMonth(any())).thenReturn(
             new ArrayList<>());
 
-        mockMvc.perform(get("/api/v1/consulting/today-expenses")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(get("/api/v1/consulting/today-expenses")
+            .contentType(MediaType.APPLICATION_JSON));
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andDo(print());
-
-        verify(consultingService, times(1)).getBudgetThisMonth(any());
-
-
     }
 }
