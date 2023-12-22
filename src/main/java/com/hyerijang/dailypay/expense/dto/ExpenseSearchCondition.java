@@ -4,6 +4,9 @@ import com.hyerijang.dailypay.budget.domain.Category;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
+/***
+ * DB에서 조회하기 위해 검색 조건을 구체화
+ */
 @Builder
 public record ExpenseSearchCondition(
     LocalDateTime start,
