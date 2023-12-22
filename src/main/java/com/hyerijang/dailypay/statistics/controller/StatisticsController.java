@@ -39,7 +39,7 @@ public class StatisticsController {
     // === 통계  API === //
 
     @ExeTimer
-    @Operation(summary = "지난 달 대비 이번 달 통계", description = " 지난 달 대비 총액 및 카테고리 별 소비율(퍼센티지) 을 반환")
+    @Operation(summary = "통계", description = "총액 및 카테고리 별 소비율(퍼센티지) 을 반환")
     @GetMapping
     public ResponseEntity<Result> getExpenseComparison(@Param("condition") String condition,
         @CurrentUser User user) {
