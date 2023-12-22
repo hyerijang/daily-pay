@@ -79,7 +79,7 @@ public class ExpenseService {
 
 
     Boolean isNotExpenseWriter(Long userId, Long writerOfExpense) {
-        return userId.equals(writerOfExpense);
+        return !userId.equals(writerOfExpense);
     }
 
     /**
