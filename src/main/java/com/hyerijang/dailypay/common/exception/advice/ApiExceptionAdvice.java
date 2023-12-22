@@ -81,6 +81,7 @@ public class ApiExceptionAdvice {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiExceptionResponse> exceptionHandler(final RuntimeException e) {
         log.error("[RuntimeException] {} {}", e.getClass(), e.getMessage());
+        log.debug("{}", e.getStackTrace());
         return ResponseEntity
             .status(ExceptionEnum.RUNTIME_EXCEPTION.getStatus())
             .body(ApiExceptionResponse.builder()

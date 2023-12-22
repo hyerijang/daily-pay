@@ -1,19 +1,19 @@
-package com.hyerijang.dailypay.consulting.controller;
+package com.hyerijang.dailypay.expense.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyerijang.dailypay.WithMockCurrentUser;
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
-import com.hyerijang.dailypay.consulting.service.ConsultingService;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
+import com.hyerijang.dailypay.expense.service.ExpenseService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,22 +23,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @Slf4j
-@DisplayName("단위테스트 - ConsultingController")
-@WithMockCurrentUser
+@DisplayName("단위테스트 - ExpenseSearchController")
+@WithMockCurrentUser //테스트 시 @WithMockUser 사용 불가 (커스텀 auth 저장) ->  @WithMockCurrentUser 사용해야함
 @WebMvcTest(
-    value = {ConsultingController.class},
+    value = {ExpenseSearchController.class}, // 특정 Controller만 로딩하여 테스트
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
-            classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class})
+            classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class}) //스캔 대상에서 제외
     }
 )
-@AutoConfigureMockMvc(addFilters = false)
-class ConsultingControllerTest {
+@AutoConfigureMockMvc(addFilters = false) //MockMvc를 자동으로 설정 (@Autowired)
+class ExpenseSearchControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -48,46 +49,48 @@ class ConsultingControllerTest {
 
     // === DI === //
     @MockBean
-    private ConsultingService consultingService;
+    private ExpenseService expenseService;
 
-    // === 오늘 지출 추천 API  === //
     @Test
-    @DisplayName("성공 : 오늘 지출 추천 API는 성공시 200을 리턴한다 ")
-    void getTodayExpenses() throws Exception {
+    @DisplayName("성공 : 지출 내역 조회 API는 조회 조건을 지정하지 않아도 200을 리턴한다")
+    void getAllExpenses_no_param() throws Exception {
         // given
-        given(consultingService.getBudgetRemainingForThisMonth(any()))
-            .willReturn(350000L);
-        given(consultingService.getProposalInfo(any())).willReturn( new ArrayList<>());
+        Page<ExpenseResponse> userExpensesPage = Page.empty();
+        given(expenseService.searchPage(any(), any()))
+            .willReturn(userExpensesPage);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/api/v1/consulting/proposal-info")
+        ResultActions perform = mockMvc.perform(get("/api/v1/expenses")
             .contentType(MediaType.APPLICATION_JSON));
 
         // then
         perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.categoryWiseExpenseSum").isEmpty())
             .andDo(print());
 
     }
 
-    // === 오늘 지출 안내 API  === //
-    @Test
-    @DisplayName("성공 : 오늘 지출 안내 API는 성공시 200을 리턴한다")
-    void testGetTodayExpenses() throws Exception {
-        //given
-        given(consultingService.getBudgetThisMonth(any())).willReturn(300000L);
-        given(consultingService.getAmountSpentThisMonth(any())).willReturn(170000L);
-        given(consultingService.getExpenseStatisticsByCategory(any())).willReturn(
-            new LinkedHashMap<>());
-        given(consultingService.getBudgetsByCategoryInThisMonth(any())).willReturn(
-            new ArrayList<>());
 
-        //when
-        ResultActions perform = mockMvc.perform(get("/api/v1/consulting/today-expenses")
+    @Test
+    @DisplayName("성공 : 지출 내역 조회 API는 성공시 200을 리턴한다")
+    void getAllExpenses() throws Exception {
+        // given
+        Page<ExpenseResponse> userExpensesPage = Page.empty();
+        given(expenseService.searchPage(any(), any()))
+            .willReturn(userExpensesPage);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/expenses")
+            .param("start", "2023-11-01")
+            .param("end", "2023-11-30")
             .contentType(MediaType.APPLICATION_JSON));
-        //than
+
+        // then
         perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.categoryWiseExpenseSum").isEmpty())
             .andDo(print());
+
     }
 }

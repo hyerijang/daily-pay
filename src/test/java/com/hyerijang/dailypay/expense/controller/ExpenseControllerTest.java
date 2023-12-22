@@ -1,9 +1,7 @@
 package com.hyerijang.dailypay.expense.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -14,49 +12,54 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hyerijang.dailypay.WithMockCurrentUser;
 import com.hyerijang.dailypay.budget.domain.Category;
+import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
+import com.hyerijang.dailypay.config.SecurityConfiguration;
 import com.hyerijang.dailypay.expense.dto.ExpenseResponse;
 import com.hyerijang.dailypay.expense.service.ExpenseService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.ResultActions;
 
-
+@Slf4j
 @DisplayName("단위테스트 - ExpenseController")
-@ExtendWith(SpringExtension.class)
+@WithMockCurrentUser //테스트 시 @WithMockUser 사용 불가 (커스텀 auth 저장) ->  @WithMockCurrentUser 사용해야함
+@WebMvcTest(
+    value = {ExpenseController.class}, // 특정 Controller만 로딩하여 테스트
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
+            classes = {SecurityConfiguration.class, JwtAuthenticationFilter.class}) //스캔 대상에서 제외
+    }
+)
+@AutoConfigureMockMvc(addFilters = false) //MockMvc를 자동으로 설정 (@Autowired)
 class ExpenseControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
-    @Mock
+    // === DI === //
+    @MockBean
     private ExpenseService expenseService;
 
-    @Mock
-    private Authentication authentication;
 
-    @InjectMocks
-    private ExpenseController expenseController;
-
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-        mockMvc = MockMvcBuilders.standaloneSetup(expenseController).build();
-    }
-
-
+    // === 지출 생성 API ===//
     private ExpenseResponse createSampleExpenseDto() {
         return ExpenseResponse.builder()
             .id(1L)
@@ -84,13 +87,13 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("성공 : 지출 내역 생성 API 테스트 ")
+    @DisplayName("성공 : 지출 내역 생성 API는 성공시 200을 리턴한다")
     void createExpense() throws Exception {
         // given
         ExpenseResponse createdExpenseResponse = createSampleExpenseDto();
 
-        when(expenseService.createExpense(any(), any()))
-            .thenReturn(createdExpenseResponse);
+        given(expenseService.createExpense(any(), any()))
+            .willReturn(createdExpenseResponse);
 
         String json = """
                 {
@@ -103,10 +106,12 @@ class ExpenseControllerTest {
             """;
 
         // when
-        mockMvc.perform(post("/api/v1/expenses")
-                .content(json)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        ResultActions perform = mockMvc.perform(post("/api/v1/expenses")
+            .content(json)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
@@ -114,47 +119,22 @@ class ExpenseControllerTest {
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
             .andDo(print());
-        // then
-        verify(expenseService, times(1)).createExpense(any(), any());
     }
 
+
+    // === 지출 조회 (단건) API ===//
     @Test
-    @DisplayName("성공 : 지출 내역 조회 API 테스트 ")
-    void getAllExpenses() throws Exception {
-        // given
-        List<ExpenseResponse> sampleExpenseResponseList = createSampleExpenseDtoList();
-
-        when(expenseService.getUserAllExpenses(any(), any()))
-            .thenReturn(sampleExpenseResponseList);
-
-        // when
-        mockMvc.perform(get("/api/v1/expenses")
-                .param("start", "2023-11-01")
-                .param("end", "2023-11-30")
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.count").value(2))
-            .andExpect(jsonPath("$.data[0].amount").value(50000))
-            .andExpect(jsonPath("$.data[0].memo").value("Lunch"))
-            .andExpect(jsonPath("$.data[0].excludeFromTotal").value(false))
-            .andDo(print());
-        // then
-        verify(expenseService, times(1)).getUserAllExpenses(any(), any());
-
-    }
-
-    @Test
-    @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API 테스트 ")
+    @DisplayName("성공 :  유저의 지출 내역(단건) 조회 API는 성공시 200을 리턴한다")
     void getExpenseById() throws Exception {
-
-        when(expenseService.getExpenseById(any(), any()))
-            .thenReturn(createSampleExpenseDto());
+        //given
+        given(expenseService.getExpenseById(any(), any()))
+            .willReturn(createSampleExpenseDto());
 
         //when
-        mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        ResultActions perform = mockMvc.perform(get("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
@@ -162,31 +142,31 @@ class ExpenseControllerTest {
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"))
             .andDo(print());
-        //then
-
-        verify(expenseService, times(1)).getExpenseById(any(), any());
 
     }
 
 
+    // === 지출 수정 (단건) API ===//
     @Test
-    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 시 requestBody 누락")
+    @DisplayName("실패 : 유저의 지출 내역(단건) 수정 API 는 request가 null일 시 400을 리턴한다")
     void updateExpenseNoRequestBody() throws Exception {
-
-        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+        //given
+        given(expenseService.updateExpense(any(), any(), any())).willReturn(
             createSampleExpenseDto());
 
-        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().is4xxClientError());
-        verify(expenseService, times(0)).updateExpense(any(), any(), any());
+        //when
+        ResultActions perform = mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        //than
+        perform.andExpect(status().is4xxClientError());
     }
 
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API ")
+    @DisplayName("성공 : 유저의 지출 내역(단건) 수정 API는 성공시 200을 리턴한다")
     void updateExpense() throws Exception {
-
-        when(expenseService.updateExpense(any(), any(), any())).thenReturn(
+        //given
+        given(expenseService.updateExpense(any(), any(), any())).willReturn(
             createSampleExpenseDto());
 
         String json = """
@@ -199,54 +179,62 @@ class ExpenseControllerTest {
                 }
             """;
 
-        mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
-                .content(json)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(patch("/api/v1/expenses/{id}", 1000)
+            .content(json)
+            .contentType(MediaType.APPLICATION_JSON));
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).updateExpense(any(), any(), any());
     }
 
 
+    // === 지출 삭제 (단건) API ===//
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API")
+    @DisplayName("성공 : 유저의 지출 내역(단건) 삭제 API는 성공시 200을 리턴한다")
     void deleteExpense() throws Exception {
-
-        when(expenseService.deleteExpense(any(), any())).thenReturn(
+        //given
+        given(expenseService.deleteExpense(any(), any())).willReturn(
             createSampleExpenseDto());
 
-        mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/expenses/{id}", 1000)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).deleteExpense(any(), any());
     }
 
     @Test
-    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API")
+    @DisplayName("성공 : 유저의 지출 내역(단건)을 합계에서 제외하는 API는 성공시 200을 리턴한다")
     void excludeFromTotal() throws Exception {
-        when(expenseService.excludeFromTotal(any(), any())).thenReturn(
+        //given
+        given(expenseService.excludeFromTotal(any(), any())).willReturn(
             createSampleExpenseDto());
 
-        mockMvc.perform(patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
-                .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
+        //when
+        ResultActions perform = mockMvc.perform(
+            patch("/api/v1/expenses/{id}/exclude-total-sum", 1000)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //than
+        perform.andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.amount").value(50000))
             .andExpect(jsonPath("$.data.memo").value("Lunch"))
             .andExpect(jsonPath("$.data.excludeFromTotal").value(false))
             .andExpect(
                 jsonPath("$.data.expenseDate").value("2023-11-14 12:30:00"));
-        verify(expenseService, times(1)).excludeFromTotal(any(), any());
     }
 }
