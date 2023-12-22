@@ -2,7 +2,6 @@ package com.hyerijang.dailypay.budget.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -172,7 +171,7 @@ class BudgetControllerTest {
     void recommendBudgets_with_null_request() throws Exception {
 
         // given
-        when(budgetService.recommend(any(RecommendBudgetRequest.class))).thenReturn(
+        given(budgetService.recommend(any(RecommendBudgetRequest.class))).willReturn(
             updatedBudgetResponseList);
 
         // when
@@ -191,7 +190,7 @@ class BudgetControllerTest {
     void recommendBudgets() throws Exception {
 
         // given
-        when(budgetService.recommend(any(RecommendBudgetRequest.class))).thenReturn(
+        given(budgetService.recommend(any(RecommendBudgetRequest.class))).willReturn(
             updatedBudgetResponseList);
 
         String requestBody = """

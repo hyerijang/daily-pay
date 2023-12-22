@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.expense.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -56,8 +56,8 @@ class ExpenseSearchControllerTest {
     void getAllExpenses_no_param() throws Exception {
         // given
         Page<ExpenseResponse> userExpensesPage = Page.empty();
-        when(expenseService.searchPage(any(), any()))
-            .thenReturn(userExpensesPage);
+        given(expenseService.searchPage(any(), any()))
+            .willReturn(userExpensesPage);
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/expenses")
@@ -77,8 +77,8 @@ class ExpenseSearchControllerTest {
     void getAllExpenses() throws Exception {
         // given
         Page<ExpenseResponse> userExpensesPage = Page.empty();
-        when(expenseService.searchPage(any(), any()))
-            .thenReturn(userExpensesPage);
+        given(expenseService.searchPage(any(), any()))
+            .willReturn(userExpensesPage);
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/expenses")

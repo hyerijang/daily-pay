@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.statistics.controller;
 
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -82,7 +82,7 @@ class StatisticsControllerTest {
     void getExpenseComparison_return_ok() throws Exception {
         //given
         String condition = "last-month";
-        when(statisticsService.getExpenseComparisonLastMonth(anyLong())).thenReturn(new StatisticsDto(null,null));
+        given(statisticsService.getExpenseComparisonLastMonth(anyLong())).willReturn(new StatisticsDto(null,null));
         //when
         ResultActions perform = mockMvc
             .perform(get("/api/v1/statistics")

@@ -1,7 +1,7 @@
 package com.hyerijang.dailypay.consulting.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -55,9 +55,9 @@ class ConsultingControllerTest {
     @DisplayName("성공 : 오늘 지출 추천 API는 성공시 200을 리턴한다 ")
     void getTodayExpenses() throws Exception {
         // given
-        when(consultingService.getBudgetRemainingForThisMonth(any()))
-            .thenReturn(350000L);
-        when(consultingService.getProposalInfo(any())).thenReturn( new ArrayList<>());
+        given(consultingService.getBudgetRemainingForThisMonth(any()))
+            .willReturn(350000L);
+        given(consultingService.getProposalInfo(any())).willReturn( new ArrayList<>());
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/consulting/proposal-info")
@@ -75,11 +75,11 @@ class ConsultingControllerTest {
     @DisplayName("성공 : 오늘 지출 안내 API는 성공시 200을 리턴한다")
     void testGetTodayExpenses() throws Exception {
         //given
-        when(consultingService.getBudgetThisMonth(any())).thenReturn(300000L);
-        when(consultingService.getAmountSpentThisMonth(any())).thenReturn(170000L);
-        when(consultingService.getExpenseStatisticsByCategory(any())).thenReturn(
+        given(consultingService.getBudgetThisMonth(any())).willReturn(300000L);
+        given(consultingService.getAmountSpentThisMonth(any())).willReturn(170000L);
+        given(consultingService.getExpenseStatisticsByCategory(any())).willReturn(
             new LinkedHashMap<>());
-        when(consultingService.getBudgetsByCategoryInThisMonth(any())).thenReturn(
+        given(consultingService.getBudgetsByCategoryInThisMonth(any())).willReturn(
             new ArrayList<>());
 
         //when
