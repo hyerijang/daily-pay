@@ -18,7 +18,7 @@ public record RegisterRequest(
 
     @NotNull(message = "{password.not_null}")
     @NotBlank(message = "{password.not_empty}")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\\W)(?!.* ).{8,16}$", message = "{password.policy_violation}")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?!.* ).{8,16}$", message = "{password.policy_violation}")
     String password
 ) {
 
