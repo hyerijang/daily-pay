@@ -1,11 +1,11 @@
 name: CI/CD using github actions & docker
 
 # event trigger
-# 새로운 tag 생성 시 수행
+# 새로운 Release tag 생성 시 수행 (github Release Tag)
 on:
   push:
     tags:
-      - v1.*
+      - 1.**
 
 permissions:
   contents: read
