@@ -1,5 +1,6 @@
 package com.hyerijang.dailypay.auth.dto;
 
+import com.hyerijang.dailypay.user.domain.Role;
 import com.hyerijang.dailypay.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -19,13 +20,17 @@ public record RegisterRequest(
     @NotNull(message = "{password.not_null}")
     @NotBlank(message = "{password.not_empty}")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?!.* ).{8,16}$", message = "{password.policy_violation}")
-    String password
+    String password,
+
+    @NotNull(message = "{role.not_null}")
+    Role role
 ) {
 
     public User toEntity() {
         return User.builder()
             .email(this.email)
             .password(this.password)
+            .role(role)
             .build();
     }
 }
