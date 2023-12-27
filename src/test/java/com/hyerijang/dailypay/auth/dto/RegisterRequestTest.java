@@ -2,6 +2,7 @@ package com.hyerijang.dailypay.auth.dto;
 
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
+import com.hyerijang.dailypay.user.domain.Role;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import java.util.ArrayList;
@@ -37,7 +38,8 @@ class RegisterRequestTest {
     MessageSource messageSource;
     //=== 올바른 Email, Password ===//
     String VALID_EMAIL = "test@email.com";
-    String VALID_PASSWORD = "password123!";
+    String VALID_PASSWORD = "password1234!!";
+
     @Autowired
     private Validator validatorInjected;
 
@@ -48,7 +50,7 @@ class RegisterRequestTest {
     void email_patter_validate(String wrongEmail) {
         //given
         String MESSAGE_CODE = "email.not_email"; // message code
-        RegisterRequest registerRequest = new RegisterRequest(wrongEmail, VALID_PASSWORD);
+        RegisterRequest registerRequest = new RegisterRequest(wrongEmail, VALID_PASSWORD, Role.USER);
         // when
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
             registerRequest); //검증
@@ -73,7 +75,7 @@ class RegisterRequestTest {
         String MESSAGE_CODE = "email.not_empty"; // message code
 
         // when
-        RegisterRequest registerRequest = new RegisterRequest(wrongEmail, VALID_PASSWORD);
+        RegisterRequest registerRequest = new RegisterRequest(wrongEmail, VALID_PASSWORD,Role.USER);
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
             registerRequest); //검증
 
@@ -96,7 +98,7 @@ class RegisterRequestTest {
         String MESSAGE_CODE = "email.not_null"; // message code
 
         // when
-        RegisterRequest registerRequest = new RegisterRequest(null, VALID_PASSWORD); // 이메일 : null
+        RegisterRequest registerRequest = new RegisterRequest(null, VALID_PASSWORD,Role.USER); // 이메일 : null
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
             registerRequest); //검증
 
@@ -120,7 +122,7 @@ class RegisterRequestTest {
     void password_pattern_validate(String wrongPassword) {
         //give
         String MESSAGE_CODE = "password.policy_violation"; // message code
-        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, wrongPassword);
+        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, wrongPassword,Role.USER);
 
         // when
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
@@ -144,7 +146,7 @@ class RegisterRequestTest {
     void password_empty(String wrongPassword) {
         //give
         String MESSAGE_CODE = "password.not_empty"; // message code
-        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, wrongPassword);
+        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, wrongPassword,Role.USER);
 
         // when
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
@@ -167,11 +169,35 @@ class RegisterRequestTest {
     void password_null() {
         //give
         String MESSAGE_CODE = "password.not_null"; // message code
-        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, null); // 비밀번호 : null
+        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, null,Role.USER); // 비밀번호 : null
 
         // when
         Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
             registerRequest);//검증
+
+        // then
+        Iterator<ConstraintViolation<RegisterRequest>> iterator = validate.iterator();
+        List<String> messages = new ArrayList<>();
+        while (iterator.hasNext()) {
+            ConstraintViolation<RegisterRequest> next = iterator.next();
+            messages.add(next.getMessage());
+        }
+
+        Assertions.assertThat(messages)
+            .contains(messageSource.getMessage(MESSAGE_CODE, null, Locale.getDefault()));
+    }
+
+    // === Role 검증 === /
+
+    @DisplayName("역할 : Role이 null인 경우 검증 실패")
+    @Test
+    void role_validate() {
+        //given
+        String MESSAGE_CODE = "role.not_null"; // message code
+        RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, VALID_PASSWORD, null);
+        // when
+        Set<ConstraintViolation<RegisterRequest>> validate = validatorInjected.validate(
+            registerRequest); //검증
 
         // then
         Iterator<ConstraintViolation<RegisterRequest>> iterator = validate.iterator();
