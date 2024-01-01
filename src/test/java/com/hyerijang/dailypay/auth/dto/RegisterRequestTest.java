@@ -46,7 +46,7 @@ class RegisterRequestTest {
     //=== 이메일 검증 ===//
     @DisplayName("이메일 : 이메일 형식이 아닌 경우 검증 실패")
     @ParameterizedTest
-    @ValueSource(strings = {"notEmail", "abc@", "@gmail.com"})
+    @ValueSource(strings = {"notEmail", "abc@", "@gmail.com", "이메일아님"})
     void email_patter_validate(String wrongEmail) {
         //given
         String MESSAGE_CODE = "email.not_email"; // message code
