@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class DailyPayApplicationTests {
 
-	// test
+	// test2
 	@Test
 	void contextLoads() {
 	}
