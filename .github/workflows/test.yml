@@ -1,0 +1,53 @@
+name: CI 테스트 자동화
+
+# event trigger
+# 테스트 관련 push 또는 pull_request 발생
+on:
+  push:
+    branches:
+      - main
+      - release-*
+      - develop
+    paths : "src/test/**"
+  pull_request:
+    branches:
+      - main
+      - release-*
+      - develop
+    paths : "src/test/**"
+
+permissions:
+  contents: read
+
+# 실제 실행될 내용들을 정의합니다.
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Open jdk 17 버전 환경을 세팅
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      #Set up Gradle
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Github Submodule에서 환경변수 가져옴
+        uses: actions/checkout@v4
+        with:
+          token: ${{secrets.CONFIG_TOKEN}}
+          submodules: true
+
+      - name: 테스트 수행
+        run: |
+          chmod +x ./gradlew
+          ./gradlew test 
+
+      - name: 테스트 실패 시, 실패한 코드 라인에 Check 코멘트를 등록
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
