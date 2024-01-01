@@ -1,0 +1,21 @@
+# Swagger 관련 Open API 3 설정
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs # API문서를 json 형식으로 보여줌 : http://server:port + path
+    groups:
+      enabled: true
+  
+  paths-to-match: /api/**
+  packages-to-scan: com.hyerijang.dailypay
+  swagger-ui:
+    path: /swagger-ui.html # http://server:port + path를  Swagger UI page(http://server:port/swagger-ui/index.html) 로 리다이렉트 시킴
+    groups-order: ASC #group 정렬 오름차순
+    tags-sorter: alpha        # tag 정렬 알파벳순
+    operations-sorter: alpha    # api 정렬 알파벳순
+    display-request-duration: true
+    doc-expansion: none        # swagger tag 리스트 펼치기
+  cache:
+    disabled: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json

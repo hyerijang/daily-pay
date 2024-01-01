@@ -20,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,40 +33,26 @@ public class StatisticsDummyDataGenerator {
     private final UserRepository userRepository;
 
     @Transactional
-    public void generateDummy(Authentication authentication) {
-        //유저 확인
-        log.info("유저 확인");
-        User user = userRepository.findByEmail(authentication.getName())
-            .orElseThrow(() -> new ApiException(
-                ExceptionEnum.NOT_EXIST_USER));
-        log.info("유저 확인");
-        log.debug("유저 확인");
-
-        generateDummy(user);
-    }
-
-
-    private void generateDummy(User user) {
+    public void generateDummy(Long userId) {
         final LocalDate TODAY = LocalDate.now();
         final int SIZE = 10;
 
-        log.info("=== 더미 데이터 생성 시작 ===");
+        log.debug("=== 더미 데이터 생성 시작 ===");
         //1. 유저의 지난달 소비 데이터 10개 생성
-        createAndSaveExpenses(user, DateType.LAST_MONTH, SIZE); //유저, 지난달
+        createAndSaveExpenses(userId, DateType.LAST_MONTH, SIZE); //유저, 지난달
 
         //2. 유저의 7일전 (지난주, 같은요일) 소비 데이터 생성
-        createAndSaveExpenses(user, DateType.LAST_WEEK,
-            SIZE); //유저, 지난주
+        createAndSaveExpenses(userId, DateType.LAST_WEEK, SIZE); //유저, 지난주
 
         //3.다른 유저 1명의 오늘 소비 데이터 생성
         User otherUser = userRepository.findAll().stream()
-            .filter(x -> x.getId() != user.getId())
+            .filter(x -> x.getId() != userId)
             .findAny()
             .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_OTHER_USER));
-        createAndSaveExpenses(otherUser, DateType.TODAY,
+        createAndSaveExpenses(otherUser.getId(), DateType.TODAY,
             SIZE); //다른유저, 오늘
 
-        log.info("=== 더미 데이터 생성 완료 ===");
+        log.debug("=== 더미 데이터 생성 완료 ===");
 
     }
 
@@ -91,14 +76,14 @@ public class StatisticsDummyDataGenerator {
 
 
     // === 지출 생성 및 저장 로직 ==
-    private void createAndSaveExpenses(User user, DateType lastMonth, int size) {
+    private void createAndSaveExpenses(Long userId, DateType dateType, int size) {
         //생성
         List<Expense> expenses = IntStream.range(0, size)
             .mapToObj(
-                idx -> createRandomExpense(user, idx,
-                    generateRandomDateTime(lastMonth))) //지난달
+                idx -> createRandomExpense(userId, idx,
+                    generateRandomDateTime(dateType))) //지난달 or 지난주
             .toList();
-
+        
         //저장
         expenseRepository.saveAll(expenses);
     }
@@ -106,12 +91,16 @@ public class StatisticsDummyDataGenerator {
     /**
      * 지출 1개 생성
      */
-    private static Expense createRandomExpense(User user, Integer idx,
+    private Expense createRandomExpense(Long userId, Integer idx,
         LocalDateTime localDateTime) {
         Category category = getRandomCategory();
         Long amount = getRandomAmount();
         String description = "더미 데이터 " + idx;
         boolean flag = false;
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException(ExceptionEnum.NOT_EXIST_USER));
+
         return new Expense(user, category, amount, description, flag, localDateTime);
     }
 

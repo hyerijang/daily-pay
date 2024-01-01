@@ -41,6 +41,17 @@ dependencies {
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
     implementation 'io.jsonwebtoken:jjwt:0.12.3'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // lombok
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
 }
 
@@ -59,7 +70,7 @@ jar {
     enabled = false
 }
 
-
+// git submodule
 task copyPrivate(type: Copy) {
     copy {
         from './daily-pay-config' //위 사진과 같은 폴더 명
@@ -68,4 +79,24 @@ task copyPrivate(type: Copy) {
         include "application-security.yaml"
         into 'src/main/resources' //복사할 위치
     }
+}
+
+// querydsl
+def querydslDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
+}
+
+//clean 시 generated 폴더 삭제
+clean {
+    file('src/main/generated').deleteDir()
 }

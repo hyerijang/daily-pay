@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.token;
+package com.hyerijang.dailypay.auth.token;
 
 import com.hyerijang.dailypay.user.domain.User;
 import jakarta.persistence.CascadeType;
@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,16 +31,22 @@ public class Token {
     public Long id;
 
     @Column(unique = true)
+    @NotBlank
     public String token;
 
+    @Builder.Default
     public TokenType tokenType = TokenType.BEARER;
 
     @Setter
+    @Builder.Default
     public boolean revoked = true;
+
     @Setter
+    @Builder.Default
     public boolean expired = true;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @NotNull
     public User user;
 }

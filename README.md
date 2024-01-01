@@ -5,20 +5,32 @@
 <br>
 
 <div align="center">
-<img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/Java 17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=Gradle&logoColor=white"/></a>
 <img src="https://img.shields.io/badge/Spring Boot 3.1.5-6DB33F?style=for-the-badge&logo=spring&logoColor=white"/></a>
-<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white"/></a>
-<img src="https://img.shields.io/badge/Spring Data JPA-gray?style=for-the-badge&logoColor=white"/></a>
-<img src="https://img.shields.io/badge/Junit-25A162?style=for-the-badge&logo=JUnit5&logoColor=white"/></a>
 </div>
 <div align="center">
+<img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens"/></a>
+</div>
+
+<div align="center">
 <img src="https://img.shields.io/badge/MySQL 8-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/Spring Data JPA-gray?style=for-the-badge&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/QueryDSL-0078D4?style=for-the-badge&logo=Spring Data JPA&logoColor=white"/></a>
+</div>
+
+<div align="center">
+<img src="https://img.shields.io/badge/swagger-%ffffff.svg?style=for-the-badge&logo=swagger&logoColor=white"/></a>
+<img src="https://img.shields.io/badge/Junit-25A162?style=for-the-badge&logo=JUnit5&logoColor=white"/></a>
 <img src="https://img.shields.io/badge/Notion-FFFFFF?style=for-the-badge&logo=Notion&logoColor=black"/></a>
 <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"/></a>
-<img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=Postman&logoColor=white">
 </div>
 
 <br>
+
+![Codecov](https://img.shields.io/codecov/c/github/hyerijang/daily-pay)
+
 <br>
 
 Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하는 데 도움을 주는 애플리케이션입니다.
@@ -26,28 +38,28 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 
 <br>
 
-## 0. 목차
+## 목차
 
-- [1.개발 기간](#1-개발-기간)
-- [2.프로젝트 요구사항](#2-프로젝트-요구사항)
-- [3.디렉토리 구조](#3-디렉토리-구조)
-- [4.설계 및 의도](#4-설계-및-의도)
-    - [본 프로젝트를 통해 배우고자 한 것](#본-프로젝트를-통해-배우고자-한-것)
-    - [ERD](#erd-자세히)
-    - [[A] 유저 기능](#a-유저-기능-자세히)
-    - [[B] 예산 설정 및 설계](#b-예산-설정-및-설계-자세히)
-    - [[C] 지출 기능 구현](#c-지출-기능-구현-자세히)
-    - [[D] 지출 컨설팅 (메인기능)](#d-지출-컨설팅-메인기능-자세히)
-    - [[E] 지출 통계](#e-지출-통계-자세히)
-- [5.프로젝트 일정 관리](#5-프로젝트-일정-관리)
-- [6.API 문서](#6-api-document)
-- [7.프로젝트 회고](#7-프로젝트-회고)
+- [개발 기간](#개발-기간)
+- [프로젝트 요구사항](#프로젝트-요구사항)
+- [프로젝트 아키텍처](#프로젝트-아키텍처)
+- [설계 및 의도](#설계-및-의도)
+    - [[A] 유저 기능](#a-유저-기능)
+    - [[B] 예산 설정 및 설계](#b-예산-설정-및-설계)
+    - [[C] 지출 기능 구현](#c-지출-기능-구현)
+    - [[D] 지출 컨설팅 (메인기능)](#d-지출-컨설팅)
+    - [[E] 지출 통계](#e-지출-통계)
+- [API 문서](#api-문서)
+- [프로젝트 일정 관리](#프로젝트-일정-관리)
+- [프로젝트 회고](#프로젝트-회고)
 
-## 1. 개발 기간
+## 개발 기간
 
 `v1.0.0` : 23.11.09 ~ 23.11.16 (=8일) (45시간)
 
-## 2. 프로젝트 요구사항
+`v1.1.0` : 23.11.20 ~ 24.01.01 (=43일) (49시간)
+
+## 프로젝트 요구사항
 
 ### 유저스토리
 
@@ -63,112 +75,41 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 - **E. 지출 통계**
     - `지난 달 대비` , `지난 요일 대비`,  `다른 유저 대비` 등 여러 기준 `카테고리 별` 지출 통계를 확인 할 수 있습니다.
 
-## 3. 디렉토리 구조
+## 프로젝트 아키텍처
+![데일리페이 아키텍쳐(GithubAction)](https://github.com/hyerijang/daily-pay/assets/46921979/3e0b2c8b-fcae-4611-85c1-f4d656561616)
 
-<details>
-    <summary><h4>디렉토리 구조 (자세히)</h4></summary>
+<img src="https://github.com/hyerijang/daily-pay/assets/46921979/d4a8925c-a99d-4928-862b-ee248549c0f6" width="80%" />
 
-#### main
+## 설계 및 의도
 
-```
-main                           
-├─generated                      
-├─java
-│  └─com
-│      └─hyerijang
-│          └─dailypay  
-│              ├─auth  
-│              ├─budget
-│              │  ├─controller
-│              │  ├─domain
-│              │  ├─dto
-│              │  ├─repository
-│              │  └─service
-│              ├─common
-│              │  ├─aop
-│              │  ├─entity
-│              │  ├─exception
-│              │  │  ├─advice
-│              │  │  └─response
-│              │  └─logging
-│                  ├─contoller
-│                  ├─domain
-│                  ├─repository
-│                  └─service
-└─resources
-    ├─static
-    └─templates
-```
 
-#### test
-
-```
-test
-└─java
-    └─com
-        └─hyerijang
-            └─dailypay
-                ├─budget
-                │  ├─controller
-                │  └─service
-                ├─consulting
-                │  └─controller
-                └─expense
-                    └─controller
-
-```
-
-</details>
-
-## 4. 설계 및 의도
-
-본문이 너무 길어져 상세 사항은 접어두었습니다. 본 서비스의 메인기능은 `[D] 지출 컨설팅` 입니다.
-<h4>본 프로젝트를 통해 배우고자 한 것</h4>
-
-<img  src = "https://github.com/hyerijang/daily-pay/assets/46921979/d010649a-875d-491d-91fa-b1c2a5fa27a8" width="40%"  />
-
-<details>
-    <summary><h4>ERD (자세히)</h4></summary>
-<img src="https://github.com/hyerijang/daily-pay/assets/46921979/85d7e8ce-652b-4a69-a53b-d9a14022bde4" width="70%" />
-</details>
-<details>
-    <summary> <h4>[A] 유저 기능 (자세히)</h4></summary>
-<h4> 설계의도</h4>
+### [A] 유저 기능
 
 - Spring Security + JWT
-- 간단히 구현하라는 요구사항에 맞춰 아래 기능은 생략하였습니다.
-    - 아이디, 비밀번호 조건 검증 (e.g. 아이디는 영문과 숫자만, 비밀번호는 10자 이상)
-    - 인가
 - 추후 소셜 로그인 등으로 전환 될 가능성을 고려하여 [아이디,비밀번호]가 아닌 [이메일,비밀번호]로 테이블을 구성하였습니다.
-- Spring Securiy 기능 중 **csrf 보호는 적용하지 않았습니다.**
-    - 이유 : rest api로서 non-browser clients와 통신하기 때문
-        - [Spring Securiy 공식 문서 - When to use CSRF protection](https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-when)
-          에 따르면 본 서비스는 csrf 보호를 disable해도 되는 서비스입니다.
-        - csrf 공격은 일반적으로 사용자의 브라우저를 통해 요청을 위조합니다. 하지만 저희 서비스의 client 들은 웹 브라우저가 아닌 안드로이드/IOS 어플리케이션을
-          통해 서비스를 이용하게 될 것입니다.
-        - 때문에 매번 api 요청으로부터 csrf 토큰을 받는 것은 **자원 낭비**라고 여겨 csrf를 disable하였습니다.
 
 <h4>회원가입</h4>
-
-- 로그인시에는 Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
-- 비밀번호는 암호화 되어 저장됩니다.
+- 비밀번호는 BCrypt로 암호화하여 저장됩니다.
+- 회원가입 시 Request DTO에서 이메일, 비밀번호 유효성 검증을 진행합니다. (이메일 : 이메일 형식) (비밀번호 : 대/소문자, 숫자, 특수문자를 각각 1개 이상 포함하여 8자 이상)
 
 <h4>로그인</h4>
-
 - 로그인시에는 Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
-- <img src="https://github.com/hyerijang/daily-pay/assets/46921979/54a64d44-256a-4c40-96f8-690640a6d1b4" width="70%" />
+- <img src="https://github.com/hyerijang/daily-pay/assets/46921979/54a64d44-256a-4c40-96f8-690640a6d1b4" width="60%" />
 
-</details>
+#### 인증 이후 유저 정보 접근 방식 개선   https://github.com/hyerijang/daily-pay/issues/32
 
-<details>
-    <summary><h4>[B] 예산 설정 및 설계 (자세히)</h4></summary>
+- Spring Security의 UserDetails을 오버라이딩하는  CustomUserDetails 구현
+    - 이메일, 비밀번호 외에도 다양한 정보를 Security context에 저장해 두고 사용합니다.
+- `@Currentuser`로 Controller 에서 간편하게 유저 정보 접근 가능
+- 테스트 시 @WithMockUser 대신 사용할 `@WithMockCurrentUser` 어노테이션 구현 https://github.com/hyerijang/daily-pay/issues/86
+
+### [B] 예산 설정 및 설계
 
 <h4>[B-1] 예산 엔티티 </h4>
 
-- 예산 기능을 위한 엔티티를 개발합니다.
 - {user id, 년월, 카테고리}를 unique한 복합키로 가집니다. (향후 API 구현에 이용할 예정)
 - 카테고리는 식비 , 교통 등 일반적인 지출 카테고리를 의미합니다.
-- 관리를 용이하게 하기위해 Enum으로 구현하였음
+- 관리를 용이하게 하기위해 카테고리는 Enum으로 구현하였습니다.
 
 <h4> [B-2] 카테고리 목록 API</h4>
 
@@ -176,8 +117,8 @@ test
 
 <h4> [B-3] 예산 설정 API </h4>
 
-- 해당 기간 별 설정한 예산 을 설정합니다.
-- 예산은 카테고리 를 필수로 지정합니다.
+- 해당 기간 별 설정한 예산을 설정합니다.
+- 예산은 카테고리를 필수로 지정합니다.
 - 사용자는 언제든지 예산 금액을 변경할 수 있습니다.
 
 <h4> [B-3] 예산 설계 API </h4>
@@ -185,10 +126,8 @@ test
 - 전체 유저의 예산 액을 통해`카테고리 별  평균 예산 비율`을 계산합니다.
 - `카테고리 별  평균 예산 비율`과 `유저의 예산총액`을 기반으로 카테고리별 예산액을 추천합니다.
 
-</details>
 
-<details>
-    <summary><h4>[C] 지출 기능 구현 (자세히)</h4></summary>
+### [C] 지출 기능 구현
 
 <h4> [C-1] 지출 엔티티 </h4>
 
@@ -202,12 +141,10 @@ test
 - 읽기(목록) 은 아래 기능을 가지고 있습니다.
     - 필수적으로 기간 으로 조회 합니다.
     - 조회된 모든 내용의 지출 합계 , 카테고리 별 지출 합계 를 같이 반환합니다.
+    - 목록 조회 시 `Paging`, `동적 정렬`을 적용하여 원하는 지출 내역만 검색할 수 있습니다.
 - 합계제외 처리한 지출은 목록에 포함되지만, 모든 지출 합계에서 제외됩니다.
 
-</details>
-
-<details>
-    <summary><h4>[D] 지출 컨설팅 (메인기능) (자세히)</h4></summary> 
+### [D] 지출 컨설팅
 
 <h4> [D-1] 오늘 지출 추천(API) </h4>
 
@@ -236,7 +173,6 @@ test
 응원멘트 : "이번 달 예산을 넘어섰어요! 열심히 절약해야겠네요"
 ```
 
-<img src="https://github.com/hyerijang/daily-pay/assets/46921979/0379a405-e654-46d1-9d51-4011dfcfd76f" width="50%" />
 
 <h4> [D-2] 오늘 지출 안내 (API)</h4>
 
@@ -282,12 +218,9 @@ test
 ]
 ```
 
-<img src="https://github.com/hyerijang/daily-pay/assets/46921979/16894d55-f066-4755-9e2f-3b1ec648e231" width="50%" />
-</details>
 
 
-<details>
-    <summary><h4>[E] 지출 통계 (자세히)</h4></summary>
+### [E] 지출 통계
 
 사용자에게 통계 데이터를 제공합니다.
 <h4> [E-1] 더미데이터 생성 </h4>
@@ -318,18 +251,31 @@ test
 - (2) 지난주 같은 요일 대비 소비율: last-week
 - (3) 다른 유저 대비 소비율 : other-user
 
-</details>
 
-## 5. 프로젝트 일정 관리
+## API 문서
+
+### Swagger
+
+- URL : `http://server:port/swagger-ui/index.html`
+- 인증 API를 제외한 다른 API들은 Acceess Token을 필요로 합니다.
+
+<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/f1d2d79a-577b-4b90-a88c-a53345490a96" width="80%"/>
+<img src= "https://github.com/hyerijang/daily-pay/assets/46921979/736025d1-74d4-4779-821a-9c6797352310" width="80%"/>
+
+## 프로젝트 일정 관리
 
 ### [Notion - DAILY PAY -예산관리 어플리케이션 일정 관리 ](https://www.notion.so/hyerijang/DAILY-PAY-f87db3c141604f11a4e1da933f25a86c)
 
 ![image](https://github.com/hyerijang/daily-pay/assets/46921979/ececa92a-1389-4cae-8ffe-100e1b5b5f91)
 
-## 6. API Document
 
-[API Document](https://documenter.getpostman.com/view/15143510/2s9YXo1KBA)는 Postman으로 작성하였습니다.
 
-## 7. 프로젝트 회고
+## 프로젝트 회고
 
-[개발 블로그 - 프로젝트 회고 (1)](https://dev-jhl.tistory.com/m/entry/%EC%9B%90%ED%8B%B0%EB%93%9C-%ED%94%84%EB%A6%AC%EC%98%A8%EB%B3%B4%EB%94%A9-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%9D%B8%ED%84%B4%EC%8B%AD10%EC%9B%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-3-%ED%9A%8C%EA%B3%A0)
+[DAILY PAY : 예산관리 애플리케이션 v1.0.0 회고](https://dev-jhl.tistory.com/m/entry/%EC%9B%90%ED%8B%B0%EB%93%9C-%ED%94%84%EB%A6%AC%EC%98%A8%EB%B3%B4%EB%94%A9-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%9D%B8%ED%84%B4%EC%8B%AD10%EC%9B%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-3-%ED%9A%8C%EA%B3%A0)
+
+[[Spring Security + JWT] Access, Refresh 토큰을 DB에 저장해야하는 이유](https://dev-jhl.tistory.com/entry/Spring-Security-JWT-Access-Refresh-%ED%86%A0%ED%81%B0%EC%9D%84-DB%EC%97%90-%EC%A0%80%EC%9E%A5%ED%95%B4%EC%95%BC%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0)
+
+[Github Action + Submodule +Docker 로 CICD 하기](https://dev-jhl.tistory.com/entry/Github-Action-Docker-Submodule%EB%A1%9C-CICD-%ED%95%98%EA%B8%B0)
+
+[Stream을 List로 변환하는 방법들의 차이](https://dev-jhl.tistory.com/entry/Stream%EC%9D%84-List%EB%A1%9C-%EB%B3%80%ED%99%98%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95%EB%93%A4%EC%9D%98-%EC%B0%A8%EC%9D%B4)

@@ -1,4 +1,4 @@
-package com.hyerijang.dailypay.config;
+package com.hyerijang.dailypay.auth.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

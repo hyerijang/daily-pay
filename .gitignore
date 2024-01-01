@@ -35,6 +35,11 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### config ###
 /src/main/resources/application-dev.yml
 /src/main/resources/application-prod.yml
 /src/main/resources/application-security.yml
+
+### generated ###
+/src/main/generated/

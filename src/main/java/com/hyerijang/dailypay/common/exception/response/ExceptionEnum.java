@@ -8,10 +8,13 @@ public enum ExceptionEnum {
 
     RUNTIME_EXCEPTION(HttpStatus.BAD_REQUEST, "E001"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E002"),
-    ILLEGAL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "E003", "잘못된 입력입니다."),
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "E003", "잘못된 입력입니다."),
+    ENTITY_VALID_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "E004", "엔티티 검증 과정에서 변환에 실패했습니다."),
     //auth
     ACCESS_DENIED_EXCEPTION(HttpStatus.UNAUTHORIZED, "A002", "인증이 필요합니다"),
     WRONG_REQUEST(HttpStatus.BAD_REQUEST, "A003", "잘못된 요청입니다."),
+    LOGOUT_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "A004", "정상적으로 로그아웃이 수행되지 않았습니다."),
+
 
     //user
     NOT_EXIST_USER(HttpStatus.NOT_FOUND, "U001", "존재하지 않는 사용자입니다."),
@@ -30,7 +33,9 @@ public enum ExceptionEnum {
     NOT_DEV_ENVIRONMENT(HttpStatus.FORBIDDEN, "S002 ", "운영 환경에서 실행할 수 없는 API입니다."),
     WRONG_EXPENSE_COMPARISON_CONDITION(HttpStatus.BAD_REQUEST, "S003",
         "지출 통계 쿼리 파라미터가 잘못 되었습니다."),
-    NOT_EXIST_LAST_WEEK_EXPENSE(HttpStatus.FORBIDDEN, "S004", "유저의 지난 주 같은 요일에 소비 내역이 없습니다. ");
+    NOT_EXIST_LAST_WEEK_EXPENSE(HttpStatus.FORBIDDEN, "S004", "유저의 지난 주 같은 요일에 소비 내역이 없습니다. "),
+    NO_ONE_CONSUMES( HttpStatus.NOT_FOUND, "S005","오늘 지출을 기록한 사용자가 0명입니다."),
+    ;
 
 
     private final HttpStatus status;
