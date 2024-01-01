@@ -118,7 +118,7 @@ class RegisterRequestTest {
     @DisplayName("비밀번호 : 비밀번호 형식에 맞지 않은 경우 검증 실패")
     @ParameterizedTest
     @ValueSource(strings = {"a!1", "too_long_password1111", "12345678", "abcdefgh", "!@#$%^&*",
-        "abcde123", "aveds!!!!!"})
+        "abcde123", "aveds!!!!!", "12345!!!!!"})
     void password_pattern_validate(String wrongPassword) {
         //give
         String MESSAGE_CODE = "password.policy_violation"; // message code
