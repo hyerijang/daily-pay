@@ -29,7 +29,6 @@
 
 <br>
 
-![Codecov](https://img.shields.io/codecov/c/github/hyerijang/daily-pay)
 
 <br>
 
@@ -47,7 +46,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
     - [[A] 유저 기능](#a-유저-기능)
     - [[B] 예산 설정 및 설계](#b-예산-설정-및-설계)
     - [[C] 지출 기능 구현](#c-지출-기능-구현)
-    - [[D] 지출 컨설팅 (메인기능)](#d-지출-컨설팅)
+    - [[D] 지출 컨설팅](#d-지출-컨설팅)
     - [[E] 지출 통계](#e-지출-통계)
 - [API 문서](#api-문서)
 - [프로젝트 일정 관리](#프로젝트-일정-관리)
@@ -94,6 +93,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 
 <h4>로그인</h4>
 - 로그인시에는 Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
+
 - <img src="https://github.com/hyerijang/daily-pay/assets/46921979/54a64d44-256a-4c40-96f8-690640a6d1b4" width="60%" />
 
 #### 인증 이후 유저 정보 접근 방식 개선   https://github.com/hyerijang/daily-pay/issues/32
