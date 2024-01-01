@@ -29,7 +29,6 @@
 
 <br>
 
-![Codecov](https://img.shields.io/codecov/c/github/hyerijang/daily-pay)
 
 <br>
 
@@ -47,7 +46,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
     - [[A] 유저 기능](#a-유저-기능)
     - [[B] 예산 설정 및 설계](#b-예산-설정-및-설계)
     - [[C] 지출 기능 구현](#c-지출-기능-구현)
-    - [[D] 지출 컨설팅 (메인기능)](#d-지출-컨설팅)
+    - [[D] 지출 컨설팅](#d-지출-컨설팅)
     - [[E] 지출 통계](#e-지출-통계)
 - [API 문서](#api-문서)
 - [프로젝트 일정 관리](#프로젝트-일정-관리)
@@ -84,6 +83,8 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 
 
 ### [A] 유저 기능
+<details> 
+<summary>(자세히)</summary>
 
 - Spring Security + JWT
 - 추후 소셜 로그인 등으로 전환 될 가능성을 고려하여 [아이디,비밀번호]가 아닌 [이메일,비밀번호]로 테이블을 구성하였습니다.
@@ -94,6 +95,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 
 <h4>로그인</h4>
 - 로그인시에는 Access토큰과 Refresh 토큰이 발급 됩니다.  (타입: Bearer)
+
 - <img src="https://github.com/hyerijang/daily-pay/assets/46921979/54a64d44-256a-4c40-96f8-690640a6d1b4" width="60%" />
 
 #### 인증 이후 유저 정보 접근 방식 개선   https://github.com/hyerijang/daily-pay/issues/32
@@ -103,7 +105,11 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 - `@Currentuser`로 Controller 에서 간편하게 유저 정보 접근 가능
 - 테스트 시 @WithMockUser 대신 사용할 `@WithMockCurrentUser` 어노테이션 구현 https://github.com/hyerijang/daily-pay/issues/86
 
+</details>
+
 ### [B] 예산 설정 및 설계
+<details> 
+<summary>(자세히)</summary>
 
 <h4>[B-1] 예산 엔티티 </h4>
 
@@ -126,8 +132,12 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 - 전체 유저의 예산 액을 통해`카테고리 별  평균 예산 비율`을 계산합니다.
 - `카테고리 별  평균 예산 비율`과 `유저의 예산총액`을 기반으로 카테고리별 예산액을 추천합니다.
 
+</details>
 
 ### [C] 지출 기능 구현
+
+<details> 
+<summary>(자세히)</summary>
 
 <h4> [C-1] 지출 엔티티 </h4>
 
@@ -144,7 +154,12 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
     - 목록 조회 시 `Paging`, `동적 정렬`을 적용하여 원하는 지출 내역만 검색할 수 있습니다.
 - 합계제외 처리한 지출은 목록에 포함되지만, 모든 지출 합계에서 제외됩니다.
 
+</details>
+
 ### [D] 지출 컨설팅
+
+<details> 
+<summary>(자세히)</summary>
 
 <h4> [D-1] 오늘 지출 추천(API) </h4>
 
@@ -219,8 +234,12 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 ```
 
 
+</details>
 
 ### [E] 지출 통계
+
+<details> 
+<summary>(자세히)</summary>
 
 사용자에게 통계 데이터를 제공합니다.
 <h4> [E-1] 더미데이터 생성 </h4>
@@ -251,6 +270,7 @@ Daily Pay는 사용자들이 개인 재무를 관리하고 지출을 추적하�
 - (2) 지난주 같은 요일 대비 소비율: last-week
 - (3) 다른 유저 대비 소비율 : other-user
 
+</details>
 
 ## API 문서
 
