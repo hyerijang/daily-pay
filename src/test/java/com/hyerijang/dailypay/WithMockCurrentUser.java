@@ -1,6 +1,7 @@
 package com.hyerijang.dailypay;
 
 import com.hyerijang.dailypay.auth.dto.CustomUserDetails;
+import com.hyerijang.dailypay.user.domain.Role;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -17,6 +18,8 @@ public @interface WithMockCurrentUser {
     String email() default "dailypay@gmail.com";
 
     String password() default "password";
+
+    Role role() default Role.USER;
 
     long id() default 12345;
 }

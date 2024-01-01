@@ -44,6 +44,7 @@ public class AuthenticationService {
         User user = User.builder()
             .email(request.email())
             .password(passwordEncoder.encode(request.password())) //비밀번호는 암호화해서 저장
+            .role(request.role())
             .build();
         User savedUser = userRepository.save(user);
         String accessToken = jwtService.generateAccessToken(user);

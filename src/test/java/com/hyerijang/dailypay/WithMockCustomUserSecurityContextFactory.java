@@ -25,7 +25,7 @@ public class WithMockCustomUserSecurityContextFactory implements
         UserDetails userDetails = new UserAdapter(user);
         return new UsernamePasswordAuthenticationToken(
             userDetails,
-            null,
+            null, //인증 완료후 유출 가능성을 줄이기 위해 비밀번호는 저장 X
             userDetails.getAuthorities()
         );
     }
@@ -33,8 +33,9 @@ public class WithMockCustomUserSecurityContextFactory implements
     private  User createUser(WithMockCurrentUser annotation) {
         User user = User.builder()
             .email(annotation.email())
-            .password(
-                annotation.password()).build();
+            .password(annotation.password())
+            .role(annotation.role())
+            .build();
         ReflectionTestUtils.setField(user,"id", annotation.id());
         return user;
     }

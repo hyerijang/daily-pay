@@ -20,7 +20,7 @@ public class CustomUserDetails implements UserDetails {
     /* 유저의 권한 목록, 권한 반환*/
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // 아직 인가 구현 안함
+        return user.getRole().getAuthorities();
     }
 
     @Override

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.hyerijang.dailypay.WithMockCurrentUser;
 import com.hyerijang.dailypay.config.JwtAuthenticationFilter;
 import com.hyerijang.dailypay.config.SecurityConfiguration;
+import com.hyerijang.dailypay.user.domain.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,8 @@ class CurrentUserTestControllerTest {
     private MockMvc mockMvc;
 
     // === CurrentUser 테스트 API ===//
-    @DisplayName("성공 : 로그인한 유저가 존재하면 유저 정보를 응답한다.")
+    @WithMockCurrentUser(role = Role.MANAGER)
+    @DisplayName("성공 : 현재 유저의 유저 정보를 응답한다.")
     @Test
     void currentUser() throws Exception {
         //given

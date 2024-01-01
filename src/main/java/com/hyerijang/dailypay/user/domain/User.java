@@ -5,6 +5,8 @@ import com.hyerijang.dailypay.common.entity.BaseTimeEntity;
 import com.hyerijang.dailypay.expense.domain.Expense;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,6 +45,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @OneToMany(mappedBy = "user")
     private List<Budget> budgetList = new ArrayList<>();
 
@@ -62,16 +69,16 @@ public class User extends BaseTimeEntity implements UserDetails {
     // === UserDetails 오버라이딩 ===
 
     @Builder
-    public User(String email, String password) {
+    public User(String email, String password, Role role) {
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // 아직 인가 구현 안함
+        return role.getAuthorities();
     }
-
     @Override
     public String getUsername() {
         return email;
