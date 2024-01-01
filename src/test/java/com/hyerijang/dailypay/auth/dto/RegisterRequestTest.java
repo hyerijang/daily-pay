@@ -120,7 +120,7 @@ class RegisterRequestTest {
     @ValueSource(strings = {"a!1", "too_long_password1111", "12345678", "abcdefgh", "!@#$%^&*",
         "abcde123", "aveds!!!!!"})
     void password_pattern_validate(String wrongPassword) {
-        //give
+        // give
         String MESSAGE_CODE = "password.policy_violation"; // message code
         RegisterRequest registerRequest = new RegisterRequest(VALID_EMAIL, wrongPassword,Role.USER);
 
